@@ -1,5 +1,6 @@
 package com.ironsource.mobilcore.ironbeauty;
 
+import com.ironsource.mobilcore.IBConsts;
 import com.ironsource.mobilcore.IronBeastReport;
 
 import org.json.JSONObject;

@@ -13,7 +13,7 @@ class IronBeastReportIntent extends Intent {
     private Context mCtx;
 
     public IronBeastReportIntent(Context context, EReportType type) {
-        super(context, MobileCoreReport.class);
+        super(context, IronBeastReportService.class);
         mCtx = context;
 
         EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);

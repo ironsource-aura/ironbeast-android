@@ -3,6 +3,8 @@ package com.ironsource.mobilcore.ironbeauty;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ironsource.mobilcore.IBConsts;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,10 +77,10 @@ class IronBeastManager {
         sendData(reportType, dataObject, null, isBulk);
     }
 
-    private String createIronBeastRequestBody(String tablename, String data, String auth, boolean isBulk) throws JSONException {
+    private String createIronBeastRequestBody(String tableName, String data, String auth, boolean isBulk) throws JSONException {
         // according to ironBeast api
         JSONObject bodyObject = new JSONObject();
-        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_TABLE, tablename);
+        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_TABLE, tableName);
         bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_AUTH, auth);
         bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_DATA, data);
         bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_BULK, isBulk);

@@ -100,7 +100,7 @@ class ImpVerifier {
      */
     protected boolean checkService() {
         PackageManager packageManager = mContext.getPackageManager();
-        Intent intent = new Intent(mContext, com.ironsource.mobilcore.MobileCoreReport.class);
+        Intent intent = new Intent(mContext, com.ironsource.mobilcore.IronBeastReportService.class);
         List<ResolveInfo> resolveInfo = packageManager.queryIntentServices(intent, PackageManager.MATCH_DEFAULT_ONLY);
 
         if (resolveInfo.size() > 0) {

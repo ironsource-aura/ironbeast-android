@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore.ironbeauty;
+package com.ironsource.mobilcore;
 
 class IBConsts {
 

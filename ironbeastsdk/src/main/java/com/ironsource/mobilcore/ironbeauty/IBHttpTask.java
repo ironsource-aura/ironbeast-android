@@ -5,6 +5,8 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ironsource.mobilcore.IBConsts;
+
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
