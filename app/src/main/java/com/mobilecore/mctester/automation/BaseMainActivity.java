@@ -39,7 +39,7 @@ public class BaseMainActivity extends Activity {
         IronBeastReport.Builder ibReportBuilder = new IronBeastReport.Builder();
         ibReportBuilder.setTableName("LALA").setData("AAAA", "BBB").setData("BBBB", "CCCC");
 
-        IronBeast.trackEvent(ibReportBuilder.build(), IronBeast.SEND_PRIORITY.BULK);
+        IronBeast.trackEvent(ibReportBuilder.build(), IronBeast.SEND_PRIORITY.NOW);
     }
 
     public void initAll(View v) {

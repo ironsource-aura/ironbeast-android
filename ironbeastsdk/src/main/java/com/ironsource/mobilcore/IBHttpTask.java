@@ -1,11 +1,9 @@
-package com.ironsource.mobilcore.ironbeauty;
+package com.ironsource.mobilcore;
 
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-
-import com.ironsource.mobilcore.IBConsts;
 
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;

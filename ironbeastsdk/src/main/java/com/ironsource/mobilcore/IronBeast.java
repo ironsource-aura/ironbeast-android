@@ -114,7 +114,7 @@ public abstract class IronBeast {
 
     protected static void setAppContext(Context context) {
         if (null == sAppContext) {
-            Logger.log("SETTING sUIHandler", Logger.SDK_DEBUG);
+            Logger.log("Setting app context", Logger.SDK_DEBUG);
             sAppContext = context.getApplicationContext();
         }
     }

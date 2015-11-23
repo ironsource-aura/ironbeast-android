@@ -18,7 +18,7 @@ public class IronBeauty {
 
     IronBeauty(Context ctx) {
         mCtx = new WeakReference<>(ctx);
-        mNetwork = new NetworkModule();
+        mNetwork = null;//new NetworkModule();
         mLogic = new Logic(mNetwork);
     }
 
