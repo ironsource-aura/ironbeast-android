@@ -1,0 +1,94 @@
+apply plugin: 'com.android.library'
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+    }
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 10
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'mobileCore.pro'
+
+        }
+        debug {
+        }
+    }
+    //release type by default so for test we need to set debug
+    defaultPublishConfig "debug"
+    // important shit for sdk module use
+    // If you wanted to change the default published variant while using flavors, you would write:
+    //defaultPublishConfig "devRelease"
+    //Publishing of all variants are not enabled by default. To enable them:
+    //publishNonDefault true
+
+    sourceSets {
+        main {
+            resources.srcDirs = ["src/main/java"]
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+}
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+task deleteJavaDebugLogs << {
+    description("This function will delete all SDK DEBUG log level from the project, be careful with it!")
+    FileTree  javaFiles = fileTree('src/main/java/com/ironsource/mobilcore') {
+        include '**/*.java'
+    }
+    String regex = "Logger.log[^,]+[^L]+(.*)Logger.SDK_DEBUG[^;];"
+    javaFiles.each { File javaFile ->
+        println "Start replacing regex on $javaFile.name"
+        String content = javaFile.getText()
+        content = content.replaceAll(regex, "")
+        javaFile.setText(content)
+    }
+}
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+
+    if (name.equalsIgnoreCase("debug")) {
+        return; // Skip debug builds.
+    }
+    task("javadoc${variant.name.capitalize()}", type: Javadoc) {
+        description "Generates Javadoc for $variant.name."
+        source = variant.javaCompile.source
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        exclude '**/internal/**'
+        failOnError false
+    }
+
+    task("bundleJavadoc${variant.name.capitalize()}", type: Jar) {
+        description "Bundles Javadoc into zip for $variant.name."
+        classifier = "javadoc"
+        from tasks["javadoc${variant.name.capitalize()}"]
+    }
+}
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#B0E2FF"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:id="@+id/InterstitialTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Interstitial"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnInitAdUnit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Init Ad unit"
+        android:onClick="onButtonClick"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/showInterstitial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:onClick="onButtonClick"
+            android:text="Show"/>
+
+        <Button
+            android:id="@+id/isInterstitialReady"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:onClick="onButtonClick"
+            android:text="isReady"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

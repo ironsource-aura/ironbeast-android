@@ -1,0 +1,201 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#B0E2FF">
+
+
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Custom trigger"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_below="@+id/imageView5"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:id="@+id/initCustomTrigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textView"
+            android:layout_marginTop="5dp"
+            android:inputType="text"
+            android:minHeight="48dp"
+            />
+
+        <TextView
+            android:id="@+id/lableSDKTriggers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/initCustomTrigger"
+            android:layout_marginTop="10dp"
+            android:text="SDK trigger"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <Spinner
+            android:id="@+id/initSdkTrigger1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lableSDKTriggers"
+            android:layout_marginTop="5dp" />
+
+        <Button
+            android:id="@+id/btnLoadAdUnit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/btnInitAdUnit"
+            android:text="Load AD unit" />
+
+        <Button
+            android:id="@+id/btnIsReady"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="isReady"
+            android:layout_below="@+id/showSdkTrigger"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <View
+            android:id="@+id/strut"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_below="@id/btnIsReady"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/btnShowAdWithBanner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/btnIsReady"
+            android:onClick="showNativeAdsWithBanners"
+            android:text="Show with banner"
+            android:layout_alignBottom="@+id/btnShowAd"
+            android:layout_alignRight="@+id/textView2"
+            android:layout_alignEnd="@+id/textView2" />
+
+        <Button
+            android:id="@+id/btnShowAd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClick="showNativeAdsWithoutBanners"
+            android:text="Show without banner"
+            android:layout_alignTop="@+id/strut"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_toRightOf="@+id/textView2"
+            android:layout_toEndOf="@+id/textView2" />
+
+        <Button
+            android:id="@+id/btnInitAdUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/initSdkTrigger1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignRight="@+id/initSdkTrigger1"
+            android:layout_below="@+id/initSdkTrigger1"
+            android:text="Init Ad unit" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Custom trigger"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_below="@+id/textView18"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:id="@+id/showCustomTrigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView5"
+            android:inputType="text"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SDK trigger"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_below="@+id/showCustomTrigger"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Spinner
+            android:id="@+id/showSdkTrigger"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView6"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitXY"
+            android:id="@+id/imageView5"
+            android:src="@drawable/settings_icon"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Init &amp; Load Ad:"
+            android:textSize="22dp"
+            android:id="@+id/textView2"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imageView5"
+            android:layout_toEndOf="@+id/imageView5" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitXY"
+            android:id="@+id/imageView6"
+            android:src="@drawable/show_icon"
+            android:layout_below="@+id/btnLoadAdUnit"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Ad:"
+            android:textSize="22dp"
+            android:id="@+id/textView18"
+            android:layout_below="@+id/btnLoadAdUnit"
+            android:layout_toRightOf="@+id/imageView6"
+            android:layout_toEndOf="@+id/imageView6" />
+
+    </RelativeLayout>
+
+</ScrollView>
