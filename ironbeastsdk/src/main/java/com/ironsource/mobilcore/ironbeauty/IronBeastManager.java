@@ -3,11 +3,6 @@ package com.ironsource.mobilcore.ironbeauty;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.ironsource.mobilcore.IBConsts;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +20,10 @@ class IronBeastManager {
         if (sInstance == null) {
             // default report type -to- table name map
             Map<IB_REPORT_TYPE, String> tableMap = new HashMap<>();
-            tableMap.put(IB_REPORT_TYPE.ORGANIC_IMPRESSIONS, IBConsts.IRON_BEAST_DEFAULT_IMPRESSIONS_TABLE);
-            tableMap.put(IB_REPORT_TYPE.ORGANIC_CLICKS, IBConsts.IRON_BEAST_DEFAULT_CLICKS_TABLE);
-            tableMap.put(IB_REPORT_TYPE.SESSION_DATA, IBConsts.IRON_BEAST_DEFAULT_SESSION_DATA_TABLE);
-
+//            tableMap.put(IB_REPORT_TYPE.ORGANIC_IMPRESSIONS, IBConsts.IRON_BEAST_DEFAULT_IMPRESSIONS_TABLE);
+//            tableMap.put(IB_REPORT_TYPE.ORGANIC_CLICKS, IBConsts.IRON_BEAST_DEFAULT_CLICKS_TABLE);
+//            tableMap.put(IB_REPORT_TYPE.SESSION_DATA, IBConsts.IRON_BEAST_DEFAULT_SESSION_DATA_TABLE);
+//
             sInstance = new IronBeastManager(tableMap);
         }
         return sInstance;
@@ -44,11 +39,7 @@ class IronBeastManager {
     }
 
     private String getHostname() {
-        if (TextUtils.isEmpty(mCustomHostname)) {
-            return IBConsts.URL_DEFAULT_IRON_BEAST_HOST_NAME;
-        } else {
-            return mCustomHostname;
-        }
+        return mCustomHostname;
     }
 
     /**
@@ -77,15 +68,6 @@ class IronBeastManager {
         sendData(reportType, dataObject, null, isBulk);
     }
 
-    private String createIronBeastRequestBody(String tableName, String data, String auth, boolean isBulk) throws JSONException {
-        // according to ironBeast api
-        JSONObject bodyObject = new JSONObject();
-        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_TABLE, tableName);
-        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_AUTH, auth);
-        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_DATA, data);
-        bodyObject.putOpt(IBConsts.IRON_BEAST_KEY_BULK, isBulk);
-        return bodyObject.toString();
-    }
 
     /**
      * This method performs data sending to IronBeast API
@@ -103,7 +85,7 @@ class IronBeastManager {
         }
 
         try {
-            String ironBeastBody = createIronBeastRequestBody(getTableNameByReportType(reportType), dataObject, auth, isBulk);
+            String ironBeastBody = "";//createIronBeastRequestBody(getTableNameByReportType(reportType), dataObject, auth, isBulk);
 
             Log.d("AAAA", "IronBeastManager | sendData | ironBeastBody=" + ironBeastBody);
 
@@ -121,7 +103,7 @@ class IronBeastManager {
             };
 
             // url depends on the hostname and isBulk param
-            String url = isBulk ? IBConsts.URL_BULK_DATA_IRON_BEAST_HOST : getHostname();
+            String url = getHostname();
 
             Log.d("AAAA", "IronBeastManager | sendData | url=" + url);
 

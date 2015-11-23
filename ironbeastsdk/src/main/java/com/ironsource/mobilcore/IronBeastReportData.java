@@ -544,6 +544,15 @@ class IronBeastReportData {
     /**
      * ******** private methods ***********
      */
+    private JSONObject constractIronBeastRequestBody(String tableName, String data, String auth, boolean isBulk) throws JSONException {
+        JSONObject requestBody = new JSONObject();
+        requestBody.putOpt(IBConsts.IRON_BEAST_KEY_TABLE, tableName);
+        requestBody.putOpt(IBConsts.IRON_BEAST_KEY_AUTH, auth);
+        requestBody.putOpt(IBConsts.IRON_BEAST_KEY_DATA, data);
+        requestBody.putOpt(IBConsts.IRON_BEAST_KEY_BULK, isBulk);
+        return requestBody;
+    }
+
     private JSONObject constructMCLAReport(Intent intent) throws Exception {
 
         JSONObject reportObj = new JSONObject();
