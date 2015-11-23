@@ -1,14 +1,12 @@
 package com.ironsource.mobilcore;
 
-class IBConsts {
+public class IBConsts {
 
-    static final String URL_DEFAULT_IRON_BEAST_HOST_NAME = "http://lb.ironbeast.io";
-    static final String URL_BULK_DATA_IRON_BEAST_HOST = "http://lb.ironbeast.io/bulk";
+    public static final String URL_DEFAULT_IRON_BEAST_HOST_NAME = "http://lb.ironbeast.io";
+    public static final String URL_BULK_DATA_IRON_BEAST_HOST = "http://lb.ironbeast.io/bulk";
+    public static final String URL_ERRORS_IRON_BEAST_HOST = "http://lb.ironbeast.io/errors";
 
     static final String IRON_BEAST_TABLE_PREFIX = "mobile_ssd.mobile.";
-    static final String IRON_BEAST_DEFAULT_IMPRESSIONS_TABLE = IRON_BEAST_TABLE_PREFIX + "discover_impressions";
-    static final String IRON_BEAST_DEFAULT_CLICKS_TABLE = IRON_BEAST_TABLE_PREFIX + "discover_clicks";
-    static final String IRON_BEAST_DEFAULT_SESSION_DATA_TABLE = IRON_BEAST_TABLE_PREFIX + "discover_session_data";
 
     static final String IRON_BEAST_KEY_TABLE = "table";
     static final String IRON_BEAST_KEY_DATA = "data";

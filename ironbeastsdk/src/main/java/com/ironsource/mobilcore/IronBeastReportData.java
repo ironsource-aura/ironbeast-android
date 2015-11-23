@@ -4,7 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.ironsource.mobilcore.Consts.EServiceType;
@@ -30,14 +30,14 @@ import java.net.URL;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 class IronBeastReportData {
+
+    public static final String TAG = IronBeastReportData.class.getSimpleName();
 
     private static final String ALGORITHM_AES = "AES/ECB/PKCS7Padding";
     private static final String REPORT_ARR = "reportArr";
@@ -68,38 +68,7 @@ class IronBeastReportData {
         return new IronBeastReportIntent(context, type);
     }
 
-    private static synchronized void addReportToNewLogStack(JSONObject report) throws Exception {
-        boolean networkAvail = NetworkUtils.isNetworkAvail(IronBeast.getAppContext());
-        if (!networkAvail) {
-            Logger.log("MobileCoreReport | addReportToLogStack | We dont have network, adding offline report field", Logger.SDK_DEBUG);
-            report.put(ReportingConsts.REPORT_FIELD_OFFLINE, true);
-        }
-
-        JSONObject logStack = null;
-
-        try {
-            logStack = loadlogStackFile(MCLA_STACK_FILE);
-        } catch (Exception e) {
-            /* critical exception reset log file */
-            deleteLogFile(LOG_STACK_FILE);
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
-        }
-
-        logStack = addToLogStack(logStack, report);
-
-
-        if (!networkAvail) {
-            appendLogStackFile(MCLA_STACK_FILE, report);
-            return;
-        }
-
-        if (logStack != null) {
-            Logger.log("MCLAReport sending: " + logStack.toString(), Logger.SDK_DEBUG);
-            doSendReport(logStack);
-        }
-    }
-
-    private static synchronized void addReportToLogStack(JSONObject report, boolean isErrorReport) throws Exception {
+    private static synchronized void addReportToLogStack(JSONObject report, EReportType type) throws Exception {
         if (!NetworkUtils.isNetworkAvail(IronBeast.getAppContext())) {
             Logger.log("MobileCoreReport | addReportToLogStack | We dont have network, adding offline report field", Logger.SDK_DEBUG);
             report.put(ReportingConsts.REPORT_FIELD_OFFLINE, true);
@@ -122,6 +91,7 @@ class IronBeastReportData {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE_ERRORS).send();
         }
 
+/*
         if (isErrorReport) {
             errorLogStack = addToLogStack(errorLogStack, report);
         } else {
@@ -139,6 +109,7 @@ class IronBeastReportData {
             Logger.log("MobileCoreReport | addReportToLogStack | report appended to log stack | isLogStacksBigEnough=" + isLogStacksBigEnough, Logger.SDK_DEBUG);
             return;
         }
+*/
 
         JSONObject resultingStack = getResultingLogStack(logStack, errorLogStack);
         if (resultingStack != null) {
@@ -364,7 +335,7 @@ class IronBeastReportData {
             Logger.log("MobileCoreReport | loadlogStackFile | OutOfMemoryError" + filename, Logger.SDK_DEBUG);
             throw new Exception("OutOfMemoryError ## " + err.getMessage());
         } catch (Exception e) {
-			/*??? may be loop critical exception ???*/
+            /*??? may be loop critical exception ???*/
             Logger.log("MobileCoreReport | loadlogStackFile | Exception" + e.getMessage(), Logger.SDK_DEBUG);
             throw e;
         }
@@ -392,8 +363,10 @@ class IronBeastReportData {
         return logStack;
     }
 
-    private static void sendReport(String url, byte[] data, String contentType, boolean encripted) {
+    //TODO: add on send failed
+    private static boolean sendReport(String url, byte[] data, String contentType, boolean encrypted) {
         HttpURLConnection con = null;
+        boolean sendResult = false;
         try {
             URL host = new URL(url);
             con = (HttpURLConnection) host.openConnection();
@@ -401,10 +374,11 @@ class IronBeastReportData {
             con.setDoOutput(true);
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-type", contentType);
+            con.setConnectTimeout(IBConsts.DEFAULT_REQUEST_TIMEOUT_MS);
 
             //disable default on HttpURLConnection Gzip compression
             con.setRequestProperty("Accept-Encoding", "identity");
-            if (encripted) {
+            if (encrypted) {
                 con.setRequestProperty(Guard.decrypt(ReportingConsts.HEADER_KEY), Guard.decrypt(ReportingConsts.HEADER_VALUE)); // penguin = AES
             }
 
@@ -428,10 +402,11 @@ class IronBeastReportData {
         } finally {
             if (con != null) {
                 con.disconnect();
+                sendResult = true;
             }
             Logger.log("MobileCoreReport | sendData closed session", Logger.SDK_DEBUG);
         }
-
+        return sendResult;
     }
 
     private static void deleteLogFile(String filename) {
@@ -439,18 +414,14 @@ class IronBeastReportData {
     }
 
     private static byte[] encryptDataUsingAES(String string) throws Exception {
-
         try {
-
             // get key
             Key myKey = getAESKey();
 
             // AES encrypt
             Cipher cipher = Cipher.getInstance(ALGORITHM_AES);
             cipher.init(Cipher.ENCRYPT_MODE, myKey);
-            byte[] encrypted = cipher.doFinal(string.getBytes());
-
-            return encrypted;
+            return cipher.doFinal(string.getBytes());
 
         } catch (Exception e) {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
@@ -510,32 +481,38 @@ class IronBeastReportData {
         try {
             mContext = context;
             if (intent.getExtras() != null) {
-                if (EReportType.parseString(intent.getIntExtra(ReportingConsts.EXTRA_REPORT_TYPE, -1)) == EReportType.REPORT_TYPE_NEW_REPORT) {
-                    JSONObject report = constructMCLAReport(intent);
-                    Logger.log("Adding Report to logStack " + report.toString(), Logger.SDK_DEBUG);
-                    addReportToNewLogStack(report);
-                    return;
-                }
-
                 EReportType type = fetchReportType(intent);
-                // immediately: RES, INIT, FILL RATE
                 // We want to send report
-                // by pending : ERROR, EVENTS
-                // affected field ReportingConsts.REPORT_FIELD_INSTANT_SEND
-                boolean isErrorReport = (type == EReportType.REPORT_TYPE_ERROR || type == EReportType.REPORT_TYPE_EVENT);
+                // immediately: IRON_BEAST_REPORT isBulk = false
+                // pending : ERROR, IRON_BEAST_REPORT isBulk = true
+
                 JSONObject report = constructReport(type, intent);
-                addReportToLogStack(report, isErrorReport);
+                boolean isBulk = report.getBoolean(IronBeastReport.BULK);
+                boolean encrypt = false;
+                boolean isNetworkAvail = !NetworkUtils.isNetworkAvail(context);
+                if (isBulk || isNetworkAvail) {
+                    addReportToLogStack(report, type);
+                } else {
+                    sendData(report, isBulk, encrypt);
+                }
             }
-        } catch (Exception e) {
-            handleReportingError(context, e);
         } catch (Throwable throwable) {
+            //TODO: need to revise a source
             IronBeastReportIntent errIntent = new IronBeastReportIntent(context, EReportType.REPORT_TYPE_ERROR);
-            errIntent.setError(throwable.getMessage());
+            if (throwable instanceof Exception) {
+                errIntent.setError((Exception) throwable);
+                String error = MCUtils.formatExceptionMsg((Exception) throwable);
+                Logger.log("Error sending error: " + error, Logger.CRITICAL);
+            } else {
+                errIntent.setError(throwable.getMessage());
+            }
+
             try {
                 EReportType type = fetchReportType(intent);
                 JSONObject jsonData = constructReport(type, errIntent);
                 sendData(jsonData, false, true);
             } catch (Throwable e) {
+                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e.getMessage()).send();
                 // This is really bad couldn't send report
             }
         }
@@ -544,49 +521,13 @@ class IronBeastReportData {
     /**
      * ******** private methods ***********
      */
-    private JSONObject constractIronBeastRequestBody(String tableName, String data, String auth, boolean isBulk) throws JSONException {
+    private JSONObject constructIronBeastRequestBody(String tableName, String data, String auth, boolean isBulk) throws JSONException {
         JSONObject requestBody = new JSONObject();
         requestBody.putOpt(IBConsts.IRON_BEAST_KEY_TABLE, tableName);
         requestBody.putOpt(IBConsts.IRON_BEAST_KEY_AUTH, auth);
         requestBody.putOpt(IBConsts.IRON_BEAST_KEY_DATA, data);
         requestBody.putOpt(IBConsts.IRON_BEAST_KEY_BULK, isBulk);
         return requestBody;
-    }
-
-    private JSONObject constructMCLAReport(Intent intent) throws Exception {
-
-        JSONObject reportObj = new JSONObject();
-
-        String baseData = intent.getStringExtra(ReportingConsts.EXTRA_BASE_DATA);
-        String rs = intent.getStringExtra(ReportingConsts.EXTRA_RES);
-        if (baseData == null || rs == null) {
-            throw new Exception("Missing Base Data");
-        }
-        reportObj.put(ReportingConsts.REPORT_FIELD_TIMESTAMP, MCUtils.getCurrentTime());
-        reportObj.put(ReportingConsts.REPORT_FIELD_RS, rs);
-        String data = intent.getStringExtra(ReportingConsts.EXTRA_DATA);
-        reportObj.put("bd", baseData);
-
-        setIfNotNull(reportObj, "d", data);
-
-        return reportObj;
-    }
-
-    private void handleReportingError(Context context, Exception e) {
-        // Failing to report an error should not send an error because this means risking a loop. Instead we add this to the offline logStack
-        String error = MCUtils.formatExceptionMsg(e);
-        Logger.log("Error sending error: " + error, Logger.CRITICAL);
-
-        IronBeastReportIntent errIntent = new IronBeastReportIntent(context, EReportType.REPORT_TYPE_ERROR);
-        errIntent.setError(e);
-
-        try {
-            EReportType type = fetchReportType(errIntent);
-            JSONObject jsonData = constructReport(type, errIntent);
-            appendLogStackFile(LOG_STACK_FILE, jsonData);
-        } catch (Exception ex) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
-        }
     }
 
     private String getIntentString(Intent intent, String field, String defVal) {
@@ -620,37 +561,28 @@ class IronBeastReportData {
 
     private JSONObject constructReport(EReportType type, Intent intent) throws Exception {
         JSONObject report = new JSONObject();
-        report.put(ReportingConsts.REPORT_FIELD_TIMESTAMP, MCUtils.getCurrentTime());
-        // Handle offers
 
-        String offersStr = intent.getStringExtra(ReportingConsts.EXTRA_OFFERS);
-        if (!TextUtils.isEmpty(offersStr)) {
-            report.putOpt(ReportingConsts.REPORT_FIELD_OFFERS, new JSONArray(offersStr));
-        }
-        String additionalParamsExtra = "";
         switch (type) {
             case REPORT_TYPE_IRON_BEAST:
-                Double screenSize = MCUtils.getDeviceScreenSize(mContext);
-                report.put(ReportingConsts.REPORT_FIELD_INIT_MODEL, MCUtils.escape(Build.MODEL));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_DEVICE, MCUtils.escape(Build.DEVICE));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_BRAND, MCUtils.escape(Build.BRAND));
-                report.put(ReportingConsts.REPORT_FIELD_OS, MCUtils.escape(Build.VERSION.RELEASE));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_LANGUAGE, Locale.getDefault().getDisplayLanguage(Locale.ENGLISH));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_CELLULAR, NetworkUtils.isConnectionPossible(mContext, NetworkUtils.CONNECTION_CELLULAR_INT));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_WIFI, NetworkUtils.isConnectionPossible(mContext, NetworkUtils.CONNECTION_WIFI_INT));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_DPI, String.valueOf(MCUtils.getDeviceDpi(mContext)));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_SCREEN_SIZE, String.valueOf(MCUtils.doubleFormatter(screenSize, mContext)));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_LAST_APP_INST, MCUtils.getDateLastAppInstalled(mContext));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_INSTALLED_APPS, MCUtils.getNumberOfAppsInstalled(mContext));
-                report.put(ReportingConsts.REPORT_FIELD_INIT_UNS, MCUtils.getUnkownSources(mContext));
-
-                additionalParamsExtra = intent.getStringExtra(ReportingConsts.EXTRA_ADDITIONAL_PARAMS);
-                if (!TextUtils.isEmpty(additionalParamsExtra)) {
-                    report.put(ReportingConsts.REPORT_FIELD_EVENT_ADDITIONAL, new JSONObject(additionalParamsExtra));
+                Bundle bundle = intent.getExtras();
+                //Extract all data from intent extras
+                JSONObject dataObject = new JSONObject();
+                for (String key : bundle.keySet()) {
+                    Object value = bundle.get(key);
+                    dataObject.put(key, value);
                 }
+
+                //Fields have to be always exist if we here
+                String tableName = (String) dataObject.remove(IronBeastReport.TABLE_NAME);
+                String auth = (String) dataObject.remove(IronBeastReport.AUTH);
+                boolean isBulk = (Boolean) dataObject.remove(IronBeastReport.BULK);
+                //TODO: test all possible value of the objects
+                report = constructIronBeastRequestBody(tableName, dataObject.toString(), auth, isBulk);
+
                 break;
             case REPORT_TYPE_ERROR:
 
+                report.put(ReportingConsts.REPORT_FIELD_TIMESTAMP, MCUtils.getCurrentTime());
                 report.put(ReportingConsts.REPORT_FIELD_IRVER, Consts.VER);
                 report.put(ReportingConsts.REPORT_FIELD_PLATFORM, ReportingConsts.REPORT_OS_ANDROID);
                 report.put(ReportingConsts.REPORT_FIELD_RV, ReportingConsts.REPORT_VERSION);
@@ -664,20 +596,11 @@ class IronBeastReportData {
                 report.put(ReportingConsts.REPORT_FIELD_OS, android.os.Build.VERSION.SDK_INT);
                 String shortErr = MCUtils.getShortenedString(intent.getStringExtra(ReportingConsts.EXTRA_EXCEPTION), Consts.REPORT_MAX_ERR_FIELD_LENGTH);
                 setIfNotNull(report, ReportingConsts.REPORT_FIELD_ERR, shortErr);
+                report.put(IronBeastReport.BULK, true);
                 break;
             default:
-                break;
-        }
 
-        // add anything set with setExtra
-        String additionalParamsFlatExtra = intent.getStringExtra(ReportingConsts.EXTRA_FLAT_ADDITIONAL_PARAMS);
-        if (!TextUtils.isEmpty(additionalParamsFlatExtra)) {
-            JSONObject flatParams = new JSONObject(additionalParamsFlatExtra);
-            Iterator<?> keys = flatParams.keys();
-            while (keys.hasNext()) {
-                String key = (String) keys.next();
-                report.put(key, flatParams.get(key));
-            }
+                break;
         }
 
         return report;

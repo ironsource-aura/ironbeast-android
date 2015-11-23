@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore.ironbeauty;
+package com.ironsource.mobilcore;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
