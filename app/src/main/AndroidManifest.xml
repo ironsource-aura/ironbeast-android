@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <service
-            android:name="com.ironsource.mobilcore.MobileCoreReport"
+            android:name="com.ironsource.mobilcore.IronBeastReportService"
             android:enabled="true"
             android:exported="false"
             android:process=":mcServiceProcess" />

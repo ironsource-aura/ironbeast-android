@@ -10,7 +10,7 @@ import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class MobileCoreReport extends Service {
+public class IronBeastReportService extends Service {
 
 	private static final int REPORTING_QUEUE_SIZE = 50;
 	private static final int DOWNLOAD_FILE_QUEUE_SIZE = 10;
@@ -25,7 +25,7 @@ public class MobileCoreReport extends Service {
 
 	private int mNumCurrentWorkingJobs;
 
-	public MobileCoreReport() {
+	public IronBeastReportService() {
 		super();
 
 	}
@@ -58,8 +58,8 @@ public class MobileCoreReport extends Service {
 			mReportingQueue = new LinkedBlockingQueue<ServiceTask>(REPORTING_QUEUE_SIZE);
 			mDownloadFileQueue = new LinkedBlockingQueue<ServiceTask>(DOWNLOAD_FILE_QUEUE_SIZE);
 
-			mDownloadFileWorker = new MobileCoreReport.DownloadFileWorker();
-			mReportingWorker = new MobileCoreReport.ReportingWorker();
+			mDownloadFileWorker = new IronBeastReportService.DownloadFileWorker();
+			mReportingWorker = new IronBeastReportService.ReportingWorker();
 			mHandler = new Handler();
 			mNumCurrentWorkingJobs = 0;
 
@@ -74,10 +74,10 @@ public class MobileCoreReport extends Service {
 				public void run() {
 					/* Proceed task that was not appended to the queue */
 					Logger.log("MobileCoreReport service | onCreate exception", Logger.SDK_DEBUG);
-					IronBeastReportIntent reportIntent = new IronBeastReportIntent(MobileCoreReport.this, EReportType.REPORT_TYPE_ERROR);
+					IronBeastReportIntent reportIntent = new IronBeastReportIntent(IronBeastReportService.this, EReportType.REPORT_TYPE_ERROR);
 					reportIntent.putExtra(ReportingConsts.EXTRA_EXCEPTION, "MobileCoreReport ### onCreate " + msg);
 					IronBeastReportData report = new IronBeastReportData();
-					report.doReport(MobileCoreReport.this, reportIntent);
+					report.doReport(IronBeastReportService.this, reportIntent);
 				}
 			}).start();
 		}
@@ -147,10 +147,10 @@ public class MobileCoreReport extends Service {
 					public void run() {
 						/* Proceed task that was not appended to the queue */
 						Logger.log("MobileCoreReport service | Send exception", Logger.SDK_DEBUG);
-						IronBeastReportIntent reportIntent = new IronBeastReportIntent(MobileCoreReport.this, EReportType.REPORT_TYPE_ERROR);
+						IronBeastReportIntent reportIntent = new IronBeastReportIntent(IronBeastReportService.this, EReportType.REPORT_TYPE_ERROR);
 						reportIntent.putExtra(ReportingConsts.EXTRA_EXCEPTION, "MobileCoreReport ### Task queue is full, dropping request "  + serviceType + " trt: "+ thrownReportType + " m: "+ msg);
 						IronBeastReportData report = new IronBeastReportData();
-						report.doReport(MobileCoreReport.this, reportIntent);
+						report.doReport(IronBeastReportService.this, reportIntent);
 					}
 				}).start();
 			}
@@ -235,7 +235,7 @@ public class MobileCoreReport extends Service {
 					switch (serviceType) {
 					case SERVICE_TYPE_REPORT:
 						IronBeastReportData report = new IronBeastReportData();
-						report.doReport(MobileCoreReport.this, mIntent);
+						report.doReport(IronBeastReportService.this, mIntent);
 						break;
 					case SERVICE_TYPE_SEND_REPORTS:
 						IronBeastReportData.doScheduledSend();
@@ -259,10 +259,10 @@ public class MobileCoreReport extends Service {
 
 						@Override
 						public void run() {
-							IronBeastReportIntent reportIntent = new IronBeastReportIntent(MobileCoreReport.this, EReportType.REPORT_TYPE_ERROR);
+							IronBeastReportIntent reportIntent = new IronBeastReportIntent(IronBeastReportService.this, EReportType.REPORT_TYPE_ERROR);
 							reportIntent.putExtra(ReportingConsts.EXTRA_EXCEPTION, "MobileCoreReport ### ServiceTask ## doJob # " + serviceType + " trt: "+ thrownReportType + " m: "+ msg);
 							IronBeastReportData report = new IronBeastReportData();
-							report.doReport(MobileCoreReport.this, reportIntent);
+							report.doReport(IronBeastReportService.this, reportIntent);
 						}
 					}).start();
 				}
