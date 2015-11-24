@@ -30,12 +30,27 @@ import java.net.URL;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 class IronBeastReportData {
+
+    static class  Network {
+        static Map<Integer, String> sResponseCodesToMsgs;
+        static {
+            Map<Integer, String> map = new HashMap<>();
+            map.put(IBConsts.RESPONSE_CODE_OK, IBConsts.RESPONSE_MESSAGE_OK);
+            map.put(IBConsts.RESPONSE_CODE_INVALID_JSON, IBConsts.RESPONSE_MESSAGE_INVALID_JSON);
+            map.put(IBConsts.RESPONSE_CODE_NO_DATA, IBConsts.RESPONSE_MESSAGE_NO_DATA);
+            map.put(IBConsts.RESPONSE_CODE_AUTH_ERROR, IBConsts.RESPONSE_MESSAGE_AUTH_ERROR);
+            sResponseCodesToMsgs = Collections.unmodifiableMap(map);
+        }
+    }
 
     public static final String TAG = IronBeastReportData.class.getSimpleName();
 
@@ -387,6 +402,10 @@ class IronBeastReportData {
             OutputStream out = new BufferedOutputStream(con.getOutputStream());
             out.write(data);
             out.close();
+
+            int status = con.getResponseCode();
+            Logger.log(String.format("Request status %d msg: %s", status, Network.sResponseCodesToMsgs.get(status));
+
         } catch (MalformedURLException e) {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "invalid URL").send();
             Logger.log("MalformedURLException" + e.toString(), Logger.SDK_DEBUG);
