@@ -489,8 +489,8 @@ class IronBeastReportData {
                 JSONObject report = constructReport(type, intent);
                 boolean isBulk = report.getBoolean(IronBeastReport.BULK);
                 boolean encrypt = false;
-                boolean isNetworkAvail = !NetworkUtils.isNetworkAvail(context);
-                if (isBulk || isNetworkAvail) {
+                boolean isNetworkAvail = NetworkUtils.isNetworkAvail(context);
+                if (isBulk || !isNetworkAvail) {
                     addReportToLogStack(report, type);
                 } else {
                     sendData(report, isBulk, encrypt);

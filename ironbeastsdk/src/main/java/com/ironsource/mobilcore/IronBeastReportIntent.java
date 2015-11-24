@@ -19,11 +19,6 @@ class IronBeastReportIntent extends Intent {
         EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);
         putExtra(ReportingConsts.EXTRA_REPORT_TYPE, type.ordinal());
         putExtra(ReportingConsts.EXTRA_TOKEN, IronBeast.getToken(context));
-        putExtra(ReportingConsts.EXTRA_UNIQUE_ID, MCUniqueIDHelper.getInstance(context).getUniqueID());
-        putExtra(ReportingConsts.EXTRA_UNIQUE_ID_TYPE, MCUniqueIDHelper.getInstance(context).getUniqueIDTypeSimplified());
-        putExtra(ReportingConsts.EXTRA_UNIQUE_ID_MC_ID, MCUniqueIDHelper.getInstance(context).getMCId());
-        putExtra(ReportingConsts.EXTRA_UNIQUE_ID_GAID, MCUniqueIDHelper.getInstance(context).getGaid());
-        putExtra(ReportingConsts.EXTRA_IS_LIMIT_AD_TRACKING_ENABLED, MCUniqueIDHelper.getInstance(context).isLimitAdTrackingEnabled());
     }
 
     public IronBeastReportIntent setError(Exception e) {

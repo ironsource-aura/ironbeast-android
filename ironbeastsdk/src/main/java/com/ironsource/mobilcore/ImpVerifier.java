@@ -10,9 +10,7 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.ironsource.mobilcore.IronBeast.LOG_TYPE;
-import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -227,27 +225,28 @@ class ImpVerifier {
      * @return
      */
     protected boolean verifyDevHash(String devHash, Context context, Editor edit) {
-        BigInteger accountId = new BigInteger(devHash, 36);
-        String affiliateAccountBase16 = accountId.toString(16);
-
-        if (affiliateAccountBase16.length() > 32) {
-
-            String affiliateAccount = affiliateAccountBase16.substring(32);
-
-            Logger.log("Account name in init. " + affiliateAccount, Logger.SDK_DEBUG);
-
-            // add to prefs
-            edit.putString(Consts.PREFS_ACCOUNT_NAME, Guard.encrypt(affiliateAccount));
-
-        } else {
-            warn(WARNING_DEV_HASH_INVALID + "(" + devHash + ")", WARNING_TYPE.HARD);
-            // setExtra(ReportingConsts.EXTRA_TOKEN, devHash) is here because token is not set yet in prefs
-            IronBeastReportData.openReport(context, EReportType.REPORT_TYPE_ERROR).setError("Can't extract affiliateAccount from the token passed")
-                    //.setExtra(ReportingConsts.EXTRA_TOKEN, devHash)
-                    .send();
-            return false;
-        }
         return true;
+//        BigInteger accountId = new BigInteger(devHash, 36);
+//        String affiliateAccountBase16 = accountId.toString(16);
+//
+//        if (affiliateAccountBase16.length() > 32) {
+//
+//            String affiliateAccount = affiliateAccountBase16.substring(32);
+//
+//            Logger.log("Account name in init. " + affiliateAccount, Logger.SDK_DEBUG);
+//
+//            // add to prefs
+//            edit.putString(Consts.PREFS_ACCOUNT_NAME, Guard.encrypt(affiliateAccount));
+//
+//        } else {
+//            warn(WARNING_DEV_HASH_INVALID + "(" + devHash + ")", WARNING_TYPE.HARD);
+//            // setExtra(ReportingConsts.EXTRA_TOKEN, devHash) is here because token is not set yet in prefs
+//            IronBeastReportData.openReport(context, EReportType.REPORT_TYPE_ERROR).setError("Can't extract affiliateAccount from the token passed")
+//                    //.setExtra(ReportingConsts.EXTRA_TOKEN, devHash)
+//                    .send();
+//            return false;
+//        }
+//        return true;
     }
 
     /**
