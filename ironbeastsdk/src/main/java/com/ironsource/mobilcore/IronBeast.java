@@ -13,7 +13,7 @@ public abstract class IronBeast {
     private static Context sAppContext;
     private static String sToken;
     private static String mAuthKey;
-    private static int sBullkSize;
+    private static int sBatchSize;
     private static int sCurrentBulkSize;
 
     /**
@@ -22,15 +22,13 @@ public abstract class IronBeast {
      *
      * @param context  The context that is used to init the ads. This is usually an Activity context
      * @param token    This is your personal Developer Hash. You can get from our site. Notice: This key is assigned unique to each developer and does not change
-     * @param authKey  This is your personal Developer Hash. You can get from our site. Notice: This key is assigned unique to each developer and does not change*                 per application
      * @param logLevel This is used to control exposure of different logs during the development or production stages of your work
      */
-    public static void init(final Context context, final String token, String authKey, final LOG_TYPE logLevel) {
+    public static void init(Context context, String token, LOG_TYPE logLevel) {
         setAppContext(context);
-        doInit(context, token, authKey, logLevel);
+        doInit(token, logLevel);
     }
-
-    private static void doInit(final Context context, final String token, final String authKey, final LOG_TYPE logLevel) {
+    private static void doInit(final String token, final LOG_TYPE logLevel) {
         if (TextUtils.isEmpty(token)) {
             throw new IllegalArgumentException("MobileCore init method got an empty developer hash string.");
         }
@@ -48,6 +46,7 @@ public abstract class IronBeast {
             }
             // save token and affiliateAccount in prefs
             sToken = token;
+            sBatchSize = Consts.DEFAULT_BATCH_SIZE;
         } catch (Exception e) {
             IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
@@ -80,21 +79,40 @@ public abstract class IronBeast {
      * general api
      ******************/
 
-    public static void trackEvent(IronBeastReport report, SEND_PRIORITY priority) {
+    public static void track(IronBeastReport report) {
         IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
                 .setReport(report)
                 .setAuth(mAuthKey)
-                .setBulk(priority.compareTo(SEND_PRIORITY.BULK) == 0)
+                .setBulk(true)
                 .send();
     }
 
+    public static void post(IronBeastReport report) {
+        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
+                .setReport(report)
+                .setAuth(mAuthKey)
+                .setBulk(false)
+                .send();
+    }
+
+    public static void flush() {
+        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_FLUSH)
+                .setAuth(mAuthKey)
+                .setBulk(true)
+                .send();
+
+    }
+
+    public void setBatchFileSize(int batchSize) {
+        sBatchSize = batchSize;
+    }
     /**
      * This methode set max bulk size of the report
      *
      * @param bulkSize the size of the bulk
      */
     public static void setMaxBulkSize(int bulkSize) {
-        sBullkSize = bulkSize;
+        sBatchSize = bulkSize;
     }
 
     public static int getCurrentBullkSize() {

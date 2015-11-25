@@ -5,10 +5,8 @@ class ReportingConsts {
 
     protected enum EReportType {
         REPORT_TYPE_IRON_BEAST,
-        REPORT_TYPE_EVENT,
-        REPORT_TYPE_FILL_RATE,
         REPORT_TYPE_ERROR,
-        REPORT_TYPE_RES, REPORT_TYPE_NEW_REPORT;
+        REPORT_TYPE_FLUSH;
 
         public static EReportType parseString(int value) {
             for (EReportType v : values())

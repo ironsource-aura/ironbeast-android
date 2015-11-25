@@ -34,16 +34,17 @@ public class BaseMainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
-        IronBeast.init(this, "basd", "", IronBeast.LOG_TYPE.DEBUG);
+        IronBeast.init(this, "token", IronBeast.LOG_TYPE.DEBUG);
 
         IronBeastReport.Builder ibReportBuilder = new IronBeastReport.Builder();
         ibReportBuilder.setTableName("LALA").setData("AAAA", "BBB").setData("BBBB", "CCCC");
 
-        IronBeast.trackEvent(ibReportBuilder.build(), IronBeast.SEND_PRIORITY.NOW);
+        IronBeast.track(ibReportBuilder.build());
+        IronBeast.post(ibReportBuilder.build());
+        IronBeast.flush();
     }
 
     public void initAll(View v) {
-        IronBeast.init(this, "1YBLZFJPPS2210YI6NU47EXXU7BOV", "", IronBeast.LOG_TYPE.DEBUG);
     }
 
     public void openActivity(View v) {
