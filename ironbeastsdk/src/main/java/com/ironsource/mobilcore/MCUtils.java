@@ -2,36 +2,20 @@ package com.ironsource.mobilcore;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
-import android.view.WindowManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -44,21 +28,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.MessageFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -74,21 +50,6 @@ class MCUtils {
 
     public static int getCurrentConnection(Context context) {
         return NetworkUtils.getConnectedNetworkType(context);
-    }
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            java.net.URL url = new java.net.URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static String interpretConnection(int conn) {
@@ -159,126 +120,6 @@ class MCUtils {
         return packagesArr;
     }
 
-    public static String getFormattedInstalledAppPackages() {
-        ArrayList<String> appPackagesArr = MCUtils.getInstalledAppPackages();
-        return TextUtils.join(",", appPackagesArr);
-
-    }
-
-    public static int getNumberOfAppsInstalled(Context context) {
-        PackageManager pm = context.getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-        int total = list.size();
-
-        Logger.log("found an app total of " + total, Logger.SDK_DEBUG);
-        return total;
-    }
-
-    public static int getDeviceDpi(Context context) {
-        return context.getResources().getDisplayMetrics().densityDpi;
-
-    }
-
-    public static String getDeviceDpiName() {
-        int deviceDpi = getDeviceDpi(IronBeast.getAppContext());
-        switch (deviceDpi) {
-            case DisplayMetrics.DENSITY_LOW:
-                return "ldpi";
-            case DisplayMetrics.DENSITY_MEDIUM:
-                return "mdpi";
-            case DisplayMetrics.DENSITY_TV:
-                return "tvdpi";
-            case DisplayMetrics.DENSITY_HIGH:
-                return "hdpi";
-            case DisplayMetrics.DENSITY_XHIGH:
-                return "xhdpi";
-            case DisplayMetrics.DENSITY_XXHIGH:
-                return "xxhdpi";
-            case DisplayMetrics.DENSITY_XXXHIGH:
-                return "xxxhdpi";
-            default:
-                return "xhdpi";
-        }
-    }
-
-    public static float asFloatPixels(float dips, Context context) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dips, displayMetrics);
-    }
-
-    public static int asIntPixels(float dips, Context context) {
-        return (int) (asFloatPixels(dips, context) + 0.5f);
-    }
-
-    @SuppressLint("NewApi")
-    public static double getDeviceScreenSize(Context context) {
-        try {
-            DisplayMetrics metrics = new DisplayMetrics();
-            double xDpiValue, yDpiValue;
-
-            WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                windowManager.getDefaultDisplay().getRealMetrics(metrics);
-            } else {
-                windowManager.getDefaultDisplay().getMetrics(metrics);
-            }
-
-            // Avoid dividing by zero (it's claimed some cheap manufacturers have 0'z in their metrics values)
-            xDpiValue = metrics.xdpi;
-            if (xDpiValue == 0)
-                xDpiValue = 1.0;
-
-            yDpiValue = metrics.ydpi;
-            if (yDpiValue == 0)
-                yDpiValue = 1.0;
-
-            double x = Math.pow(metrics.widthPixels / xDpiValue, 2);
-            double y = Math.pow(metrics.heightPixels / yDpiValue, 2);
-            double screenInches = Math.sqrt(x + y);
-
-            return screenInches;
-        } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
-            return -1;
-        }
-    }
-
-    @SuppressLint("NewApi")
-    public static int getScreenWidth(Context context) {
-        DisplayMetrics metrics = new DisplayMetrics();
-
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            windowManager.getDefaultDisplay().getRealMetrics(metrics);
-        } else {
-            windowManager.getDefaultDisplay().getMetrics(metrics);
-        }
-
-        return metrics.widthPixels;
-    }
-
-    public static String doubleFormatter(Double d, Context context) {
-        try {
-            NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-            DecimalFormat formatter = (DecimalFormat) nf;
-            formatter.setMaximumFractionDigits(2);
-            DecimalFormatSymbols dfs = formatter.getDecimalFormatSymbols();
-            dfs.setDecimalSeparator('.');
-            formatter.setDecimalFormatSymbols(dfs);
-
-            return formatter.format(d);
-        } catch (Exception e) {
-            Logger.log("Error formatting double value", Logger.SDK_DEBUG);
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
-        }
-        return null;
-    }
-
     protected static String getCarrierVersion(Context context) {
         PackageInfo pInfo = null;
         try {
@@ -290,15 +131,6 @@ class MCUtils {
             return "null";
         }
         return pInfo.versionName;
-    }
-
-    private static String getOrientation(Context context) {
-        /* if it's portrait, 1 if it's landscape. */
-        return String.valueOf(getDeviceOrientation(context) == Configuration.ORIENTATION_PORTRAIT ? 0 : 1);
-    }
-
-    public static int getDeviceOrientation(Context context) {
-        return context.getResources().getConfiguration().orientation;
     }
 
     public static String md5(String s) {
@@ -332,42 +164,6 @@ class MCUtils {
         return null;
     }
 
-    public static String urlToFileName(String url) {
-        String realName = MCUtils.md5(url);
-
-        if (TextUtils.isEmpty(realName)) { // "" is the fallback value of MCUtils.md5()
-            realName = String.valueOf(System.currentTimeMillis());
-            realName = "file_".concat(realName);
-        }
-
-        realName = realName.concat(".apk");
-
-        return realName;
-    }
-
-    public static String removeFilePrefix(String s) {
-        if (s.startsWith("file://")) {
-            return s.substring(8);
-        } else {
-            return s;
-        }
-    }
-
-    public static boolean isAppVisible(final Context context) {
-        boolean isCarrierVisible = false;
-        String testedPackage = context.getPackageName();
-
-        ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        List<RunningAppProcessInfo> appProcesses = am.getRunningAppProcesses();
-        for (RunningAppProcessInfo appProcess : appProcesses) {
-            if (appProcess.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcess.processName.equals(testedPackage)) {
-                isCarrierVisible = true;
-            }
-        }
-
-        return isCarrierVisible;
-    }
-
     public static String getPkgNameFromApkFile(Context context, String filePath, String apkFileName) {
         boolean sdCardMounted = true;
         try {
@@ -391,38 +187,6 @@ class MCUtils {
             }
             return null;
         }
-    }
-
-    public static String getAppMarketUrl(Context context) {
-        return MessageFormat.format(MARKET_BASE_URL, context.getPackageName());
-    }
-
-    public static String encodeStringUTF8(String origStr) throws UnsupportedEncodingException {
-        return URLEncoder.encode(origStr, "UTF-8");
-    }
-
-    /**
-     * utility for opening a url either in a web view or with an intent
-     *
-     * @param activity
-     * @param url
-     * @param internal
-     */
-    public static void openUrl(Activity activity, String url, boolean internal) {
-
-        if (TextUtils.isEmpty(url)) {
-            return;
-        }
-
-        if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            url = "http://" + url;
-        }
-
-        Intent i = new Intent();
-        i.setAction(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        activity.startActivity(i);
-
     }
 
     /**************
@@ -468,16 +232,6 @@ class MCUtils {
             /* get google play version or -1 if not installed package name */
             obj.putOpt("gpv", getGooglePlayStoreVersion());
             /* get string value of device orientation */
-            obj.putOpt("orientation", getOrientation(context));
-
-			/* get string value of mediation param */
-            String mediationParam = getMediationParam();
-            if (!TextUtils.isEmpty(mediationParam)) {
-                obj.putOpt(Consts.MEDIATION_KEY, mediationParam);
-            }
-            /* ad audience params */
-			/* uit is the user id type, it can be a UNIQUE_ID_AD_ID or UNIQUE_ID_UUID */
-
         } catch (Exception e) {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
@@ -740,108 +494,12 @@ class MCUtils {
         edit.commit();
     }
 
-    @SuppressLint({"SetJavaScriptEnabled", "NewApi"})
-    public static void configureWebView(WebView webview, WebChromeClient client) {
-        webview.getSettings().setJavaScriptEnabled(true);
-        webview.getSettings().setSupportMultipleWindows(false);
-        webview.getSettings().setSupportZoom(false);
-        webview.setInitialScale(100);
-        webview.setHorizontalScrollBarEnabled(false);
-        webview.getSettings().setNeedInitialFocus(false);
-        webview.getSettings().setDomStorageEnabled(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            // From Kitkat this is false by default
-            try {
-                webview.getSettings().setAllowFileAccessFromFileURLs(true);
-                webview.getSettings().setAllowUniversalAccessFromFileURLs(true);
-            } catch (Exception ex) {
-                // just in case
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(ex).send();
-
-            }
-        }
-
-        if (client != null) {
-            webview.setWebChromeClient(client);
-        }
-    }
-
-    /**
-     * The WebViews in the sdk do not use an Activity as a Context, so we must have a WebViewClient to avoid internal WebView crash (when getting certain non
-     * mobilecore urls, for instance in captive mode):
-     * "Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag. Is this really what you want?"
-     *
-     * @param webView
-     */
-    public static void setDefaultWebViewClient(WebView webView) {
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                String errorString = "WebView: " + view.getClass().getName() + ", onReceivedError errorCode:" + errorCode + " , description:" + description + " , failingUrl:" + failingUrl;
-                Logger.log(errorString, Logger.SDK_DEBUG);
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(errorString).send();
-                super.onReceivedError(view, errorCode, description, failingUrl);
-            }
-        });
-    }
-
     public static String getShortenedString(String source, int maxLength) {
         if (source == null) {
             return null;
         }
 
         return source.substring(0, Math.min(source.length(), maxLength));
-    }
-
-    /***
-     * api reporting utils
-     ***/
-
-    public static String getReportingString(Object object) {
-        if (object == null) {
-            return null;
-        } else {
-            return object.toString();
-        }
-    }
-
-    public static String getReportingString(Object[] array) {
-        if (array == null || (array.length == 0)) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder(array.length * 7);
-        sb.append(array[0]);
-        for (int i = 1; i < array.length; i++) {
-            sb.append(",");
-            sb.append(array[i]);
-        }
-        return sb.toString();
-    }
-
-    public static boolean isApiReported(Method method) {
-        return getSharedPrefs(IronBeast.getAppContext()).getBoolean(getApiPrefsString(method), false);
-    }
-
-    public static void markApiAsReported(Method method) {
-        setSharedBooleanPrefs(getApiPrefsString(method), true);
-    }
-
-    public static boolean isApiReported(Method method, Object[] params) {
-        return getSharedPrefs(IronBeast.getAppContext()).getBoolean(getApiPrefsString(method, params), false);
-    }
-
-    public static void markApiAsReported(Method method, Object[] params) {
-        setSharedBooleanPrefs(getApiPrefsString(method, params), true);
-    }
-
-    private static String getApiPrefsString(Method method) {
-        return Consts.PREFS_API_CALLED_KEY + "_" + getAppVersionCode() + "_" + method;
-    }
-
-    private static String getApiPrefsString(Method method, Object[] params) {
-        return Consts.PREFS_API_CALLED_KEY + "_" + getAppVersionCode() + "_" + method + "_" + Arrays.toString(params);
     }
 
     private static int getAppVersionCode() {
@@ -942,36 +600,6 @@ class MCUtils {
         return w;
     }
 
-    /***************
-     * mediation and plugin parameters
-     ******************/
-
-    public static void savePluginParam(String param) {
-        if (TextUtils.isEmpty(param)) {
-            return;
-        }
-        setSharedStringPrefs(Consts.PREFS_PLUGIN_PARAM, param);
-    }
-
-    public static void saveMediationParam(String param) {
-        if (TextUtils.isEmpty(param)) {
-            return;
-        }
-        setSharedStringPrefs(Consts.PREFS_MEDIATION_PARAM, param);
-    }
-
-    public static String getPluginParam() {
-        return sharedPrefs().getString(Consts.PREFS_PLUGIN_PARAM, null);
-    }
-
-    public static String getMediationParam() {
-        return sharedPrefs().getString(Consts.PREFS_MEDIATION_PARAM, null);
-    }
-
-    /***************
-     * end of mediation and plugin parameters
-     ******************/
-
     public static boolean checkIfSdkWasInitAndNotifyIfNot(Method method) {
         if (IronBeast.getAppContext() != null) {
             return true;
@@ -981,89 +609,10 @@ class MCUtils {
         }
     }
 
-    public static String getFlowTypeVersion(String mFileName) {
-        try {
-            SharedPreferences sharedPrefs = getSharedPrefs(IronBeast.getAppContext());
-            return sharedPrefs.getString(Consts.PREFS_FLOW_FILE_VERSION + mFileName, "-1");
-        } catch (Exception ex) {
-
-        }
-        return "-1";
-
-    }
-
     public static String getCurrentTime() {
         SimpleDateFormat dateFormatGmt = new SimpleDateFormat(BACKEND_TIME_FORMAT, Locale.ENGLISH);
         dateFormatGmt.setTimeZone(TimeZone.getTimeZone("UTC"));
         Calendar aUTCCalendar = Calendar.getInstance();
-        String gmtTime = dateFormatGmt.format(aUTCCalendar.getTime());
-        return gmtTime;
+        return dateFormatGmt.format(aUTCCalendar.getTime());
     }
-
-    public interface IFileProcessingProgress {
-        void storeStarted(String fileName);
-
-        void storeComplete(String fileName, boolean success);
-
-        void processingComplete(String fileName, boolean success);
-
-        void processingHttpError(String fileName, int statusCode);
-
-        void processingException(String fileName, Exception e);
-
-        void downloadAdditionalResource(JSONObject resource) throws JSONException;
-
-        void processingComplete(JSONObject feed, String mFileName, boolean success);
-    }
-
-    public interface IFileHandler {
-        boolean processFile(HttpURLConnection httpURLConnection);
-
-        void processHttpError(int statusCode);
-
-        void processException(Exception e);
-    }
-
-    public interface IResourcesLoadedListener {
-        void feedReady(String fileName, JSONObject feed);
-
-        void resourceComplete(String fileName, boolean success);
-
-        void allComplete(boolean success);
-    }
-
-    public static abstract class FileProcessingProgressAdapter implements IFileProcessingProgress {
-        public void storeStarted(String fileName) {
-        }
-
-        public void storeComplete(String fileName, boolean success) {
-        }
-
-        public void processingComplete(String fileName, boolean success) {
-        }
-
-        public void processingHttpError(String fileName, int statusCode) {
-        }
-
-        public void processingException(String fileName, Exception e) {
-        }
-
-        public void downloadAdditionalResource(JSONObject resource) throws JSONException {
-        }
-
-        public void processingComplete(JSONObject feed, String mFileName, boolean success) {
-        }
-    }
-
-    public static abstract class ResourcesLoadedListenerAdapter implements IResourcesLoadedListener {
-        public void feedReady(String fileName, JSONObject feed) {
-        }
-
-        public void resourceComplete(String fileName, boolean success) {
-        }
-
-        public void allComplete(boolean success) {
-        }
-    }
-
 }
