@@ -449,28 +449,10 @@ class MCUtils {
 
         JSONObject obj = new JSONObject();
         try {
-
-            MCUniqueIDHelper uniqueIDHelper = MCUniqueIDHelper.getInstance(context);
-
-            String uniqueIdParam = uniqueIDHelper.getUniqueID();
-            String uit = uniqueIDHelper.getUniqueIDTypeSimplified();
-            boolean isLimitAdTrackingEnabled = uniqueIDHelper.isLimitAdTrackingEnabled();
-            String imei = uniqueIDHelper.getDeviceIdFromTelephonyManager();
-            String macAddress = uniqueIDHelper.getMACAddress();
-
-            String gaid = uniqueIDHelper.getGaid();
-            String mcID = uniqueIDHelper.getMCId();
-
             String devId = IronBeast.getToken(context);
 
             obj.putOpt("os", escape(Build.VERSION.RELEASE));
             obj.putOpt("deviceCode", escape(Build.DEVICE));
-            obj.putOpt("uid", uniqueIdParam);
-            obj.putOpt("mcid", mcID);
-            obj.putOpt("gaid", gaid);
-            obj.putOpt("late", isLimitAdTrackingEnabled);
-            obj.putOpt("imei", imei);
-            obj.putOpt("mac", macAddress);
             obj.putOpt("devId", devId);
             obj.putOpt("carVer", getCarrierVersion(context));
             obj.putOpt("bv", ExternalVars.REPLACABLE_BAMBOO_VER);
@@ -494,7 +476,6 @@ class MCUtils {
             }
 			/* ad audience params */
 			/* uit is the user id type, it can be a UNIQUE_ID_AD_ID or UNIQUE_ID_UUID */
-            obj.putOpt("uit", uit);
 
         } catch (Exception e) {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();

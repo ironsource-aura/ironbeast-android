@@ -2,7 +2,6 @@ package com.ironsource.mobilcore;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
 
 import com.ironsource.mobilcore.ReportingConsts.EReportType;
@@ -13,7 +12,6 @@ public abstract class IronBeast {
     protected static boolean sWasInit = false;
     private static Context sAppContext;
     private static String sToken;
-    private static ImpVerifier sImpVerifierInstance = null; // imp
     private static String mAuthKey;
     private static int sBullkSize;
     private static int sCurrentBulkSize;
@@ -36,34 +34,12 @@ public abstract class IronBeast {
         if (TextUtils.isEmpty(token)) {
             throw new IllegalArgumentException("MobileCore init method got an empty developer hash string.");
         }
-        try {
-            sImpVerifierInstance = ImpVerifier.getInstance();
-            sImpVerifierInstance.init(sAppContext, logLevel);
-            if (sImpVerifierInstance.hasUserRequestedDebugMode()) {
-                sImpVerifierInstance.setCodeLineNumber(Thread.currentThread().getStackTrace()[3].getLineNumber()); // the same code is called in
-                sImpVerifierInstance.verifyManifest();
-            }
-        } catch (Exception e) {
-            // do nothing
-        }
-
         // make sure init is called only once
         if (sWasInit) {
             Logger.log("MobileCore was already initialized", Logger.NORMAL);
             return;
         }
-
         sWasInit = true;
-
-        try {
-            if (sImpVerifierInstance != null && sImpVerifierInstance.hasUserRequestedDebugMode()) {
-                sImpVerifierInstance.checkService();
-                sImpVerifierInstance.checkMissingInterenetPermission(context);
-            }
-        } catch (Exception e) {
-            // do nothing
-        }
-
         try {
             if (logLevel != null && logLevel instanceof LOG_TYPE) {
                 Logger.setLoggingLevel(logLevel);
@@ -72,8 +48,6 @@ public abstract class IronBeast {
             }
             // save token and affiliateAccount in prefs
             sToken = token;
-            saveToken(context, token);
-
         } catch (Exception e) {
             IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
@@ -90,23 +64,6 @@ public abstract class IronBeast {
         }
         return sToken;
     }
-
-    protected static void saveToken(Context context, String token) {
-        if (TextUtils.isEmpty(token) || null == context) {
-            return;
-        }
-        SharedPreferences prefs = MCUtils.getSharedPrefs(context, Consts.SHARED_PREFS_NAME_HASH);
-        Editor editor = prefs.edit();
-
-        // The function that was here was moved to implementation verifier.
-        if (sImpVerifierInstance.hasUserRequestedDebugMode()) {
-            sImpVerifierInstance.verifyDevHash(token, context, editor);
-        }
-
-        editor.putString(Consts.PREFS_TOKEN, Guard.encrypt(token));
-        editor.apply();
-    }
-
 
     protected static Context getAppContext() {
         return sAppContext;

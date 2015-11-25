@@ -404,7 +404,7 @@ class IronBeastReportData {
             out.close();
 
             int status = con.getResponseCode();
-            Logger.log(String.format("Request status %d msg: %s", status, Network.sResponseCodesToMsgs.get(status));
+            Logger.log(String.format("Request status %d msg: %s", status, Network.sResponseCodesToMsgs.get(status)), Logger.SDK_DEBUG);
 
         } catch (MalformedURLException e) {
             IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "invalid URL").send();
