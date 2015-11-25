@@ -48,7 +48,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -71,6 +70,7 @@ class MCUtils {
     private static final String MARKET_BASE_URL = "https://play.google.com/store/apps/details?id={0}";
     private static final String GOOGLE_PLAY_PACKAGE_NAME = "com.android.vending";
     private static final String BACKEND_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static SharedPreferences sSharedPrefs;
 
     public static int getCurrentConnection(Context context) {
         return NetworkUtils.getConnectedNetworkType(context);
@@ -424,6 +424,7 @@ class MCUtils {
         activity.startActivity(i);
 
     }
+
     /**************
      * AsyncTask utility methods
      ***************/
@@ -474,7 +475,7 @@ class MCUtils {
             if (!TextUtils.isEmpty(mediationParam)) {
                 obj.putOpt(Consts.MEDIATION_KEY, mediationParam);
             }
-			/* ad audience params */
+            /* ad audience params */
 			/* uit is the user id type, it can be a UNIQUE_ID_AD_ID or UNIQUE_ID_UUID */
 
         } catch (Exception e) {
@@ -496,12 +497,6 @@ class MCUtils {
     public static boolean hasPermission(Context context, String permission) {
         int res = context.checkCallingOrSelfPermission(permission);
         return (res == PackageManager.PERMISSION_GRANTED);
-    }
-
-    public static boolean isAvailable(Intent intent) {
-        final PackageManager mgr = IronBeast.getAppContext().getPackageManager();
-        List<ResolveInfo> list = mgr.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return list.size() > 0;
     }
 
     private static String getInstallerPackageName() {
@@ -573,66 +568,6 @@ class MCUtils {
         return caller + " ###" + formatExceptionMsg(ex);
     }
 
-    public static String getOfferData(JSONObject offerJson) {
-        return offerJson.optString("d", "");
-    }
-
-    public static String getBaseData(JSONObject offerJson) {
-        return offerJson.optString("bd", "");
-    }
-
-    public static String getSeconderyData(JSONObject offerJson) {
-        return offerJson.optString("sd", "");
-    }
-
-    public static String urlToGooglePlayFormattedUrl(String url) {
-
-        try {
-
-            URI uri = new URI(url);
-            String host = uri.getHost();
-
-            if (!TextUtils.isEmpty(host) && host.contains("play.google.com")) {
-                url = "market://details?" + url.substring(url.indexOf("id="));
-            }
-
-        } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError("urlToGooglePlayFormattedUrl exception, url=" + url).send();
-        }
-
-        return url;
-    }
-
-    public static String extractPackageFromMarketUrl(String s) {
-        String tmp;
-        int i = s.indexOf("id=");
-        int j = i + 3;
-        int k = s.indexOf("&", i);
-        if (i > -1) {
-            if (k > -1) {
-                tmp = s.substring(j, k);
-            } else {
-                tmp = s.substring(j);
-            }
-        } else {
-            tmp = "idFieldMissing";
-        }
-        return tmp;
-    }
-
-    public static boolean isAlreadyInstalled(Context context, String uri) {
-        PackageManager pm = context.getPackageManager();
-        boolean installed = false;
-        try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
-            installed = true;
-        } catch (Exception e) {
-            installed = false;
-        }
-        Logger.log("checkAlreadyInstalled, already installed = " + installed, Logger.SDK_DEBUG);
-        return installed;
-    }
-
     public static String extentionFromUrl(String imgUrl) {
         String fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1, imgUrl.length());
         if (fileName.lastIndexOf(".") < 0) {
@@ -680,7 +615,7 @@ class MCUtils {
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
 
-            int len , bufferSize = 512;
+            int len, bufferSize = 512;
             byte[] buffer = new byte[bufferSize];
 
             while ((len = inputStream.read(buffer)) != -1) {
@@ -753,8 +688,6 @@ class MCUtils {
         MCUtils.deleteFolder(tempDir);
         tempDir.mkdir();
     }
-
-    private static SharedPreferences sSharedPrefs;
 
     @SuppressLint("InlinedApi")
     public static synchronized SharedPreferences getSharedPrefs(final Context context) {
@@ -851,72 +784,6 @@ class MCUtils {
                 super.onReceivedError(view, errorCode, description, failingUrl);
             }
         });
-    }
-
-    public interface IFileProcessingProgress {
-        void storeStarted(String fileName);
-
-        void storeComplete(String fileName, boolean success);
-
-        void processingComplete(String fileName, boolean success);
-
-        void processingHttpError(String fileName, int statusCode);
-
-        void processingException(String fileName, Exception e);
-
-        void downloadAdditionalResource(JSONObject resource) throws JSONException;
-
-        void processingComplete(JSONObject feed, String mFileName, boolean success);
-    }
-
-    public static abstract class FileProcessingProgressAdapter implements IFileProcessingProgress {
-        public void storeStarted(String fileName) {
-        }
-
-        public void storeComplete(String fileName, boolean success) {
-        }
-
-        public void processingComplete(String fileName, boolean success) {
-        }
-
-        public void processingHttpError(String fileName, int statusCode) {
-        }
-
-        public void processingException(String fileName, Exception e) {
-        }
-
-        public void downloadAdditionalResource(JSONObject resource) throws JSONException {
-        }
-
-        public void processingComplete(JSONObject feed, String mFileName, boolean success) {
-        }
-    }
-
-    public interface IFileHandler {
-        boolean processFile(HttpURLConnection httpURLConnection);
-
-        void processHttpError(int statusCode);
-
-        void processException(Exception e);
-    }
-
-    public interface IResourcesLoadedListener {
-        void feedReady(String fileName, JSONObject feed);
-
-        void resourceComplete(String fileName, boolean success);
-
-        void allComplete(boolean success);
-    }
-
-    public static abstract class ResourcesLoadedListenerAdapter implements IResourcesLoadedListener {
-        public void feedReady(String fileName, JSONObject feed) {
-        }
-
-        public void resourceComplete(String fileName, boolean success) {
-        }
-
-        public void allComplete(boolean success) {
-        }
     }
 
     public static String getShortenedString(String source, int maxLength) {
@@ -1131,6 +998,72 @@ class MCUtils {
         Calendar aUTCCalendar = Calendar.getInstance();
         String gmtTime = dateFormatGmt.format(aUTCCalendar.getTime());
         return gmtTime;
+    }
+
+    public interface IFileProcessingProgress {
+        void storeStarted(String fileName);
+
+        void storeComplete(String fileName, boolean success);
+
+        void processingComplete(String fileName, boolean success);
+
+        void processingHttpError(String fileName, int statusCode);
+
+        void processingException(String fileName, Exception e);
+
+        void downloadAdditionalResource(JSONObject resource) throws JSONException;
+
+        void processingComplete(JSONObject feed, String mFileName, boolean success);
+    }
+
+    public interface IFileHandler {
+        boolean processFile(HttpURLConnection httpURLConnection);
+
+        void processHttpError(int statusCode);
+
+        void processException(Exception e);
+    }
+
+    public interface IResourcesLoadedListener {
+        void feedReady(String fileName, JSONObject feed);
+
+        void resourceComplete(String fileName, boolean success);
+
+        void allComplete(boolean success);
+    }
+
+    public static abstract class FileProcessingProgressAdapter implements IFileProcessingProgress {
+        public void storeStarted(String fileName) {
+        }
+
+        public void storeComplete(String fileName, boolean success) {
+        }
+
+        public void processingComplete(String fileName, boolean success) {
+        }
+
+        public void processingHttpError(String fileName, int statusCode) {
+        }
+
+        public void processingException(String fileName, Exception e) {
+        }
+
+        public void downloadAdditionalResource(JSONObject resource) throws JSONException {
+        }
+
+        public void processingComplete(JSONObject feed, String mFileName, boolean success) {
+        }
+    }
+
+    public static abstract class ResourcesLoadedListenerAdapter implements IResourcesLoadedListener {
+        public void feedReady(String fileName, JSONObject feed) {
+        }
+
+        public void resourceComplete(String fileName, boolean success) {
+        }
+
+        public void allComplete(boolean success) {
+        }
     }
 
 }

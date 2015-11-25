@@ -13,18 +13,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class IronBeastReportService extends Service {
 
     private static final int REPORTING_QUEUE_SIZE = 50;
-    private static final int DOWNLOAD_FILE_QUEUE_SIZE = 10;
     private static final int DELAY_FOR_STOPPING_SELF_MILI = 5000;
     private static final String TAG = IronBeastReport.class.getSimpleName();
 
     private ReportingWorker mReportingWorker;
-    private DownloadFileWorker mDownloadFileWorker;
     private LinkedBlockingQueue<ServiceTask> mReportingQueue;
-    private LinkedBlockingQueue<ServiceTask> mDownloadFileQueue;
 
     private Handler mHandler;
 
-    private int mNumCurrentWorkingJobs;
     /***************
      * runnables
      ******************/
@@ -37,6 +33,7 @@ public class IronBeastReportService extends Service {
             stopSelf();
         }
     };
+    private int mNumCurrentWorkingJobs;
 
     public IronBeastReportService() {
         super();
@@ -62,14 +59,9 @@ public class IronBeastReportService extends Service {
 
             // init members
             mReportingQueue = new LinkedBlockingQueue<ServiceTask>(REPORTING_QUEUE_SIZE);
-            mDownloadFileQueue = new LinkedBlockingQueue<ServiceTask>(DOWNLOAD_FILE_QUEUE_SIZE);
-
-            mDownloadFileWorker = new IronBeastReportService.DownloadFileWorker();
             mReportingWorker = new IronBeastReportService.ReportingWorker();
             mHandler = new Handler();
             mNumCurrentWorkingJobs = 0;
-
-            mDownloadFileWorker.start();
             mReportingWorker.start();
         } catch (Throwable th) {
             // Reporting, not interfering with main task queue
@@ -91,14 +83,9 @@ public class IronBeastReportService extends Service {
 
     @Override
     public void onDestroy() {
-
         Logger.log(TAG + " service onDestroy() | called", Logger.SDK_DEBUG);
-
         super.onDestroy();
-
-        //clear members
         mReportingQueue.clear();
-        mDownloadFileQueue.clear();
     }
 
     @Override
@@ -106,29 +93,19 @@ public class IronBeastReportService extends Service {
         Logger.log(TAG + " service , onStartCommand() | startId:" + startId, Logger.SDK_DEBUG);
         if (intent != null && intent.getExtras() != null) {
             final ServiceTask newTask = new ServiceTask(startId, intent);
-
             try {
                 // new task. remove current stop self callback
                 addRemoveStopSelfRunnable(false);
                 // add task to queue
                 EServiceType type = newTask.getServiceType();
 
-                if (type == EServiceType.SERVICE_TYPE_APK_DOWNLOAD) {
-                    mDownloadFileQueue.add(newTask);
-                } else {
-                    //REPORTING
-                    mReportingQueue.add(newTask);
-                }
+                //REPORTING
+                mReportingQueue.add(newTask);
             } catch (IllegalStateException e) {
                 // Q is full. we should not get here since we decided on a very large queue
                 Logger.log("MobileCoreReport service | ServiceTask , doJob() | dropping request:" + startId, Logger.SDK_DEBUG);
-				/* Clear task queue */
-                try {
-                    Logger.log("MobileCoreReport service | Clear task queue" + startId, Logger.SDK_DEBUG);
-                    mReportingQueue.clear();
-                    mDownloadFileQueue.clear();
-                } catch (Exception ex) {
-                }
+                /* Clear task queue */
+                mReportingQueue.clear();
 
                 EReportType tmpType = null;
                 EServiceType tmpServiceType = null;
@@ -150,7 +127,7 @@ public class IronBeastReportService extends Service {
 
                     @Override
                     public void run() {
-						/* Proceed task that was not appended to the queue */
+                        /* Proceed task that was not appended to the queue */
                         Logger.log("MobileCoreReport service | Send exception", Logger.SDK_DEBUG);
                         IronBeastReportIntent reportIntent = new IronBeastReportIntent(IronBeastReportService.this, EReportType.REPORT_TYPE_ERROR);
                         reportIntent.putExtra(ReportingConsts.EXTRA_EXCEPTION, "MobileCoreReport ### Task queue is full, dropping request " + serviceType + " trt: " + thrownReportType + " m: " + msg);
@@ -170,7 +147,7 @@ public class IronBeastReportService extends Service {
      * If there is nothing the the QUeue and All thread are not busy - we can kill ourself.
      */
     private void stopSelfIfNeeded() {
-        if (mDownloadFileQueue.isEmpty() && mReportingQueue.isEmpty() && 0 == getCurrentRefCount()) {
+        if (mReportingQueue.isEmpty() && 0 == getCurrentRefCount()) {
             addRemoveStopSelfRunnable(true);
         }
     }
@@ -275,30 +252,6 @@ public class IronBeastReportService extends Service {
                     }).start();
                 }
 
-            }
-        }
-    }
-
-    public class DownloadFileWorker extends Thread {
-
-        @Override
-        public void run() {
-            super.run();
-            ServiceTask task;
-            while (true) {
-                try {
-                    task = mDownloadFileQueue.take();
-                    // starting job. increase ref count
-                    increaseRefCount();
-                    // do job
-                    task.doJob();
-                    // finished job. increase ref count
-                    decreaseRefCount();
-                    // stop self if needed
-                    stopSelfIfNeeded();
-                } catch (InterruptedException ie) {
-                    return;
-                }
             }
         }
     }
