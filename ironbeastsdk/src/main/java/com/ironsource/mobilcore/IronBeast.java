@@ -14,7 +14,7 @@ public abstract class IronBeast {
     private static String sToken;
     private static String mAuthKey;
     private static int sBatchSize;
-    private static int sCurrentBulkSize;
+    private static int sCurrentBatchSize;
 
     /**
      * This method performs initialization work associated with setting everything MobileCore needs for its proper work.<br> <b>Calling "init" is mandatory and must
@@ -28,6 +28,7 @@ public abstract class IronBeast {
         setAppContext(context);
         doInit(token, logLevel);
     }
+
     private static void doInit(final String token, final LOG_TYPE logLevel) {
         if (TextUtils.isEmpty(token)) {
             throw new IllegalArgumentException("MobileCore init method got an empty developer hash string.");
@@ -78,7 +79,9 @@ public abstract class IronBeast {
     /***************
      * general api
      ******************/
-
+    /*
+    *  Will batch reports
+    * */
     public static void track(IronBeastReport report) {
         IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
                 .setReport(report)
@@ -87,6 +90,9 @@ public abstract class IronBeast {
                 .send();
     }
 
+    /*
+    *  Will send report immediately
+    * */
     public static void post(IronBeastReport report) {
         IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
                 .setReport(report)
@@ -95,42 +101,31 @@ public abstract class IronBeast {
                 .send();
     }
 
+    /*
+    *  Will send all batched report till now
+    * */
     public static void flush() {
         IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_FLUSH)
                 .setAuth(mAuthKey)
                 .setBulk(true)
                 .send();
-
     }
 
-    public void setBatchFileSize(int batchSize) {
+    /*
+    *  Get current batch size
+    * */
+    public static int getCurrentBatchSize() {
+        return sCurrentBatchSize;
+    }
+
+    /*
+    *  Will set max amount of saved report
+    * */
+    public void setBatchSize(int batchSize) {
         sBatchSize = batchSize;
     }
-    /**
-     * This methode set max bulk size of the report
-     *
-     * @param bulkSize the size of the bulk
-     */
-    public static void setMaxBulkSize(int bulkSize) {
-        sBatchSize = bulkSize;
-    }
 
-    public static int getCurrentBullkSize() {
-        return sCurrentBulkSize;
-    }
-    /**
-     * ************ ad unit event listener *****************
-     */
-    /**
-     * This enum represents 2 log level types that are supported in the SDK.<br> The 2 log level types are DEBUG, PRODUCTION.<br>
-     * When implementing the SDK during development it's recommended that you will use the DEBUG value in order to get all the debug messages in your logcat window.<br>
-     * On production you can hide all the debug messages by using the PRODUCTION value.
-     */
     public enum LOG_TYPE {
         DEBUG, PRODUCTION
-    }
-
-    public enum SEND_PRIORITY {
-        NOW, BULK
     }
 }
