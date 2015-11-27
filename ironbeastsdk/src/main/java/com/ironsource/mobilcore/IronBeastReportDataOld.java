@@ -38,9 +38,9 @@ import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-class IronBeastReportData {
+class IronBeastReportDataOld {
 
-    public static final String TAG = IronBeastReportData.class.getSimpleName();
+    public static final String TAG = IronBeastReportDataOld.class.getSimpleName();
     private static final String ALGORITHM_AES = "AES/ECB/PKCS7Padding";
     private static final String REPORT_ARR = "reportArr";
     private static final String LOG_STACK_FILE = "log_stack.dat";
@@ -57,7 +57,7 @@ class IronBeastReportData {
      * ******** public methods ***********
      */
 
-    public IronBeastReportData() {
+    public IronBeastReportDataOld() {
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
@@ -83,14 +83,14 @@ class IronBeastReportData {
         } catch (Exception e) {
             /* critical exception clear log file */
             deleteLogFile(LOG_STACK_FILE);
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
         }
         try {
             errorLogStack = loadlogStackFile(LOG_STACK_FILE_ERRORS);
         } catch (Exception e) {
             /* critical exception clear log file */
             deleteLogFile(LOG_STACK_FILE_ERRORS);
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE_ERRORS).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE_ERRORS).send();
         }
 
 /*
@@ -161,7 +161,7 @@ class IronBeastReportData {
             am.cancel(intent); // cancel previous one
             am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + MAX_DELAY_PERIOD_IN_MILLIS, intent);
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
     }
 
@@ -176,14 +176,14 @@ class IronBeastReportData {
             } catch (Exception e) {
                 /* clear log file */
                 deleteLogFile(LOG_STACK_FILE);
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
+                IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
             }
             try {
                 errorLogStack = loadlogStackFile(LOG_STACK_FILE_ERRORS);
             } catch (Exception e) {
                 /* clear log file */
                 deleteLogFile(LOG_STACK_FILE_ERRORS);
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE_ERRORS).send();
+                IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE_ERRORS).send();
             }
 
             JSONObject resultingStack = getResultingLogStack(logStack, errorLogStack);
@@ -192,14 +192,14 @@ class IronBeastReportData {
                     doSendReport(resultingStack);
                 } catch (Throwable throwable) {
                     deleteLogFile(LOG_STACK_FILE_ERRORS);
-                    IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(throwable.getMessage()).send();
+                    IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(throwable.getMessage()).send();
                 }
                 try {
                     newReportingStack = loadlogStackFile(MCLA_STACK_FILE);
 
                 } catch (Exception e) {
                     deleteLogFile(MCLA_STACK_FILE);
-                    IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
+                    IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, LOG_STACK_FILE).send();
                 }
                 if (newReportingStack != null) {
                     doSendReport(newReportingStack);
@@ -251,7 +251,7 @@ class IronBeastReportData {
             Logger.log("MobileCoreReport | appendLogStackFile | appending to log | filename=" + filename, Logger.SDK_DEBUG);
         } catch (Exception e) {
             Logger.log("MobileCoreReport | appendLogStackFile | ERROR | filename=" + filename, Logger.SDK_DEBUG);
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
         } finally {
             try {
                 if (writer != null) {
@@ -394,16 +394,16 @@ class IronBeastReportData {
             Logger.log(String.format("Request status %d msg: %s", status, Network.sResponseCodesToMsgs.get(status)), Logger.SDK_DEBUG);
 
         } catch (MalformedURLException e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "invalid URL").send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "invalid URL").send();
             Logger.log("MalformedURLException" + e.toString(), Logger.SDK_DEBUG);
         } catch (SocketTimeoutException e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "connection timeout").send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "connection timeout").send();
             Logger.log("connection timeout" + e.toString(), Logger.SDK_DEBUG);
         } catch (IOException e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "I/0 exception").send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "I/0 exception").send();
             Logger.log("I/0 exception" + e.toString(), Logger.SDK_DEBUG);
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "general error").send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e, "general error").send();
             Logger.log("general error http" + e.toString(), Logger.SDK_DEBUG);
         } finally {
             if (con != null) {
@@ -430,7 +430,7 @@ class IronBeastReportData {
             return cipher.doFinal(string.getBytes());
 
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
 
         // if we got here, we failed in the encryption.
@@ -479,7 +479,7 @@ class IronBeastReportData {
             sendReport(bulk ? IBConsts.URL_BULK_DATA_IRON_BEAST_HOST : IBConsts.URL_DEFAULT_IRON_BEAST_HOST_NAME,
                     bytesToSend, IBConsts.DEFAULT_CONTENT_TYPE, encrypt);
         } else {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError("Error sending report ContentLength 0, data: " + jsonData.toString()).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError("Error sending report ContentLength 0, data: " + jsonData.toString()).send();
         }
     }
 
@@ -528,7 +528,7 @@ class IronBeastReportData {
                 JSONObject jsonData = constructReport(type, errIntent);
                 sendData(jsonData, false, true);
             } catch (Throwable e) {
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e.getMessage()).send();
+                IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e.getMessage()).send();
                 // This is really bad couldn't send report
             }
         }
@@ -560,7 +560,7 @@ class IronBeastReportData {
             try {
                 report.put(field, val);
             } catch (Exception e) {
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+                IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
             }
         }
     }
@@ -570,7 +570,7 @@ class IronBeastReportData {
         try {
             type = EReportType.parseString(intent.getIntExtra(ReportingConsts.EXTRA_REPORT_TYPE, -1));
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportDataOld.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
         return type;
     }

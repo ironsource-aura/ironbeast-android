@@ -615,4 +615,17 @@ class MCUtils {
         Calendar aUTCCalendar = Calendar.getInstance();
         return dateFormatGmt.format(aUTCCalendar.getTime());
     }
+
+    public static void saveConfig(Context ctx, String key, String value) {
+        SharedPreferences sp = ctx.getSharedPreferences(Consts.SHARED_PREFS_NAME, Context.MODE_MULTI_PROCESS);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
+    public static String getValueFromConfig(Context ctx, String key) {
+        SharedPreferences sp = ctx.getSharedPreferences(Consts.SHARED_PREFS_NAME, Context.MODE_MULTI_PROCESS);
+        return sp.getString(key, "");
+    }
+
 }

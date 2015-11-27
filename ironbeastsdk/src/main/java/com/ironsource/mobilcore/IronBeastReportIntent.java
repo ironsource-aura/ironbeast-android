@@ -71,6 +71,11 @@ class IronBeastReportIntent extends Intent {
         return this;
     }
 
+    public IronBeastReportIntent setData(String key, String value) {
+        putExtra(key, value);
+        return this;
+    }
+
     public IronBeastReportIntent setBulk(boolean isBulk) {
         putExtra(IronBeastReport.BULK, isBulk);
         return this;
