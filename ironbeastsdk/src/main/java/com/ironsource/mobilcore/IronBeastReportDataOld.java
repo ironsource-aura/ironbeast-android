@@ -247,7 +247,7 @@ class IronBeastReportDataOld {
         try {
             fileOutput = IronBeast.getAppContext().openFileOutput(filename, Context.MODE_APPEND);
             writer = new BufferedWriter(new OutputStreamWriter(fileOutput));
-            writer.write(Guard.encrypt(jsonData.toString() + MY_DELIMITER));
+            writer.write(jsonData.toString() + MY_DELIMITER);
             Logger.log("MobileCoreReport | appendLogStackFile | appending to log | filename=" + filename, Logger.SDK_DEBUG);
         } catch (Exception e) {
             Logger.log("MobileCoreReport | appendLogStackFile | ERROR | filename=" + filename, Logger.SDK_DEBUG);
@@ -276,7 +276,7 @@ class IronBeastReportDataOld {
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
             }
-            decryptedData = Guard.decrypt(builder.toString());
+            decryptedData = builder.toString();
         } catch (OutOfMemoryError err) {
             Logger.log("MobileCoreReport | loadlogStackFile | OutOfMemoryError" + file.getName(), Logger.SDK_DEBUG);
             throw new Exception("OutOfMemoryError ## " + err.getMessage());

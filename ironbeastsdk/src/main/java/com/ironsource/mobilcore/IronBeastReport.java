@@ -61,7 +61,7 @@ public class IronBeastReport extends HashMap<String, String> {
         public IronBeastReport build() {
             IronBeastReport rep = new IronBeastReport(mValues);
             if (TextUtils.isEmpty(rep.get(TABLE_NAME))) {
-                throw new IllegalStateException(Strings.WARNING_REPORT_TABLE_NOT_SET);
+                throw new IllegalStateException(Consts.WARNING_REPORT_TABLE_NOT_SET);
             }
             return rep;
         }

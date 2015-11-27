@@ -18,6 +18,7 @@ class Consts {
     public static final String PREFS_CURRENT_BATCH_SIZE = "prefs_curr_batch_size";
     public static final String PREFS_MAX_BATCH_SIZE = "prefs_batch_size";
     public static final String PREFS_TOKEN = "prefs_batch_token";
+    public static String WARNING_REPORT_TABLE_NOT_SET = "Table name not set";
 
     protected enum EServiceType {
 

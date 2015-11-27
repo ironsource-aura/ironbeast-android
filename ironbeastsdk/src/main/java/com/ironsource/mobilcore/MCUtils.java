@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -147,7 +146,7 @@ class MCUtils {
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
         return "";
     }
@@ -183,7 +182,7 @@ class MCUtils {
             return appName;
         } catch (Exception e) {
             if (!sdCardMounted) {
-                IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+                IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
             }
             return null;
         }
@@ -233,7 +232,7 @@ class MCUtils {
             obj.putOpt("gpv", getGooglePlayStoreVersion());
             /* get string value of device orientation */
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
         Logger.log("getMobileParams " + obj.toString(), Logger.SDK_DEBUG);
         return obj;
@@ -263,7 +262,7 @@ class MCUtils {
                 installerPackage = "";
             }
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
             installerPackage = "error";
         }
         return installerPackage;
@@ -303,7 +302,7 @@ class MCUtils {
                 return true;
             }
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
 
         return false;
@@ -432,7 +431,7 @@ class MCUtils {
 
             return true;
         } catch (Exception e) {
-            IronBeastReportData.openReport(EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
         return false;
     }
@@ -444,54 +443,8 @@ class MCUtils {
     }
 
     @SuppressLint("InlinedApi")
-    public static synchronized SharedPreferences getSharedPrefs(final Context context) {
-        if (sSharedPrefs == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                sSharedPrefs = context.getSharedPreferences(Consts.SHARED_PREFS_NAME, Context.MODE_MULTI_PROCESS);
-            } else {
-                sSharedPrefs = context.getSharedPreferences(Consts.SHARED_PREFS_NAME, 0);
-            }
-        }
-        return sSharedPrefs;
-    }
-
-    @SuppressLint("InlinedApi")
-    public static SharedPreferences getSharedPrefs(final Context context, String name) {
+    public static synchronized SharedPreferences getSharedPrefs(final Context context, String name) {
         return context.getSharedPreferences(name, Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD ? Context.MODE_MULTI_PROCESS : Context.MODE_PRIVATE);
-    }
-
-    public static SharedPreferences sharedPrefs() {
-        return getSharedPrefs(IronBeast.getAppContext());
-    }
-
-    public static void setSharedIntPrefs(String key, int value) {
-        Editor edit = MCUtils.sharedPrefs().edit();
-        edit.putInt(key, value);
-        edit.commit();
-    }
-
-    public static void setSharedFloatPrefs(String key, float value) {
-        Editor edit = MCUtils.sharedPrefs().edit();
-        edit.putFloat(key, value);
-        edit.commit();
-    }
-
-    public static void setSharedLongPrefs(String key, long value) {
-        Editor edit = MCUtils.sharedPrefs().edit();
-        edit.putLong(key, value);
-        edit.commit();
-    }
-
-    public static void setSharedBooleanPrefs(String key, boolean value) {
-        Editor edit = MCUtils.sharedPrefs().edit();
-        edit.putBoolean(key, value);
-        edit.commit();
-    }
-
-    public static void setSharedStringPrefs(String key, String value) {
-        Editor edit = MCUtils.sharedPrefs().edit();
-        edit.putString(key, value);
-        edit.commit();
     }
 
     public static String getShortenedString(String source, int maxLength) {
@@ -535,7 +488,7 @@ class MCUtils {
         StringWriter sw = new StringWriter();
         synchronized (sw.getBuffer()) {
             try {
-				/* we don't do escaping on \' so we will just replace it by ' ' */
+                /* we don't do escaping on \' so we will just replace it by ' ' */
                 string = string.replace('\'', ' ');
                 return escape(string, sw).toString();
             } catch (IOException ignored) {
@@ -617,14 +570,14 @@ class MCUtils {
     }
 
     public static void saveConfig(Context ctx, String key, String value) {
-        SharedPreferences sp = ctx.getSharedPreferences(Consts.SHARED_PREFS_NAME, Context.MODE_MULTI_PROCESS);
+        SharedPreferences sp = getSharedPrefs(ctx, Consts.SHARED_PREFS_NAME);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(key, value);
         editor.apply();
     }
 
     public static String getValueFromConfig(Context ctx, String key) {
-        SharedPreferences sp = ctx.getSharedPreferences(Consts.SHARED_PREFS_NAME, Context.MODE_MULTI_PROCESS);
+        SharedPreferences sp = getSharedPrefs(ctx, Consts.SHARED_PREFS_NAME);
         return sp.getString(key, "");
     }
 
