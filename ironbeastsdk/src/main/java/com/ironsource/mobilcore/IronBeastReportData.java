@@ -41,6 +41,7 @@ class IronBeastReportData {
                     }
                 } else if (type.compareTo(EReportType.REPORT_TYPE_FLUSH) == 0) {
                     //TODO: flush STORAGE component
+
                 } else {
                     //Extract all data from intent extras
                     Bundle bundle = intent.getExtras();
@@ -56,6 +57,7 @@ class IronBeastReportData {
 
                     if (type.compareTo(EReportType.REPORT_TYPE_IRON_BEAST) == 0) {
                         //TODO: add something
+
                     } else if (type.compareTo(EReportType.REPORT_TYPE_ERROR) == 0) {
                         appendMoreDataToErrorReport(context, intent, dataObject);
                     }
@@ -64,10 +66,16 @@ class IronBeastReportData {
                     String auth = (String) dataObject.remove(IronBeastReport.AUTH);
                     boolean isBulk = (Boolean) dataObject.remove(IronBeastReport.BULK);
                     boolean isNetworkAvail = NetworkUtils.isNetworkAvail(context);
-
-                    //TODO: encrypt data
-                    //TODO: create message for ironBeast
-                    //TODO: send data to storage or network
+                    if(isBulk) {
+                        //QUEUE
+                        //TODO: create message for ironBeast
+                        //TODO: encrypt data
+                        //TODO: send data to storage or network
+                    } else {
+                        //TODO: create message for ironBeast
+                        //TODO: encrypt data
+                        //TODO: send data to storage or network
+                    }
 
                 }
             }
