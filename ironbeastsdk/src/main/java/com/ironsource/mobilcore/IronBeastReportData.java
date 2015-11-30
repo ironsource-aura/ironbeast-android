@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.ironsource.mobilcore.ReportingConsts.EReportType;
-
 import org.json.JSONObject;
 
 class IronBeastReportData {
@@ -21,8 +19,8 @@ class IronBeastReportData {
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
-    public static IronBeastReportIntent openReport(Context context, EReportType type) {
-        return new IronBeastReportIntent(context, type);
+    public static IronBeastReportIntent openReport(Context context, int sdkEvent) {
+        return new IronBeastReportIntent(context, sdkEvent);
     }
 
     public static void doScheduledSend() {
@@ -33,18 +31,13 @@ class IronBeastReportData {
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
-                EReportType type = fetchReportType(intent);
+                int event = intent.getIntExtra(ReportingConsts.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+                ;
                 // We want to send report
                 // immediately: IRON_BEAST_REPORT isBulk = false
                 // pending : ERROR, IRON_BEAST_REPORT isBulk = true
 
-                if (type.compareTo(EReportType.REPORT_TYPE_UPDATE_CONFIG) == 0) {
-                    String batchSize = getIntentString(intent, Consts.PREFS_MAX_BATCH_SIZE, "");
-                    if (!TextUtils.isEmpty(batchSize)) {
-                        MCUtils.saveConfig(context, Consts.PREFS_MAX_BATCH_SIZE, batchSize);
-                        //TODO: update STORAGE component with new size
-                    }
-                } else if (type.compareTo(EReportType.REPORT_TYPE_FLUSH) == 0) {
+                if (event == SdkEvent.FLUSH_QUEUE) {
                     //TODO: flush STORAGE component
 
                 } else {
@@ -60,10 +53,10 @@ class IronBeastReportData {
                         //TODO: add sending report
                     }
 
-                    if (type.compareTo(EReportType.REPORT_TYPE_IRON_BEAST) == 0) {
+                    if (event == SdkEvent.ENQUEUE) {
                         //TODO: add something
 
-                    } else if (type.compareTo(EReportType.REPORT_TYPE_ERROR) == 0) {
+                    } else if (event == SdkEvent.ERROR) {
                         appendMoreDataToErrorReport(context, intent, dataObject);
                     }
 
@@ -114,11 +107,7 @@ class IronBeastReportData {
 
     private String getIntentString(Intent intent, String field, String defVal) {
         String val = intent.getStringExtra(field);
-        if (TextUtils.isEmpty(val)) {
-            return defVal;
-        } else {
-            return val;
-        }
+        return (TextUtils.isEmpty(val)) ? defVal : val;
     }
 
     private void setIfNotNull(JSONObject report, String field, Object val) {
@@ -126,18 +115,8 @@ class IronBeastReportData {
             try {
                 report.put(field, val);
             } catch (Exception e) {
-                IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+                IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
             }
         }
-    }
-
-    private EReportType fetchReportType(Intent intent) {
-        EReportType type = EReportType.REPORT_TYPE_ERROR;
-        try {
-            type = EReportType.parseString(intent.getIntExtra(ReportingConsts.EXTRA_REPORT_TYPE, -1));
-        } catch (Exception e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
-        }
-        return type;
     }
 }

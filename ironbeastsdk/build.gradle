@@ -22,12 +22,24 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        def BOOLEAN = "boolean"
+        def TRUE = "true"
+        def FALSE = "false"
+        def STRING = "String"
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'mobileCore.pro'
-
+            buildConfigField(STRING, "DEFAULT_URL", '"http://lb.ironbeast.io"')
+            buildConfigField(STRING, "BULK_URL", '"http://lb.ironbeast.io/bulk"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
         }
+
         debug {
+            //mcDiscovery http://lb.ironbeast.io/bulk
+            buildConfigField(STRING, "DEFAULT_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com"')
+            buildConfigField(STRING, "BULK_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com/bulk"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
         }
     }
     //release type by default so for test we need to set debug
@@ -60,7 +72,7 @@ buildscript {
 
 task deleteJavaDebugLogs << {
     description("This function will delete all SDK DEBUG log level from the project, be careful with it!")
-    FileTree  javaFiles = fileTree('src/main/java/com/ironsource/mobilcore') {
+    FileTree javaFiles = fileTree('src/main/java/com/ironsource/mobilcore') {
         include '**/*.java'
     }
     String regex = "Logger.log[^,]+[^L]+(.*)Logger.SDK_DEBUG[^;];"
@@ -71,6 +83,7 @@ task deleteJavaDebugLogs << {
         javaFile.setText(content)
     }
 }
+
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
 

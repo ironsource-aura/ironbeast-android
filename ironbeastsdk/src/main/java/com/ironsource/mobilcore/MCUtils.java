@@ -13,8 +13,6 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 
-import com.ironsource.mobilcore.ReportingConsts.EReportType;
-
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -147,7 +145,7 @@ class MCUtils {
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
         return "";
     }
@@ -183,7 +181,7 @@ class MCUtils {
             return appName;
         } catch (Exception e) {
             if (!sdCardMounted) {
-                IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+                IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
             }
             return null;
         }
@@ -233,7 +231,7 @@ class MCUtils {
             obj.putOpt("gpv", getGooglePlayStoreVersion());
             /* get string value of device orientation */
         } catch (Exception e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
         Logger.log("getMobileParams " + obj.toString(), Logger.SDK_DEBUG);
         return obj;
@@ -263,7 +261,7 @@ class MCUtils {
                 installerPackage = "";
             }
         } catch (Exception e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
             installerPackage = "error";
         }
         return installerPackage;
@@ -303,7 +301,7 @@ class MCUtils {
                 return true;
             }
         } catch (Exception e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
 
         return false;
@@ -432,15 +430,9 @@ class MCUtils {
 
             return true;
         } catch (Exception e) {
-            IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
         return false;
-    }
-
-    public static void clearFolder(String folder) {
-        File tempDir = new File(folder);
-        MCUtils.deleteFolder(tempDir);
-        tempDir.mkdir();
     }
 
     @SuppressLint("InlinedApi")
@@ -552,15 +544,6 @@ class MCUtils {
             }
         }
         return w;
-    }
-
-    public static boolean checkIfSdkWasInitAndNotifyIfNot(Method method) {
-        if (IronBeast.getAppContext() != null) {
-            return true;
-        } else {
-            Logger.log("Trying to use " + method.getName() + " before MobileCore SDK is initialized, make sure to call MobileCore.init() first", Logger.CRITICAL);
-            return false;
-        }
     }
 
     public static String getCurrentTime() {

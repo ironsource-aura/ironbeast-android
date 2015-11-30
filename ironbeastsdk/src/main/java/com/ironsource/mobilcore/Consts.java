@@ -7,7 +7,7 @@ class Consts {
     protected static final int DEFAULT_BATCH_SIZE = 30;
     protected static final int REPORT_MAX_ERR_FIELD_LENGTH = 256;
 
-    protected static final String VER = Config.VER;
+    protected static final String VER = BuildConfig.VERSION_NAME;
     protected static final String SHARED_PREFS_NAME_HASH = "s#ges#gd1%ds#gos#gcs#ghss#gas#gh";
     protected static final String SHARED_PREFS_NAME = "1%dss#gfs#ge1%dr1%dps#g_s#gds#ge1%drs#gas#ghs#gSs#g_s#ge1%dr1%dos#gCs#ge1%dls#gis#gb1%do1%dm";
 

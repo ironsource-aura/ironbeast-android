@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
 public abstract class IronBeast {
     private static final String TAG = IronBeast.class.getSimpleName();
@@ -53,7 +52,7 @@ public abstract class IronBeast {
                 sBatchSize = Integer.valueOf(size);
             }
         } catch (Exception e) {
-            IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_ERROR).setError(e).send();
+            IronBeastReportData.openReport(sAppContext, SdkEvent.ERROR).setError(e).send();
         }
     }
 
@@ -87,7 +86,7 @@ public abstract class IronBeast {
     *  Will batch reports
     * */
     public static void track(IronBeastReport report) {
-        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
+        IronBeastReportData.openReport(sAppContext, SdkEvent.ENQUEUE)
                 .setReport(report)
                 .setAuth(mAuthKey)
                 .setBulk(true)
@@ -98,7 +97,7 @@ public abstract class IronBeast {
     *  Will send report immediately
     * */
     public static void post(IronBeastReport report) {
-        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_IRON_BEAST)
+        IronBeastReportData.openReport(sAppContext, SdkEvent.POST_SYNC)
                 .setReport(report)
                 .setAuth(mAuthKey)
                 .setBulk(false)
@@ -109,7 +108,7 @@ public abstract class IronBeast {
     *  Will send all batched report till now
     * */
     public static void flush() {
-        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_FLUSH)
+        IronBeastReportData.openReport(sAppContext, SdkEvent.FLUSH_QUEUE)
                 .setAuth(mAuthKey)
                 .setBulk(true)
                 .send();
@@ -128,9 +127,6 @@ public abstract class IronBeast {
     public void setBatchSize(int batchSize) {
         sBatchSize = batchSize;
         //update config
-        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_UPDATE_CONFIG)
-                .setData(Consts.PREFS_MAX_BATCH_SIZE, String.valueOf(sBatchSize))
-                .send();
     }
 
     public enum LOG_TYPE {

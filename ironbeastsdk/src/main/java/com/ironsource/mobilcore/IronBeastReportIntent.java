@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.ironsource.mobilcore.Consts.EServiceType;
-import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
 import java.util.Set;
 
@@ -12,12 +11,12 @@ class IronBeastReportIntent extends Intent {
 
     private Context mCtx;
 
-    public IronBeastReportIntent(Context context, EReportType type) {
+    public IronBeastReportIntent(Context context, int sdkEvent) {
         super(context, IronBeastReportService.class);
         mCtx = context;
 
         EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);
-        putExtra(ReportingConsts.EXTRA_REPORT_TYPE, type.ordinal());
+        putExtra(ReportingConsts.EXTRA_REPORT_TYPE, sdkEvent);
         putExtra(ReportingConsts.EXTRA_TOKEN, IronBeast.getToken(context));
     }
 
