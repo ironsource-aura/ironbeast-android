@@ -25,7 +25,12 @@ class IronBeastReportData {
         return new IronBeastReportIntent(context, type);
     }
 
+    public static void doScheduledSend() {
+
+    }
+
     public synchronized void doReport(Context context, Intent intent) {
+        Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
                 EReportType type = fetchReportType(intent);
@@ -66,7 +71,7 @@ class IronBeastReportData {
                     String auth = (String) dataObject.remove(IronBeastReport.AUTH);
                     boolean isBulk = (Boolean) dataObject.remove(IronBeastReport.BULK);
                     boolean isNetworkAvail = NetworkUtils.isNetworkAvail(context);
-                    if(isBulk) {
+                    if (isBulk) {
                         //QUEUE
                         //TODO: create message for ironBeast
                         //TODO: encrypt data
@@ -121,7 +126,7 @@ class IronBeastReportData {
             try {
                 report.put(field, val);
             } catch (Exception e) {
-                IronBeastReportData.openReport(IronBeast.getAppContext(),EReportType.REPORT_TYPE_ERROR).setError(e).send();
+                IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
             }
         }
     }
@@ -134,9 +139,5 @@ class IronBeastReportData {
             IronBeastReportData.openReport(IronBeast.getAppContext(), EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
         return type;
-    }
-
-    public static void doScheduledSend() {
-
     }
 }

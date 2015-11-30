@@ -1,102 +1,33 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#B0E2FF">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btnTrackReport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:onClick="sendReport"
+        android:text="Track report (Send it immediately)" />
 
-        <Button
-            android:id="@+id/btninit"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:onClick="initAll"
-            android:text="Init all ad units"/>
+    <Button
+        android:id="@+id/btnPostReport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="sendReport"
+        android:text="Post report (Send it later)" />
 
-        <Button
-            android:id="@+id/btnStickeez"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="openActivity"
-            android:text="Stickeez with triggers"/>
+    <Button
+        android:id="@+id/btnFlushReports"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="sendReport"
+        android:text="Flush all reports (Send it now)" />
 
-        <Button
-            android:id="@+id/btnInterstitial"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="openActivity"
-            android:text="Interstitial with triggers"/>
-
-        <Button
-            android:id="@+id/btnNativeAds"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="openActivity"
-            android:text="NativeAds with triggers"/>
-
-        <Button
-            android:id="@+id/btnDtm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="openActivity"
-            android:text="DTM with triggers"/>
-
-        <TextView
-            android:id="@+id/BackwardsCompatTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Backwards Compatibility"
-            android:textStyle="bold"/>
-
-        <Button
-            android:id="@+id/btnBackwardsCompat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="openActivity"
-            android:text="Interstitial"/>
-
-        <TextView
-            android:id="@+id/ClearingTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Clearing"
-            android:textStyle="bold"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/stopAppBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:onClick="onlyStop"
-                android:text="Stop"/>
-
-            <Button
-                android:id="@+id/clearAllBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:onClick="clearAll"
-                android:text="Clear all"/>
-        </LinearLayout>
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

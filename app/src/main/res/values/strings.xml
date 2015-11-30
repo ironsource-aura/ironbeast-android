@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">IronBeastTester</string>
-    <string name="simple_app_name">Activity IBTester</string>
+    <string name="simple_app_name">IronBeast Tester</string>
     <string name="service_app_name">Service IBTester</string>
     <string name="action_settings">Settings</string>
 
