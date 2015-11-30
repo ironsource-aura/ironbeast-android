@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.ironsource.mobilcore.ReportingConsts.EReportType;
 
@@ -39,7 +40,7 @@ class IronBeastReportData {
                         MCUtils.saveConfig(context, Consts.PREFS_MAX_BATCH_SIZE, batchSize);
                         //TODO: update STORAGE component with new size
                     }
-                } else if (type.compareTo(EReportType.REPORT_TYPE_FLUSH) == 0) {
+                } else if (type.compareTo(EReportType.FLUSH_QUEUE) == 0) {
                     //TODO: flush STORAGE component
 
                 } else {
@@ -62,8 +63,8 @@ class IronBeastReportData {
                         appendMoreDataToErrorReport(context, intent, dataObject);
                     }
 
-                    String tableName = (String) dataObject.remove(IronBeastReport.TABLE_NAME);
-                    String auth = (String) dataObject.remove(IronBeastReport.AUTH);
+                    String tableName = (String) dataObject.remove(IronBeastReport.TABLE);
+                    String auth = (String) dataObject.remove(IronBeastReport.TOKEN);
                     boolean isBulk = (Boolean) dataObject.remove(IronBeastReport.BULK);
                     boolean isNetworkAvail = NetworkUtils.isNetworkAvail(context);
                     if(isBulk) {

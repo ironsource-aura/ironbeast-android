@@ -66,13 +66,23 @@ class IronBeastReportIntent extends Intent {
         return this;
     }
 
-    public IronBeastReportIntent setAuth(String auth) {
-        putExtra(IronBeastReport.AUTH, auth);
+    public IronBeastReportIntent setToken(String token) {
+        putExtra(IronBeastReport.TOKEN, token);
+        return this;
+    }
+
+    public IronBeastReportIntent setTable(String table) {
+        putExtra(IronBeastReport.TABLE, table);
         return this;
     }
 
     public IronBeastReportIntent setData(String key, String value) {
         putExtra(key, value);
+        return this;
+    }
+
+    public IronBeastReportIntent setData(String value) {
+        setData(IronBeastReport.DATA, value);
         return this;
     }
 

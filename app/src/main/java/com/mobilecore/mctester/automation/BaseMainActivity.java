@@ -9,10 +9,14 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.ironsource.mobilcore.IronBeast;
-import com.ironsource.mobilcore.IronBeastReport;
+
+import org.json.JSONObject;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public class BaseMainActivity extends Activity {
 
@@ -34,14 +38,14 @@ public class BaseMainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
-        IronBeast.init(this, "token", IronBeast.LOG_TYPE.DEBUG);
-
-        IronBeastReport.Builder ibReportBuilder = new IronBeastReport.Builder();
-        ibReportBuilder.setTableName("LALA").setData("AAAA", "BBB").setData("BBBB", "CCCC");
-
-        IronBeast.track(ibReportBuilder.build());
-        IronBeast.post(ibReportBuilder.build());
-        IronBeast.flush();
+        IronBeast tracker = IronBeast.getInstance(this, "myToken");
+        JSONObject params = new JSONObject();
+        try {
+            params.put("hello", "world");
+            tracker.track("ibtest", params);
+        } catch (JSONException e) {
+            Log.d("TAG", "Failed to track you json");
+        }
     }
 
     public void initAll(View v) {
@@ -52,7 +56,6 @@ public class BaseMainActivity extends Activity {
         Intent i = null;
         switch (id) {
             case R.id.btnInterstitial:
-              //  IronBeast.track(ibReportBuilder.build());
 //                i = new Intent(this, InterstitialWithTriggers.class);
                 break;
             case R.id.btnStickeez:

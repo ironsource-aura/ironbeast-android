@@ -12,9 +12,10 @@ import java.util.Map;
  * Created by mikhaili on 11/14/15.
  */
 public class IronBeastReport extends HashMap<String, String> {
-    public static final String TABLE_NAME = "table";
-    public static final String AUTH = "auth";
+    public static final String TABLE = "table";
+    public static final String TOKEN = "token";
     public static final String BULK = "bulk";
+    public static final String DATA = "data";
 
     IronBeastReport(HashMap map) {
         this.putAll(map);
@@ -24,13 +25,13 @@ public class IronBeastReport extends HashMap<String, String> {
         HashMap<String, Object> mValues = new HashMap<>();
 
         public Builder setTableName(String table) {
-            mValues.put(TABLE_NAME, table);
+            mValues.put(TABLE, table);
             mValues.put(BULK, String.valueOf(true));
             return this;
         }
 
         public Builder setAuth(String auth) {
-            mValues.put(AUTH, auth);
+            mValues.put(TOKEN, auth);
             return this;
         }
 
@@ -60,10 +61,11 @@ public class IronBeastReport extends HashMap<String, String> {
 
         public IronBeastReport build() {
             IronBeastReport rep = new IronBeastReport(mValues);
-            if (TextUtils.isEmpty(rep.get(TABLE_NAME))) {
+            if (TextUtils.isEmpty(rep.get(TABLE))) {
                 throw new IllegalStateException(Consts.WARNING_REPORT_TABLE_NOT_SET);
             }
             return rep;
         }
     }
 }
+

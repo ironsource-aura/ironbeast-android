@@ -52,7 +52,7 @@ public class IronBeastReportService extends Service {
     @Override
     public void onCreate() {
         Logger.log(TAG + " service onCreate() | called", Logger.SDK_DEBUG);
-        android.os.Debug.waitForDebugger();
+      //  android.os.Debug.waitForDebugger();
 
         try {
             IronBeast.setAppContext(this);
