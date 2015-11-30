@@ -47,7 +47,11 @@ public abstract class IronBeast {
             }
             // save token and affiliateAccount in prefs
             sToken = token;
-            sBatchSize = Consts.DEFAULT_BATCH_SIZE;
+
+            String size = MCUtils.getValueFromConfig(getAppContext(), Consts.PREFS_MAX_BATCH_SIZE);
+            if (!TextUtils.isEmpty(size)) {
+                sBatchSize = Integer.valueOf(size);
+            }
         } catch (Exception e) {
             IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_ERROR).setError(e).send();
         }
@@ -60,7 +64,7 @@ public abstract class IronBeast {
     protected static String getToken(Context context) {
         if (TextUtils.isEmpty(sToken) && context != null) {
             SharedPreferences prefs = MCUtils.getSharedPrefs(context, Consts.SHARED_PREFS_NAME_HASH);
-            sToken = Guard.decrypt(prefs.getString(Consts.PREFS_TOKEN, ""));
+            sToken = prefs.getString(Consts.PREFS_TOKEN, "");
         }
         return sToken;
     }
@@ -123,9 +127,14 @@ public abstract class IronBeast {
     * */
     public void setBatchSize(int batchSize) {
         sBatchSize = batchSize;
+        //update config
+        IronBeastReportData.openReport(sAppContext, EReportType.REPORT_TYPE_UPDATE_CONFIG)
+                .setData(Consts.PREFS_MAX_BATCH_SIZE, String.valueOf(sBatchSize))
+                .send();
     }
 
     public enum LOG_TYPE {
         DEBUG, PRODUCTION
     }
 }
+

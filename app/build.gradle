@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.mobilecore.ironbeast.automation"
         minSdkVersion 10
-        targetSdkVersion 23
+        targetSdkVersion 22
     }
 
     buildTypes {
@@ -33,5 +33,5 @@ dependencies {
     compile project(':ironbeastsdk')
     //while we are using flavor we can specific which lib version to use
     //compile project(path: ':mobilecoresdk', configuartion: 'devRelease')
-    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:support-v4:22.1.1'
 }
