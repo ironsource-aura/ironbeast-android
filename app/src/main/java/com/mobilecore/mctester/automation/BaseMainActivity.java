@@ -52,6 +52,7 @@ public class BaseMainActivity extends Activity {
         Intent i = null;
         switch (id) {
             case R.id.btnInterstitial:
+              //  IronBeast.track(ibReportBuilder.build());
 //                i = new Intent(this, InterstitialWithTriggers.class);
                 break;
             case R.id.btnStickeez:

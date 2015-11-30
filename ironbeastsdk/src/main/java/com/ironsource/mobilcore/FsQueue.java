@@ -1,6 +1,7 @@
 package com.ironsource.mobilcore;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,7 +65,7 @@ public class FsQueue implements StorageService {
             out.close();
             nRecords++;
         } catch (IOException e) {
-            Logger.log("Failed to write record to 'fs'", Logger.NORMAL);
+            Logger.log("Failed to write record to 'fs'", Logger.SDK_DEBUG);
         }
         return nRecords;
     }
@@ -81,7 +82,7 @@ public class FsQueue implements StorageService {
             lines = rawLines.split("\n");
             in.close();
         } catch(IOException e) {
-            Logger.log("Failed to read records from 'fs'", Logger.NORMAL);
+            Logger.log("Failed to read records from 'fs'", Logger.SDK_DEBUG);
         } finally {
             // If everything worked well, delete the file and reset `nRecords`
             if (fi != null && lines != null) {
