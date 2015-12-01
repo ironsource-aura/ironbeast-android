@@ -39,7 +39,7 @@ android {
             //mcDiscovery http://lb.ironbeast.io/bulk
             buildConfigField(STRING, "DEFAULT_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com"')
             buildConfigField(STRING, "BULK_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com/bulk"')
-            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
     }
     //release type by default so for test we need to set debug

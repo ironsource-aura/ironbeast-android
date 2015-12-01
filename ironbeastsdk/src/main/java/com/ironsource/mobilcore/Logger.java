@@ -10,7 +10,7 @@ class Logger {
     public static final int SDK_DEBUG = 55;
     protected static final int PRE_INIT = 1; // Allow non-critical, warning logs before mLogerMode was init and regardless of superDevMode which is internal
     private static final boolean mIsSuperDevMode = BuildConfig.IS_SUPER_DEV_MODE;
-    private static final String LOG_TAG = IronBeast.class.getSimpleName();
+    private static final String LOG_TAG = Logger.class.getSimpleName();
 
 
     public static void log(String log_string, int log_level) {
