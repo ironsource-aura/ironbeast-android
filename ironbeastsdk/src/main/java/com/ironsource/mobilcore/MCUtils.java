@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 class MCUtils {
 
     private static final String MARKET_BASE_URL = "https://play.google.com/store/apps/details?id={0}";
@@ -596,5 +599,19 @@ class MCUtils {
 
         buffer.flush();
         return buffer.toByteArray();
+    }
+
+    // auth helper
+    // Exception could be: NoSuchAlgorithmException, UnsupportedEncodingException
+    // and InvalidKeyException
+    public static String auth(String data, String key) throws Exception {
+        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        sha256_HMAC.init(secret_key);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : sha256_HMAC.doFinal(data.getBytes("UTF-8"))) {
+            sb.append(String.format("%1$02x", b));
+        }
+        return sb.toString();
     }
 }
