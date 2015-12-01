@@ -58,7 +58,7 @@ public class HttpService implements RemoteService {
             out = null;
             // Input
             in = connection.getInputStream();
-            response.body = new String(MCUtils.slurp(in), Charset.forName("UTF-8"));
+            response.body = new String(Utils.slurp(in), Charset.forName("UTF-8"));
             response.code = connection.getResponseCode();
             in.close();
             in = null;

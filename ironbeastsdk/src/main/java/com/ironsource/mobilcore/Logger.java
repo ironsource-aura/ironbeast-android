@@ -11,11 +11,7 @@ class Logger {
     protected static final int PRE_INIT = 1; // Allow non-critical, warning logs before mLogerMode was init and regardless of superDevMode which is internal
     private static final boolean mIsSuperDevMode = BuildConfig.IS_SUPER_DEV_MODE;
     private static final String LOG_TAG = IronBeast.class.getSimpleName();
-    private static IronBeast.LOG_TYPE mLoggerMode;
 
-    public static void setLoggingLevel(IronBeast.LOG_TYPE level) {
-        mLoggerMode = level;
-    }
 
     public static void log(String log_string, int log_level) {
         switch (log_level) {
@@ -26,11 +22,11 @@ class Logger {
                 Log.e(LOG_TAG, log_string);
                 break;
             case (WARNING):
-                if (mLoggerMode == IronBeast.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (IBConfig.getsInstance().getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.w(LOG_TAG, log_string);
                 }
             case (NORMAL):
-                if (mLoggerMode == IronBeast.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (IBConfig.getsInstance().getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.i(LOG_TAG, log_string);
                 }
                 break;

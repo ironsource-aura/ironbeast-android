@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.json.JSONObject;
 
 class IronBeastReportData {
+
 
     public static final String TAG = IronBeastReportData.class.getSimpleName();
 
@@ -31,7 +33,7 @@ class IronBeastReportData {
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
-                int event = intent.getIntExtra(ReportingConsts.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+                int event = intent.getIntExtra(IronBeastReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
                 ;
                 // We want to send report
                 // immediately: IRON_BEAST_REPORT isBulk = false
@@ -57,12 +59,11 @@ class IronBeastReportData {
                         //TODO: add something
 
                     } else if (event == SdkEvent.ERROR) {
-                        appendMoreDataToErrorReport(context, intent, dataObject);
                     }
 
-                    String tableName = (String) dataObject.remove(IronBeastReport.TABLE_NAME);
-                    String auth = (String) dataObject.remove(IronBeastReport.AUTH);
-                    boolean isBulk = (Boolean) dataObject.remove(IronBeastReport.BULK);
+                    String tableName = (String) dataObject.remove(IronBeastReportIntent.TABLE);
+                    String auth = (String) dataObject.remove(IronBeastReportIntent.TOKEN);
+                    boolean isBulk = (Boolean) dataObject.remove(IronBeastReportIntent.BULK);
                     boolean isNetworkAvail = NetworkUtils.isNetworkAvail(context);
                     if (isBulk) {
                         //QUEUE
@@ -79,44 +80,6 @@ class IronBeastReportData {
             }
         } catch (Exception ex) {
             //TODO: may be send error
-        }
-    }
-
-    private JSONObject appendMoreDataToErrorReport(Context context, Intent intent, JSONObject report) {
-        try {
-            report.put(ReportingConsts.REPORT_FIELD_TIMESTAMP, MCUtils.getCurrentTime());
-            report.put(ReportingConsts.REPORT_FIELD_IRVER, Consts.VER);
-            report.put(ReportingConsts.REPORT_FIELD_PLATFORM, ReportingConsts.REPORT_OS_ANDROID);
-            report.put(ReportingConsts.REPORT_FIELD_RV, ReportingConsts.REPORT_VERSION);
-            report.put(ReportingConsts.REPORT_FIELD_TOKEN, getIntentString(intent, ReportingConsts.EXTRA_TOKEN, IronBeast.getToken()));
-            report.put(ReportingConsts.REPORT_FIELD_CARRIER, context.getPackageName());
-            report.put(ReportingConsts.REPORT_FIELD_CARRIER_VER, MCUtils.getCarrierVersion(context));
-            report.put(ReportingConsts.REPORT_FIELD_CUR_CONN, MCUtils.interpretConnection(MCUtils.getCurrentConnection(context)));
-
-            setIfNotNull(report, ReportingConsts.REPORT_FIELD_BV, ExternalVars.REPLACABLE_BAMBOO_VER);
-
-            report.put(ReportingConsts.REPORT_FIELD_OS, android.os.Build.VERSION.SDK_INT);
-            String shortErr = MCUtils.getShortenedString(intent.getStringExtra(ReportingConsts.EXTRA_EXCEPTION), Consts.REPORT_MAX_ERR_FIELD_LENGTH);
-            setIfNotNull(report, ReportingConsts.REPORT_FIELD_ERR, shortErr);
-            report.put(IronBeastReport.BULK, true);
-        } catch (Exception ex) {
-            //TODO: send or print
-        }
-        return report;
-    }
-
-    private String getIntentString(Intent intent, String field, String defVal) {
-        String val = intent.getStringExtra(field);
-        return (TextUtils.isEmpty(val)) ? defVal : val;
-    }
-
-    private void setIfNotNull(JSONObject report, String field, Object val) {
-        if (val != null) {
-            try {
-                report.put(field, val);
-            } catch (Exception e) {
-                IronBeastReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
-            }
         }
     }
 }

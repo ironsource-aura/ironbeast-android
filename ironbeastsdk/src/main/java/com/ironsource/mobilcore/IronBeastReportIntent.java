@@ -5,10 +5,13 @@ import android.content.Intent;
 
 import com.ironsource.mobilcore.Consts.EServiceType;
 
-import java.util.Set;
-
 class IronBeastReportIntent extends Intent {
-
+    public static final String TABLE = "table";
+    public static final String TOKEN = "token";
+    public static final String BULK = "bulk";
+    public static final String DATA = "data";
+    protected static final String EXTRA_REPORT_TYPE = "report_type";
+    protected static final String EXTRA_EXCEPTION = "exception";
     private Context mCtx;
 
     public IronBeastReportIntent(Context context, int sdkEvent) {
@@ -16,22 +19,11 @@ class IronBeastReportIntent extends Intent {
         mCtx = context;
 
         EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);
-        putExtra(ReportingConsts.EXTRA_REPORT_TYPE, sdkEvent);
-        putExtra(ReportingConsts.EXTRA_TOKEN, IronBeast.getToken(context));
-    }
-
-    public IronBeastReportIntent setError(Exception e) {
-        putExtra(ReportingConsts.EXTRA_EXCEPTION, MCUtils.formatExceptionMsg(e, getCallerClassString()));
-        return this;
-    }
-
-    public IronBeastReportIntent setError(Exception e, String errorMessage) {
-        putExtra(ReportingConsts.EXTRA_EXCEPTION, MCUtils.formatExceptionMsg(e, getCallerClassString()) + " ### " + errorMessage);
-        return this;
+        putExtra(EXTRA_REPORT_TYPE, sdkEvent);
     }
 
     public IronBeastReportIntent setError(String errorMsg) {
-        putExtra(ReportingConsts.EXTRA_EXCEPTION, getCallerClassString() + " ### " + errorMsg);
+        putExtra(EXTRA_EXCEPTION, getCallerClassString() + " ### " + errorMsg);
         return this;
     }
 
@@ -57,16 +49,13 @@ class IronBeastReportIntent extends Intent {
         mCtx.startService(this);
     }
 
-    public IronBeastReportIntent setReport(IronBeastReport report) {
-        Set<String> keys = report.keySet();
-        for (String key : keys) {
-            this.putExtra(key, report.get(key));
-        }
+    public IronBeastReportIntent setToken(String token) {
+        putExtra(TOKEN, token);
         return this;
     }
 
-    public IronBeastReportIntent setAuth(String auth) {
-        putExtra(IronBeastReport.AUTH, auth);
+    public IronBeastReportIntent setTable(String table) {
+        putExtra(TABLE, table);
         return this;
     }
 
@@ -75,8 +64,9 @@ class IronBeastReportIntent extends Intent {
         return this;
     }
 
-    public IronBeastReportIntent setBulk(boolean isBulk) {
-        putExtra(IronBeastReport.BULK, isBulk);
+    public IronBeastReportIntent setData(String value) {
+        setData(DATA, value);
         return this;
     }
+
 }

@@ -2,11 +2,15 @@ package com.mobilecore.mctester.automation;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
+import com.ironsource.mobilcore.IBConfig;
 import com.ironsource.mobilcore.IronBeast;
-import com.ironsource.mobilcore.IronBeastReport;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class BaseMainActivity extends Activity {
 
@@ -14,23 +18,26 @@ public class BaseMainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
-        IronBeast.init(this, "token", IronBeast.LOG_TYPE.DEBUG);
     }
 
     public void sendReport(View v) {
         int id = v.getId();
-        IronBeastReport.Builder ibReportBuilder = new IronBeastReport.Builder();
-        ibReportBuilder.setTableName("LALA").setData("AAAA", "BBB").setData("BBBB", "CCCC");
-
+        IronBeast tracker = IronBeast.getInstance(this, "myToken");
+        JSONObject params = new JSONObject();
+        try {
+            params.put("hello", "world");
+        } catch (JSONException e) {
+            Log.d("TAG", "Failed to track you json");
+        }
         switch (id) {
             case R.id.btnTrackReport:
-                IronBeast.track(ibReportBuilder.build());
+                tracker.track("ibtest", params);
                 break;
             case R.id.btnPostReport:
-                IronBeast.post(ibReportBuilder.build());
+                tracker.post("ibtest", params);
                 break;
             case R.id.btnFlushReports:
-                IronBeast.flush();
+                tracker.flush();
                 break;
         }
     }
