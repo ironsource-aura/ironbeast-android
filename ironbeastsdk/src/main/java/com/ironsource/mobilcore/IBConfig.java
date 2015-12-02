@@ -93,7 +93,7 @@ public class IBConfig {
     // Name for persistent storage of app referral SharedPreferences
     static final String REFERRER_PREFS_NAME = "com.ironsource.mobilcore.ReferralInfo";
     // IBConstants
-    private static final String DEFAULT_URL = "http://10.0.2.2:3000/";  // (temporary, just for debugging)
+    private static final String DEFAULT_URL = "http://10.0.2.2:3000/";  // (temporary, just for debugging right now)
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";

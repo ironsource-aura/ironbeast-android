@@ -3,7 +3,6 @@ package com.ironsource.mobilcore;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,16 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-class IronBeastReportData {
+class ReportData {
 
-    public IronBeastReportData() {
+    public ReportData() {
         mConfig = IBConfig.getsInstance();
         mQueue = null;
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
-    public static IronBeastReportIntent openReport(Context context, int sdkEvent) {
-        return new IronBeastReportIntent(context, sdkEvent);
+    public static ReportIntent openReport(Context context, int sdkEvent) {
+        return new ReportIntent(context, sdkEvent);
     }
 
     public static void doScheduledSend() {
@@ -35,17 +34,17 @@ class IronBeastReportData {
     }
 
     public synchronized void doReport(Context context, Intent intent) {
+        Logger.log("doReport --->", Logger.SDK_DEBUG);
         if (null == mQueue) {
             mQueue = getQueue(mConfig.getRecordsFile(), context);
         }
-        Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
-                int event = intent.getIntExtra(IronBeastReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+                int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
                 Bundle bundle = intent.getExtras();
                 JSONObject dataObject = new JSONObject();
                 try {
-                    String[] fields = {IronBeastReportIntent.TABLE, IronBeastReportIntent.TOKEN, IronBeastReportIntent.DATA};
+                    String[] fields = {ReportIntent.TABLE, ReportIntent.TOKEN, ReportIntent.DATA};
                     for (String key : fields) {
                         Object value = bundle.get(key);
                         dataObject.put(key, value);
@@ -78,7 +77,7 @@ class IronBeastReportData {
                     for (String record:  records) {
                         try {
                             JSONObject obj = new JSONObject(record);
-                            String tName = (String) obj.get(IronBeastReportIntent.TABLE);
+                            String tName = (String) obj.get(ReportIntent.TABLE);
                             if (!reqMap.containsKey(tName)) {
                                 reqMap.put(tName, new ArrayList<JSONObject>());
                             }
@@ -91,17 +90,17 @@ class IronBeastReportData {
                     for (Map.Entry<String, List<JSONObject>> entry : reqMap.entrySet()) {
                         JSONObject dataObj = new JSONObject();
                         try {
-                            dataObj.put(IronBeastReportIntent.TABLE, entry.getKey());
+                            dataObj.put(ReportIntent.TABLE, entry.getKey());
                             JSONArray bulk = new JSONArray();
                             for (JSONObject record: entry.getValue()) {
-                                if (!dataObj.has(IronBeastReportIntent.TOKEN)) {
-                                    dataObj.put(IronBeastReportIntent.TOKEN, record.get(IronBeastReportIntent.TOKEN));
+                                if (!dataObj.has(ReportIntent.TOKEN)) {
+                                    dataObj.put(ReportIntent.TOKEN, record.get(ReportIntent.TOKEN));
                                 }
                                 // Put only the `data` field
-                                bulk.put(record.getString(IronBeastReportIntent.DATA));
+                                bulk.put(record.getString(ReportIntent.DATA));
                             }
                             // `bulk` contains all `data` fields of all objects in the current destination
-                            dataObj.put(IronBeastReportIntent.DATA, bulk.toString());
+                            dataObj.put(ReportIntent.DATA, bulk.toString());
                         } catch (JSONException e) {
                             Logger.log("Failed to generate the dataObj to send()", Logger.SDK_DEBUG);
                         }
@@ -132,16 +131,15 @@ class IronBeastReportData {
         String message = "";
         try {
             JSONObject clone = new JSONObject(dataObj.toString());
-            String data = clone.getString(IronBeastReportIntent.DATA);
-            clone.put(IronBeastReportIntent.AUTH,
-                    Utils.auth(data, (String) clone.remove(IronBeastReportIntent.TOKEN)));
+            String data = clone.getString(ReportIntent.DATA);
+            clone.put(ReportIntent.AUTH,
+                    Utils.auth(data, (String) clone.remove(ReportIntent.TOKEN)));
             if (bulk) {
-                clone.put(IronBeastReportIntent.BULK, true);
+                clone.put(ReportIntent.BULK, true);
             }
             message = clone.toString();
         } catch (Exception e) {
-            // Log "failed to track your event ${e}"
-            e.printStackTrace();
+            Logger.log("ReportData: failed create message" + e.getMessage(), Logger.SDK_DEBUG);
         }
         return message;
     }
@@ -190,7 +188,7 @@ class IronBeastReportData {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
     }
 
-    public static final String TAG = IronBeastReportData.class.getSimpleName();
+    public static final String TAG = ReportData.class.getSimpleName();
     private IBConfig mConfig;
     private StorageService mQueue;
 }

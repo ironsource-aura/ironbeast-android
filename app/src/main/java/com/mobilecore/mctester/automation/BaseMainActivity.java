@@ -27,7 +27,7 @@ public class BaseMainActivity extends Activity {
         try {
             params.put("hello", "world");
         } catch (JSONException e) {
-            Log.d("TAG", "Failed to track you json");
+            Log.d("TAG", "Failed to track your json");
         }
         switch (id) {
             case R.id.btnTrackReport:

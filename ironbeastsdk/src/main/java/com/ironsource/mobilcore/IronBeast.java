@@ -37,7 +37,7 @@ public class IronBeast {
     }
 
     public void track (String table, JSONObject data) {
-        IronBeastReportData.openReport(appContext, SdkEvent.ENQUEUE)
+        ReportData.openReport(appContext, SdkEvent.ENQUEUE)
                 .setTable(table)
                 .setToken(mToken)
                 .setData(data.toString())
@@ -45,7 +45,7 @@ public class IronBeast {
     }
 
     public void post (String table, JSONObject data) {
-        IronBeastReportData.openReport(appContext, SdkEvent.POST_SYNC)
+        ReportData.openReport(appContext, SdkEvent.POST_SYNC)
                 .setTable(table)
                 .setToken(mToken)
                 .setData(data.toString())
@@ -53,7 +53,7 @@ public class IronBeast {
     }
 
     public void flush () {
-        IronBeastReportData.openReport(appContext, SdkEvent.FLUSH_QUEUE)
+        ReportData.openReport(appContext, SdkEvent.FLUSH_QUEUE)
                 .send();
     }
 

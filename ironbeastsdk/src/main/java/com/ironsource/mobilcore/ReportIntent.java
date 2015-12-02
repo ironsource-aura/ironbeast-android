@@ -5,25 +5,17 @@ import android.content.Intent;
 
 import com.ironsource.mobilcore.Consts.EServiceType;
 
-class IronBeastReportIntent extends Intent {
-    public static final String TABLE = "table";
-    public static final String TOKEN = "token";
-    public static final String BULK = "bulk";
-    public static final String DATA = "data";
-    public static final String AUTH = "auth";
-    protected static final String EXTRA_REPORT_TYPE = "report_type";
-    protected static final String EXTRA_EXCEPTION = "exception";
-    private Context mCtx;
+class ReportIntent extends Intent {
 
-    public IronBeastReportIntent(Context context, int sdkEvent) {
-        super(context, IronBeastReportService.class);
+    public ReportIntent(Context context, int sdkEvent) {
+        super(context, ReportService.class);
         mCtx = context;
 
         EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);
         putExtra(EXTRA_REPORT_TYPE, sdkEvent);
     }
 
-    public IronBeastReportIntent setError(String errorMsg) {
+    public ReportIntent setError(String errorMsg) {
         putExtra(EXTRA_EXCEPTION, getCallerClassString() + " ### " + errorMsg);
         return this;
     }
@@ -50,24 +42,33 @@ class IronBeastReportIntent extends Intent {
         mCtx.startService(this);
     }
 
-    public IronBeastReportIntent setToken(String token) {
+    public ReportIntent setToken(String token) {
         putExtra(TOKEN, token);
         return this;
     }
 
-    public IronBeastReportIntent setTable(String table) {
+    public ReportIntent setTable(String table) {
         putExtra(TABLE, table);
         return this;
     }
 
-    public IronBeastReportIntent setData(String key, String value) {
+    public ReportIntent setData(String key, String value) {
         putExtra(key, value);
         return this;
     }
 
-    public IronBeastReportIntent setData(String value) {
+    public ReportIntent setData(String value) {
         setData(DATA, value);
         return this;
     }
 
+    private Context mCtx;
+
+    public static final String TABLE = "table";
+    public static final String TOKEN = "token";
+    public static final String BULK = "bulk";
+    public static final String DATA = "data";
+    public static final String AUTH = "auth";
+    protected static final String EXTRA_REPORT_TYPE = "report_type";
+    protected static final String EXTRA_EXCEPTION = "exception";
 }
