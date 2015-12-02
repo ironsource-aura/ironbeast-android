@@ -94,6 +94,31 @@ public class FsQueue implements StorageService {
         return lines;
     }
 
+    @Override
+    public String[] peek() {
+        String[] lines = null;
+        File fi = null;
+        InputStream in;
+        try {
+            fi = getFile();
+            in = new FileInputStream(fi);
+            String rawLines = new String(Utils.slurp(in), Charset.forName("UTF-8"));
+            lines = rawLines.split("\n");
+            in.close();
+        } catch(IOException e) {
+            Logger.log("Failed to read records from 'fs'", Logger.SDK_DEBUG);
+        }
+        return lines;
+    }
+
+    @Override
+    public void clear() {
+        // If everything worked well, delete the file and reset `nRecords`
+        File fi = getFile();
+        mRecords = 0;
+        fi.delete();
+    }
+
     private static final Map<String, FsQueue> sInstances = new HashMap<String, FsQueue>();
     private Context mContext;
     private String mFilename;

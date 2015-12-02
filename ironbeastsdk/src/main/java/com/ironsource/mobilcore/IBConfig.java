@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 
 public class IBConfig {
 
+
     IBConfig () {
         // TODO(Ariel): Store application info in metadata and
         // use `.getApplicationInfo()` to retrieve these values
@@ -13,6 +14,7 @@ public class IBConfig {
         mBulkSize = BULK_SIZE;
         mIBEndPoint = DEFAULT_URL;
         mLoggerMode = LOG_TYPE.DEBUG;
+        mNumOfRetries = NUM_OF_RETRIES;
     }
 
     public static IBConfig getsInstance () {
@@ -58,8 +60,17 @@ public class IBConfig {
         return this;
     }
 
+    protected int getNumOfRetries() {
+        return mNumOfRetries;
+    }
+
+    protected int getIdleSeconds() {
+        return IDLE_SECONDS;
+    }
+
     private int mFlushInterval;
     private int mBulkSize;
+    private int mNumOfRetries;
     private String mIBEndPoint;
     private LOG_TYPE mLoggerMode;
 
@@ -72,6 +83,8 @@ public class IBConfig {
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final int FLUSH_INTERVAL = 60 * 1000; // 1 second
     private final int BULK_SIZE = 30;                    // 30 records
+    private final int NUM_OF_RETRIES = 3;
+    private static final int IDLE_SECONDS = 3;
 
     enum LOG_TYPE {
         PRODUCTION, DEBUG

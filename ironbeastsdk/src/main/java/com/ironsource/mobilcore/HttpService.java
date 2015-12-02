@@ -15,6 +15,16 @@ import java.nio.charset.Charset;
  * An HTTP utility class for internal use in this library.
  */
 public class HttpService implements RemoteService {
+
+    public static HttpService getInstance() {
+        synchronized (sInstanceLock) {
+            if (null == sInstances) {
+                sInstances = new HttpService();
+            }
+        }
+        return sInstances;
+    }
+
     /**
      * Test if there's a network
      */
@@ -73,4 +83,6 @@ public class HttpService implements RemoteService {
         }
         return response;
     }
+    private static final Object sInstanceLock = new Object();
+    private static HttpService sInstances;
 }
