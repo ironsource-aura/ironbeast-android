@@ -38,7 +38,6 @@ class IronBeastReportData {
         if (null == mQueue) {
             mQueue = getQueue(mConfig.getRecordsFile(), context);
         }
-        Debug.waitForDebugger();
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
@@ -136,6 +135,7 @@ class IronBeastReportData {
             if (bulk) {
                 dataObj.put(IronBeastReportIntent.BULK, true);
             }
+            message = dataObj.toString();
         } catch (Exception e) {
             // Log "failed to track your event ${e}"
             e.printStackTrace();
