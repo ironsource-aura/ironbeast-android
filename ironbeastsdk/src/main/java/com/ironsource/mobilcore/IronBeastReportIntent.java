@@ -10,6 +10,7 @@ class IronBeastReportIntent extends Intent {
     public static final String TOKEN = "token";
     public static final String BULK = "bulk";
     public static final String DATA = "data";
+    public static final String AUTH = "auth";
     protected static final String EXTRA_REPORT_TYPE = "report_type";
     protected static final String EXTRA_EXCEPTION = "exception";
     private Context mCtx;

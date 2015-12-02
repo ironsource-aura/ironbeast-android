@@ -131,12 +131,14 @@ class IronBeastReportData {
     String createMessage(JSONObject dataObj, boolean bulk) {
         String message = "";
         try {
-            String data = dataObj.getString(IronBeastReportIntent.DATA);
-            dataObj.put("auth", Utils.auth(data, (String) dataObj.remove(IronBeastReportIntent.TOKEN)));
+            JSONObject clone = new JSONObject(dataObj.toString());
+            String data = clone.getString(IronBeastReportIntent.DATA);
+            clone.put(IronBeastReportIntent.AUTH,
+                    Utils.auth(data, (String) clone.remove(IronBeastReportIntent.TOKEN)));
             if (bulk) {
-                dataObj.put(IronBeastReportIntent.BULK, true);
+                clone.put(IronBeastReportIntent.BULK, true);
             }
-            message = dataObj.toString();
+            message = clone.toString();
         } catch (Exception e) {
             // Log "failed to track your event ${e}"
             e.printStackTrace();
