@@ -26,16 +26,18 @@ public class IBConfig {
         return sInstance;
     }
 
-    public LOG_TYPE getLogLevel() {
+    public LOG_TYPE getLogLevel () {
         return mLoggerMode;
     }
 
-    public IBConfig setLogLevel(LOG_TYPE logLevel) {
+    public IBConfig setLogLevel (LOG_TYPE logLevel) {
         mLoggerMode = logLevel;
         return this;
     }
 
-    public String getIBEndPoint () { return mIBEndPoint; }
+    public String getIBEndPoint () {
+        return mIBEndPoint;
+    }
 
     public IBConfig setIBEndPoint (String url) throws MalformedURLException {
         if (URLUtil.isValidUrl(url)) {
@@ -46,26 +48,38 @@ public class IBConfig {
         return this;
     }
 
-    public int getBulkSize () { return mBulkSize; }
+    public int getBulkSize () {
+        return mBulkSize;
+    }
 
     public IBConfig setBulkSize (int size) {
         mBulkSize = size;
         return this;
     }
 
-    public int getFlushInterval () { return mFlushInterval; }
+    public int getFlushInterval () {
+        return mFlushInterval;
+    }
 
     public IBConfig setFlushInterval (int interval) {
         mFlushInterval = interval;
         return this;
     }
 
-    protected int getNumOfRetries() {
+    protected int getNumOfRetries () {
         return mNumOfRetries;
     }
 
-    protected int getIdleSeconds() {
+    protected int getIdleSeconds () {
         return IDLE_SECONDS;
+    }
+
+    protected String getRecordsFile () {
+        return RECORDS_FILENAME;
+    }
+
+    protected String getErrorsFile () {
+        return ERRORS_FILENAME;
     }
 
     private int mFlushInterval;
@@ -81,6 +95,8 @@ public class IBConfig {
     // IBConstants
     private static final String DEFAULT_URL = "http://lb.ironbeast.io";
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
+    private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
+    private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
     private static final int FLUSH_INTERVAL = 60 * 1000; // 1 second
     private final int BULK_SIZE = 30;                    // 30 records
     private final int NUM_OF_RETRIES = 3;

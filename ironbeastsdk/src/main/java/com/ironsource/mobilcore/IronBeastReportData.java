@@ -11,17 +11,18 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 class IronBeastReportData {
 
-
-    public static final String TAG = IronBeastReportData.class.getSimpleName();
-
-    /**
-     * ******** public methods ***********
-     */
-
     public IronBeastReportData() {
+        mConfig = IBConfig.getsInstance();
+        mQueue = null;
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
@@ -34,21 +35,19 @@ class IronBeastReportData {
     }
 
     public synchronized void doReport(Context context, Intent intent) {
+        if (null == mQueue) {
+            mQueue = getQueue(mConfig.getRecordsFile(), context);
+        }
         Debug.waitForDebugger();
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (intent.getExtras() != null) {
                 int event = intent.getIntExtra(IronBeastReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
-                Logger.log("doReport event --> " + event, Logger.SDK_DEBUG);
-
-                // We want to send report
-                // immediately: IRON_BEAST_REPORT isBulk = false
-                // pending : ERROR, IRON_BEAST_REPORT isBulk = true
-
                 Bundle bundle = intent.getExtras();
                 JSONObject dataObject = new JSONObject();
                 try {
-                    for (String key : bundle.keySet()) {
+                    String[] fields = {IronBeastReportIntent.TABLE, IronBeastReportIntent.TOKEN, IronBeastReportIntent.DATA};
+                    for (String key : fields) {
                         Object value = bundle.get(key);
                         dataObject.put(key, value);
                     }
@@ -57,125 +56,120 @@ class IronBeastReportData {
                     Logger.log("Failed to fetch data from Intent", Logger.SDK_DEBUG);
                 }
 
-                String table = (String) dataObject.remove(IronBeastReportIntent.TABLE);
-                String token = (String) dataObject.remove(IronBeastReportIntent.TOKEN);
-                boolean isBulk = (Boolean) dataObject.remove(IronBeastReportIntent.BULK);
-
-                if (event == SdkEvent.FLUSH_QUEUE) {
-                    //TODO: flush STORAGE component
-                    isBulk = true;
-                } else if (event == SdkEvent.ENQUEUE) {
-                    //TODO: add something
-                    isBulk = false;
+                boolean toFlush = event == SdkEvent.FLUSH_QUEUE;
+                if (event == SdkEvent.ENQUEUE) {
+                    toFlush = mQueue.push(dataObject.toString()) >= mConfig.getBulkSize();
                 } else if (event == SdkEvent.POST_SYNC) {
-
+                    String message = createMessage(dataObject, false);
+                    SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                    // If message failed, push it to queue.
+                    if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
+                        mQueue.push(dataObject.toString());
+                    }
                 } else if (event == SdkEvent.ERROR) {
                     //TODO: create ERROR report
-                    isBulk = true;
                 }
-
-                if (isBulk) {
-                    //QUEUE
-                    //TODO: create message for ironBeast
-                    //TODO: encrypt data
-                    //TODO: send data to storage or network
-                    if (IBConfig.getsInstance().getBulkSize() > FsQueue.getInstance(table, context).count()) {
-                        String[] records = FsQueue.getInstance(table, context).peek();
-                        //Prepare to send fill json array with data
-                        JSONArray array = new JSONArray();
-                        for (String record : records) {
-                            array.put(record);
-                        }
-
-                        String data = array.toString();
-                        String message = createMessage(table, token, data);
-                        String encryptedData = Utils.auth(message, token);
-
-                        SEND_RESULT sendResult = sendData(context, encryptedData, IBConfig.getsInstance().getIBEndPoint());
-                        Logger.log("Send result --> " + sendResult.toString(), Logger.SDK_DEBUG);
-                        if (sendResult == SEND_RESULT.FAILED_DELETE) {
-                            Logger.log("Remove report file --> " + sendResult.toString(), Logger.SDK_DEBUG);
-                            FsQueue.getInstance(table, context).clear();
-                            //TODO: send error report delete reason
-                        } else if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                            int currNumOfRetry = intent.getExtras().getInt("nRetries");
-                            int idleSeconds = IBConfig.getsInstance().getIdleSeconds();
-                            Logger.log("Resubmit report --> " + currNumOfRetry, Logger.SDK_DEBUG);
-                            //data was save so we need just flush the queue
-                            intent.putExtra(IronBeastReportIntent.EXTRA_REPORT_TYPE, SdkEvent.FLUSH_QUEUE);
-                            //resubmit last intent
-                            resubmitReport(context, intent, currNumOfRetry, idleSeconds);
-                        } else if (sendResult == SEND_RESULT.SUCCESS) {
-                            Logger.log("Remove report file --> " + sendResult.toString(), Logger.SDK_DEBUG);
-                            FsQueue.getInstance(table, context).clear();
+                if (toFlush) {
+                    // map all records according to 'table' field
+                    // i.e: { table1: [...], table2: [...] }
+                    Map<String, List<JSONObject>> reqMap = new HashMap<String, List<JSONObject>>();
+                    String[] records = mQueue.peek();
+                    // acknowledge list
+                    boolean[] acks = new boolean[records.length];
+                    for (String record:  records) {
+                        try {
+                            JSONObject obj = new JSONObject(record);
+                            String tName = (String) obj.get(IronBeastReportIntent.TABLE);
+                            if (!reqMap.containsKey(tName)) {
+                                reqMap.put(tName, new ArrayList<JSONObject>());
+                            }
+                            reqMap.get(tName).add(obj);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
-
-                } else {
-                    //TODO: create message for ironBeast
-                    //TODO: encrypt data
-                    //TODO: send data to storage or network
-                    String data = dataObject.getString(IronBeastReportIntent.DATA);
-                    String message = createMessage(table, token, data);
-                    String encryptedData = Utils.auth(message, token);
-
-                    SEND_RESULT sendResult = sendData(context, encryptedData, IBConfig.getsInstance().getIBEndPoint());
-                    Logger.log("Send result --> " + sendResult.toString(), Logger.SDK_DEBUG);
-                    if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                        int currNumOfRetry = intent.getExtras().getInt("nRetries");
-                        int idleSeconds = IBConfig.getsInstance().getIdleSeconds();
-                        Logger.log("Resubmit report --> " + currNumOfRetry, Logger.SDK_DEBUG);
-                        boolean resubmitResult = resubmitReport(context, intent, currNumOfRetry, idleSeconds);
-                        if (!resubmitResult) {
-                            Logger.log("On send failed save report --> ", Logger.SDK_DEBUG);
-                            FsQueue.getInstance(table, context).push(data);
+                    // Loop over map, and call send() for each one of entries
+                    for (Map.Entry<String, List<JSONObject>> entry : reqMap.entrySet()) {
+                        JSONObject dataObj = new JSONObject();
+                        try {
+                            dataObj.put(IronBeastReportIntent.TABLE, entry.getKey());
+                            JSONArray bulk = new JSONArray();
+                            for (JSONObject record: entry.getValue()) {
+                                if (!dataObj.has(IronBeastReportIntent.TOKEN)) {
+                                    dataObj.put(IronBeastReportIntent.TOKEN, record.get(IronBeastReportIntent.TOKEN));
+                                }
+                                // Put only the `data` field
+                                bulk.put((JSONObject) record.get(IronBeastReportIntent.DATA));
+                            }
+                            // `bulk` contains all `data` fields of all objects in the current destination
+                            dataObj.put(IronBeastReportIntent.DATA, bulk.toString());
+                        } catch (JSONException e) {
+                            // Log some shit
+                        }
+                        // Send each destination/table separately
+                        String message = createMessage(dataObject, true);
+                        SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                        if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
+                            for (JSONObject record: entry.getValue()) {
+                                int index = Arrays.asList(records).indexOf(record.toString());
+                                acks[index] = true;
+                            }
                         }
                     }
+                    // Clear queue and put back all "infected/failed"
+                    mQueue.clear();
+                    for (int i = 0; i < records.length; i++) {
+                        if (acks[i]) mQueue.push(records[i]);
+                    }
                 }
-
             }
         } catch (Exception ex) {
             //TODO: may be send error
         }
     }
 
-    String createMessage(String table, String token, String data) {
+    String createMessage(JSONObject dataObj, boolean bulk) {
         String message = "";
         try {
-            JSONObject event = new JSONObject();
-            event.put("table", table);
-            event.put("token", token);
-            event.put("data", data);
-        } catch (JSONException e) {
+            String data = dataObj.getString(IronBeastReportIntent.DATA);
+            dataObj.put("auth", Utils.auth(data, (String) dataObj.remove(IronBeastReportIntent.TOKEN)));
+            if (bulk) {
+                dataObj.put(IronBeastReportIntent.BULK, true);
+            }
+        } catch (Exception e) {
             // Log "failed to track your event ${e}"
             e.printStackTrace();
         }
         return message;
     }
 
-    protected SEND_RESULT sendData(Context context, String encryptedData, String ibEndPoint) {
+    protected SEND_RESULT sendData(Context context, String data, String ibEndPoint) {
         SEND_RESULT sendResult = SEND_RESULT.FAILED_RESEND_LATER;
-
-        int nRetry = IBConfig.getsInstance().getNumOfRetries();
-        RemoteService poster = HttpService.getInstance();
-        if (poster.isOnline(context)) {
+        int nRetry = mConfig.getNumOfRetries();
+        RemoteService poster = getPoster();
+        while (nRetry-- > 0) {
+            if (poster.isOnline(context)) {
+                try {
+                    RemoteService.Response response = poster.post(data, ibEndPoint);
+                    if (response.code == HttpURLConnection.HTTP_OK) {
+                        sendResult = SEND_RESULT.SUCCESS;
+                        break;
+                    }
+                    if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
+                            response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                        sendResult = SEND_RESULT.FAILED_DELETE;
+                    }
+                    //TODO: Check ״internal error״ from what android version
+                } catch (IOException e) {
+                    Logger.log("Failed to Post to Ironbeast", Logger.SDK_DEBUG);
+                }
+            }
             try {
-                RemoteService.Response response = poster.post(encryptedData, ibEndPoint);
-                if (response.code == HttpURLConnection.HTTP_OK) {
-                    sendResult = SEND_RESULT.SUCCESS;
-                }
-                //TODO: Check ״internal error״ from what android version
-                if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST && response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    sendResult = SEND_RESULT.FAILED_DELETE;
-                } else if (response.code >= HttpURLConnection.HTTP_INTERNAL_ERROR && response.code < HttpURLConnection.HTTP_VERSION) {
-                    sendResult = SEND_RESULT.FAILED_RESEND_LATER;
-                }
-                // TODO: Handle 40X, 50x status situations
-            } catch (IOException e) {
-                Logger.log("Failed to Post to Ironbeast", Logger.SDK_DEBUG);
+                TimeUnit.SECONDS.sleep(mConfig.getIdleSeconds());
+            } catch (InterruptedException e) {
+                Logger.log("Failed to sleep between retries", Logger.SDK_DEBUG);
             }
         }
-
         return sendResult;
     }
 
@@ -189,10 +183,21 @@ class IronBeastReportData {
         return result;
     }
 
+    ////////////////////////////////////////
+    // For testing, to allow for mocking ///
+    ////////////////////////////////////////
+    protected RemoteService getPoster() {
+        return HttpService.getInstance();
+    }
+    protected StorageService getQueue(String filename, Context context) {
+        return FsQueue.getInstance(filename, context);
+    }
+
     enum SEND_RESULT {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
     }
-    private static final int SEND_RESU_EVENTS = 1; // Put message in the QStorage
-    private static final int FLUSH_QUEUE = 2;    // Flush QStorage
-    private static final int POST_SYNC = 3;      // Post message sync
+
+    public static final String TAG = IronBeastReportData.class.getSimpleName();
+    private IBConfig mConfig;
+    private StorageService mQueue;
 }
