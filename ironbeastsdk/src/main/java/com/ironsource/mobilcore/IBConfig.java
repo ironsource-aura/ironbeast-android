@@ -93,17 +93,16 @@ public class IBConfig {
     // Name for persistent storage of app referral SharedPreferences
     static final String REFERRER_PREFS_NAME = "com.ironsource.mobilcore.ReferralInfo";
     // IBConstants
-    private static final String DEFAULT_URL = "http://lb.ironbeast.io";
+    private static final String DEFAULT_URL = "http://10.0.2.2:3000/";  // (temporary, just for debugging)
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
     private static final int FLUSH_INTERVAL = 60 * 1000; // 1 second
-    private final int BULK_SIZE = 30;                    // 30 records
+    private final int BULK_SIZE = 4;                     // 30 records
     private final int NUM_OF_RETRIES = 3;
     private static final int IDLE_SECONDS = 3;
 
     enum LOG_TYPE {
         PRODUCTION, DEBUG
     }
-
 }

@@ -32,6 +32,7 @@ public class BaseMainActivity extends Activity {
         switch (id) {
             case R.id.btnTrackReport:
                 tracker.track("ibtest", params);
+                tracker.track("mobile", params);
                 break;
             case R.id.btnPostReport:
                 tracker.post("ibtest", params);

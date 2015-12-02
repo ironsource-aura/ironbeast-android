@@ -3,9 +3,6 @@ package com.ironsource.mobilcore;
 import android.app.IntentService;
 import android.content.Intent;
 
-/**
- * Created by mikhaili on 11/30/15.
- */
 public class IronBeastReportService extends IntentService {
     public IronBeastReportService() {
         super("IronBeastReportService");

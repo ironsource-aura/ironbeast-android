@@ -75,7 +75,7 @@ public class HttpService implements RemoteService {
         } catch(final IOException e) {
             // TODO(Ariel): Create and throw "new ServiceUnavailableException(statusCode, msg)"
             response.code = connection.getResponseCode();
-            Logger.log("Service IB Unavailable", Logger.SDK_DEBUG);
+            Logger.log("HttpService: Service IB Unavailable", Logger.SDK_DEBUG);
         } finally {
             if (null != connection) connection.disconnect();
             if (null != out) out.close();

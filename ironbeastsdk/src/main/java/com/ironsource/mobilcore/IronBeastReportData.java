@@ -57,7 +57,7 @@ class IronBeastReportData {
 
                 boolean toFlush = event == SdkEvent.FLUSH_QUEUE;
                 if (event == SdkEvent.ENQUEUE) {
-                    toFlush = mQueue.push(dataObject.toString()) >= mConfig.getBulkSize();
+                    toFlush = mConfig.getBulkSize() <= mQueue.push(dataObject.toString());
                 } else if (event == SdkEvent.POST_SYNC) {
                     String message = createMessage(dataObject, false);
                     SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
@@ -84,7 +84,7 @@ class IronBeastReportData {
                             }
                             reqMap.get(tName).add(obj);
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Logger.log("Failed to generate the recordsMap", Logger.SDK_DEBUG);
                         }
                     }
                     // Loop over map, and call send() for each one of entries
@@ -98,16 +98,17 @@ class IronBeastReportData {
                                     dataObj.put(IronBeastReportIntent.TOKEN, record.get(IronBeastReportIntent.TOKEN));
                                 }
                                 // Put only the `data` field
-                                bulk.put((JSONObject) record.get(IronBeastReportIntent.DATA));
+                                bulk.put(record.getString(IronBeastReportIntent.DATA));
                             }
                             // `bulk` contains all `data` fields of all objects in the current destination
                             dataObj.put(IronBeastReportIntent.DATA, bulk.toString());
                         } catch (JSONException e) {
-                            // Log some shit
+                            Logger.log("Failed to generate the dataObj to send()", Logger.SDK_DEBUG);
                         }
                         // Send each destination/table separately
-                        String message = createMessage(dataObject, true);
+                        String message = createMessage(dataObj, true);
                         SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                        // sign-it if it's this bulk eas failed
                         if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                             for (JSONObject record: entry.getValue()) {
                                 int index = Arrays.asList(records).indexOf(record.toString());
@@ -171,16 +172,6 @@ class IronBeastReportData {
             }
         }
         return sendResult;
-    }
-
-    boolean resubmitReport(Context context, Intent intent, int currNumOfRetry, long delay) {
-        boolean result = false;
-        if (0 <= currNumOfRetry && currNumOfRetry < IBConfig.getsInstance().getNumOfRetries()) {
-            intent.getExtras().putInt("nRetries", currNumOfRetry++);
-            Utils.scheduleSendReportsAction(context, intent, delay);
-            result = true;
-        }
-        return result;
     }
 
     ////////////////////////////////////////
