@@ -60,45 +60,42 @@ class IronBeastReportData {
 
                 if (event == SdkEvent.FLUSH_QUEUE) {
                     //TODO: flush STORAGE component
+                    isBulk = true;
+                } else if (event == SdkEvent.ENQUEUE) {
+                    //TODO: add something
+
+                } else if (event == SdkEvent.ERROR) {
+                    isBulk = true;
+                }
+
+                if (isBulk) {
+                    //QUEUE
+                    //TODO: create message for ironBeast
+                    //TODO: encrypt data
+                    //TODO: send data to storage or network
+                    if (IBConfig.getsInstance().getBulkSize() > FsQueue.getInstance(table, context).count()) {
+                        String[] records = FsQueue.getInstance(table, context).peek();
+                        //Prepare to send fill json array with data
+                        JSONArray array = new JSONArray();
+                        for (String record : records) {
+                            array.put(record);
+                        }
+                        String data = array.toString();
+                        String message = createMessage(table, token, data);
+                        String encryptedData = Utils.auth(message, token);
+                        SEND_RESULT sendResult = sendData(context, encryptedData, IBConfig.getsInstance().getIBEndPoint());
+
+                        if (sendResult == SEND_RESULT.FAILED) {
+                            FsQueue.getInstance(table, context).clear();
+                        }
+                    }
 
                 } else {
-                    //Extract all data from intent extras
-
-                    if (event == SdkEvent.ENQUEUE) {
-                        //TODO: add something
-
-                    } else if (event == SdkEvent.ERROR) {
-                    }
-                    
-                    if (isBulk) {
-                        //QUEUE
-                        //TODO: create message for ironBeast
-                        //TODO: encrypt data
-                        //TODO: send data to storage or network
-                        if (IBConfig.getsInstance().getBulkSize() > FsQueue.getInstance(table, context).count()) {
-                            String[] records = FsQueue.getInstance(table, context).peek();
-                            //Prepare to send fill json array with data
-                            JSONArray array = new JSONArray();
-                            for (String record : records) {
-                                array.put(record);
-                            }
-                            String data = array.toString();
-                            String message = createMessage(table, token, data);
-                            String encryptedData = Utils.auth(message, token);
-                            SEND_RESULT sendResult = sendData(context, encryptedData, IBConfig.getsInstance().getIBEndPoint());
-
-                            if(sendResult == SEND_RESULT.FAILED) {
-                                FsQueue.getInstance(table, context).clear();
-                            }
-                        }
-
-                    } else {
-                        //TODO: create message for ironBeast
-                        //TODO: encrypt data
-                        //TODO: send data to storage or network
-                    }
-
+                    //TODO: create message for ironBeast
+                    //TODO: encrypt data
+                    //TODO: send data to storage or network
                 }
+
             }
         } catch (Exception ex) {
             //TODO: may be send error

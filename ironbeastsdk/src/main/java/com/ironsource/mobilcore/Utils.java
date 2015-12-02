@@ -1,7 +1,10 @@
 package com.ironsource.mobilcore;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -242,5 +245,19 @@ class Utils {
             sb.append(String.format("%1$02x", b));
         }
         return sb.toString();
+    }
+
+    public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long delay) {
+        Logger.log("stashMobileCoreReport | scheduleSendReportsAction", Logger.SDK_DEBUG);
+        try {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            am.cancel(intent); // cancel previous one
+
+            //will fire log than device not sleep
+            am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+        } catch (Exception e) {
+            IronBeastReportData.openReport(context, SdkEvent.ERROR).setError(e.getMessage()).send();
+        }
     }
 }
