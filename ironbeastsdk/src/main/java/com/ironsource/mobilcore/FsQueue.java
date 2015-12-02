@@ -73,25 +73,9 @@ public class FsQueue implements StorageService {
 
     @Override
     public String[] drain() {
-        String[] lines = null;
-        File fi = null;
-        InputStream in;
-        try {
-            fi = getFile();
-            in = new FileInputStream(fi);
-            String rawLines = new String(Utils.slurp(in), Charset.forName("UTF-8"));
-            lines = rawLines.split("\n");
-            in.close();
-        } catch(IOException e) {
-            Logger.log("Failed to read records from 'fs'", Logger.SDK_DEBUG);
-        } finally {
-            // If everything worked well, delete the file and reset `nRecords`
-            if (fi != null && lines != null) {
-                mRecords = 0;
-                fi.delete();
-            }
-        }
-        return lines;
+        String[] records = peek();
+        clear();
+        return records;
     }
 
     @Override
