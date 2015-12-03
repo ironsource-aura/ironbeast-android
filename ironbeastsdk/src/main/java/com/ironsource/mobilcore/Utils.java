@@ -122,7 +122,7 @@ class Utils {
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
-//            ReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
+//            ReportHandler.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
         return "";
     }
@@ -158,7 +158,7 @@ class Utils {
             return appName;
         } catch (Exception e) {
             if (!sdCardMounted) {
-//                ReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
+//                ReportHandler.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
             }
             return null;
         }
@@ -212,7 +212,7 @@ class Utils {
                 return true;
             }
         } catch (Exception e) {
-//            ReportData.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
+//            ReportHandler.openReport(IronBeast.getAppContext(), SdkEvent.ERROR).setError(e).send();
         }
 
         return false;
@@ -260,7 +260,7 @@ class Utils {
             //will fire log than device not sleep
             am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
         } catch (Exception e) {
-            ReportData.openReport(context, SdkEvent.ERROR).setError(e.getMessage()).send();
+//            ReportHandler.openReport(context, SdkEvent.ERROR).setError(e.getMessage()).send();
         }
     }
 

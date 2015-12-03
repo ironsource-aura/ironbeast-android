@@ -24,17 +24,24 @@ public class BaseMainActivity extends Activity {
         int id = v.getId();
         IronBeast tracker = IronBeast.getInstance(this, "myToken");
         JSONObject params = new JSONObject();
-        try {
-            params.put("hello", "world");
-        } catch (JSONException e) {
-            Log.d("TAG", "Failed to track your json");
-        }
         switch (id) {
             case R.id.btnTrackReport:
+                try {
+                    params.put("action", "track");
+                    params.put("id", "" + Math.random());
+                } catch (JSONException e) {
+                    Log.d("TAG", "Failed to track your json");
+                }
                 tracker.track("ibtest", params);
                 tracker.track("mobile", params);
                 break;
             case R.id.btnPostReport:
+                try {
+                    params.put("action", "post");
+                    params.put("id", "" + Math.random());
+                } catch (JSONException e) {
+                    Log.d("TAG", "Failed to track your json");
+                }
                 tracker.post("ibtest", params);
                 break;
             case R.id.btnFlushReports:

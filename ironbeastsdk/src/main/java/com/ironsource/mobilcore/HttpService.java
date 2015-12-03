@@ -56,6 +56,7 @@ public class HttpService implements RemoteService {
         try {
             connection = (HttpURLConnection) (new URL(url)).openConnection();
             connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
             connection.setConnectTimeout(2000);
             connection.setReadTimeout(10000);
             connection.setDoInput(true);

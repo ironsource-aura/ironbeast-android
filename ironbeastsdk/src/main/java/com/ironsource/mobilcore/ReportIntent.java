@@ -15,29 +15,6 @@ class ReportIntent extends Intent {
         putExtra(EXTRA_REPORT_TYPE, sdkEvent);
     }
 
-    public ReportIntent setError(String errorMsg) {
-        putExtra(EXTRA_EXCEPTION, getCallerClassString() + " ### " + errorMsg);
-        return this;
-    }
-
-    private String getCallerClassString() {
-        StackTraceElement[] traceElements = Thread.currentThread().getStackTrace();
-        String callerClass = traceElements[1].getClassName(); // default value;
-        try {
-            for (StackTraceElement e : traceElements) {
-                String className = e.getClassName();
-                // grab the first class with our package name, but not the MobileCoreReportIntent
-                if (className != null && className.contains(this.getClass().getPackage().getName()) && !className.equals(this.getClass().getName())) {
-                    callerClass = "class: " + e.getClassName() + " ### method: " + e.getMethodName() + " ### line: " + e.getLineNumber();
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            // pass
-        }
-        return callerClass;
-    }
-
     public void send() {
         mCtx.startService(this);
     }

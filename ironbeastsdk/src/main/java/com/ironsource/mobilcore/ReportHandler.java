@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-class ReportData {
+class ReportHandler {
 
-    public ReportData() {
+    public ReportHandler() {
         mConfig = IBConfig.getsInstance();
         mQueue = null;
         Logger.log("in reporter", Logger.SDK_DEBUG);
@@ -27,10 +27,6 @@ class ReportData {
 
     public static ReportIntent openReport(Context context, int sdkEvent) {
         return new ReportIntent(context, sdkEvent);
-    }
-
-    public static void doScheduledSend() {
-
     }
 
     public synchronized void doReport(Context context, Intent intent) {
@@ -139,7 +135,7 @@ class ReportData {
             }
             message = clone.toString();
         } catch (Exception e) {
-            Logger.log("ReportData: failed create message" + e.getMessage(), Logger.SDK_DEBUG);
+            Logger.log("ReportHandler: failed create message" + e.getMessage(), Logger.SDK_DEBUG);
         }
         return message;
     }
@@ -188,7 +184,7 @@ class ReportData {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
     }
 
-    public static final String TAG = ReportData.class.getSimpleName();
+    public static final String TAG = ReportHandler.class.getSimpleName();
     private IBConfig mConfig;
     private StorageService mQueue;
 }
