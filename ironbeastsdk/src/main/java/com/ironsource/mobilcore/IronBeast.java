@@ -36,20 +36,40 @@ public class IronBeast {
         return this;
     }
 
-    public void track (String table, JSONObject data) {
+    public void track(String table, Map<String, String> data) {
+        JSONObject jsonObject = new JSONObject(data);
+        track(table, jsonObject);
+    }
+
+    public void track(String table, String data) {
+        //TODO: escaping on data or encode in order to hide not valid characters
         ReportHandler.openReport(appContext, SdkEvent.ENQUEUE)
                 .setTable(table)
                 .setToken(mToken)
-                .setData(data.toString())
+                .setData(data)
+                .send();
+    }
+
+    public void track(String table, JSONObject data) {
+        track(table, data.toString());
+    }
+
+    public void post(String table, Map<String, String> data) {
+        JSONObject jsonObject = new JSONObject(data);
+        track(table, jsonObject);
+    }
+
+    public void post(String table, String data) {
+        //TODO: escaping on data or encode in order to hide not valid characters
+        ReportHandler.openReport(appContext, SdkEvent.POST_SYNC)
+                .setTable(table)
+                .setToken(mToken)
+                .setData(data)
                 .send();
     }
 
     public void post (String table, JSONObject data) {
-        ReportHandler.openReport(appContext, SdkEvent.POST_SYNC)
-                .setTable(table)
-                .setToken(mToken)
-                .setData(data.toString())
-                .send();
+        post(table, data.toString());
     }
 
     public void flush () {
