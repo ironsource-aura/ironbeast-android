@@ -9,12 +9,20 @@ import java.util.Map;
 
 public class IronBeast {
 
+    /**
+     * Do not call directly.
+     * You should use IronBeast.getInstance()
+     */
     IronBeast(Context context, String token) {
         appContext = context;
         mToken = token;
         mConfig = IBConfig.getsInstance();
     }
 
+    /**
+     * Use this to get a singleton instance of IronBeast instead of creating one directly
+     * for yourself.
+     */
     public static IronBeast getInstance (Context context, String token) {
         if (null == token || null == context) {
             return null;
@@ -36,11 +44,12 @@ public class IronBeast {
         return this;
     }
 
-    public void track(String table, Map<String, String> data) {
-        JSONObject jsonObject = new JSONObject(data);
-        track(table, jsonObject);
-    }
-
+    /**
+     * Track an event that already stringified.
+     *
+     * @param table - IronBeast destination.
+     * @param data
+     */
     public void track(String table, String data) {
         //TODO: escaping on data or encode in order to hide not valid characters
         ReportHandler.openReport(appContext, SdkEvent.ENQUEUE)
@@ -50,15 +59,19 @@ public class IronBeast {
                 .send();
     }
 
-    public void track(String table, JSONObject data) {
+    public void track (String table, Map<String, Object> data) {
+        track(table, new JSONObject(data));
+    }
+
+    public void track (String table, JSONObject data) {
         track(table, data.toString());
     }
 
-    public void post(String table, Map<String, String> data) {
-        JSONObject jsonObject = new JSONObject(data);
-        track(table, jsonObject);
-    }
-
+    /**
+     * Post (send immediately) and event that already stringified.
+     * @param table
+     * @param data
+     */
     public void post(String table, String data) {
         //TODO: escaping on data or encode in order to hide not valid characters
         ReportHandler.openReport(appContext, SdkEvent.POST_SYNC)
@@ -70,6 +83,10 @@ public class IronBeast {
 
     public void post (String table, JSONObject data) {
         post(table, data.toString());
+    }
+
+    public void post (String table, Map<String, Object> data) {
+        track(table, new JSONObject(data));
     }
 
     public void flush () {
