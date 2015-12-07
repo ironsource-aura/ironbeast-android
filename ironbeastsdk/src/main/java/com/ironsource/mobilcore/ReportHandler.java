@@ -25,10 +25,6 @@ class ReportHandler {
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
-    public static ReportIntent openReport(Context context, int sdkEvent) {
-        return new ReportIntent(context, sdkEvent);
-    }
-
     public synchronized void doReport(Context context, Intent intent) {
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         if (null == mQueue) {

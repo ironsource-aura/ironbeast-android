@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import com.ironsource.mobilcore.Consts.EServiceType;
 
-class ReportIntent extends Intent {
+public class ReportIntent extends Intent implements Report {
 
     public ReportIntent(Context context, int sdkEvent) {
         super(context, ReportService.class);
@@ -29,13 +29,8 @@ class ReportIntent extends Intent {
         return this;
     }
 
-    public ReportIntent setData(String key, String value) {
-        putExtra(key, value);
-        return this;
-    }
-
     public ReportIntent setData(String value) {
-        setData(DATA, value);
+        putExtra(DATA, value);
         return this;
     }
 
@@ -47,5 +42,4 @@ class ReportIntent extends Intent {
     public static final String DATA = "data";
     public static final String AUTH = "auth";
     protected static final String EXTRA_REPORT_TYPE = "report_type";
-    protected static final String EXTRA_EXCEPTION = "exception";
 }

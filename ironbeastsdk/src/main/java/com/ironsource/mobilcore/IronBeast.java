@@ -2,6 +2,7 @@ package com.ironsource.mobilcore;
 
 import android.content.Context;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class IronBeast {
      * Do not call directly.
      * You should use IronBeast.getInstance()
      */
-    IronBeast(Context context, String token) {
+    public IronBeast(Context context, String token) {
         appContext = context;
         mToken = token;
         mConfig = IBConfig.getsInstance();
@@ -23,7 +24,7 @@ public class IronBeast {
      * Use this to get a singleton instance of IronBeast instead of creating one directly
      * for yourself.
      */
-    public static IronBeast getInstance (Context context, String token) {
+    public static IronBeast getInstance(Context context, String token) {
         if (null == token || null == context) {
             return null;
         }
@@ -39,7 +40,7 @@ public class IronBeast {
         }
     }
 
-    public IronBeast setConfig (IBConfig config) {
+    public IronBeast setConfig(IBConfig config) {
         mConfig = config;
         return this;
     }
@@ -52,46 +53,51 @@ public class IronBeast {
      */
     public void track(String table, String data) {
         //TODO: escaping on data or encode in order to hide not valid characters
-        ReportHandler.openReport(appContext, SdkEvent.ENQUEUE)
+        openReport(appContext, SdkEvent.ENQUEUE)
                 .setTable(table)
                 .setToken(mToken)
                 .setData(data)
                 .send();
     }
 
-    public void track (String table, Map<String, Object> data) {
+    public void track(String table, Map<String, ?> data) {
         track(table, new JSONObject(data));
     }
 
-    public void track (String table, JSONObject data) {
+    public void track(String table, JSONObject data) {
         track(table, data.toString());
     }
 
     /**
      * Post (send immediately) and event that already stringified.
+     *
      * @param table
      * @param data
      */
     public void post(String table, String data) {
         //TODO: escaping on data or encode in order to hide not valid characters
-        ReportHandler.openReport(appContext, SdkEvent.POST_SYNC)
+        openReport(appContext, SdkEvent.POST_SYNC)
                 .setTable(table)
                 .setToken(mToken)
                 .setData(data)
                 .send();
     }
 
-    public void post (String table, JSONObject data) {
+    public void post(String table, JSONObject data) {
         post(table, data.toString());
     }
 
-    public void post (String table, Map<String, Object> data) {
+    public void post(String table, Map<String, Object> data) {
         track(table, new JSONObject(data));
     }
 
-    public void flush () {
-        ReportHandler.openReport(appContext, SdkEvent.FLUSH_QUEUE)
+    public void flush() {
+        openReport(appContext, SdkEvent.FLUSH_QUEUE)
                 .send();
+    }
+
+    protected Report openReport(Context context, int event) {
+        return new ReportIntent(context, event);
     }
 
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
