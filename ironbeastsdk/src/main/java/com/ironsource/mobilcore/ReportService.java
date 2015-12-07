@@ -15,6 +15,7 @@ public class ReportService extends IntentService {
         try {
             switch (serviceType) {
                 case SERVICE_TYPE_REPORT:
+                    // TODO: Use singleton instead.
                     ReportHandler report = new ReportHandler();
                     report.doReport(ReportService.this, intent);
                     break;

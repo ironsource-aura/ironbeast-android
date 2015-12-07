@@ -2,7 +2,6 @@ package com.ironsource.mobilcore;
 
 import android.content.Context;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -87,9 +86,7 @@ public class IronBeast {
         post(table, data.toString());
     }
 
-    public void post(String table, Map<String, Object> data) {
-        track(table, new JSONObject(data));
-    }
+    public void post(String table, Map<String, ?> data) { post(table, new JSONObject(data)); }
 
     public void flush() {
         openReport(appContext, SdkEvent.FLUSH_QUEUE)

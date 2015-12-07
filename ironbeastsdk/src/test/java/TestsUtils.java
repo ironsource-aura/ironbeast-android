@@ -3,9 +3,7 @@ import com.ironsource.mobilcore.Report;
 public class TestsUtils {
     static class MockReport implements Report {
         @Override
-        public void send() {
-        }
-
+        public void send() {}
         @Override
         public MockReport setData(String value) {
             return this;
@@ -20,5 +18,7 @@ public class TestsUtils {
         public MockReport setToken(String token) {
             return this;
         }
+
+        public int mType;
     }
 }

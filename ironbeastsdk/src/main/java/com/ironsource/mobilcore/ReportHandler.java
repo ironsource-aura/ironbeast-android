@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 class ReportHandler {
 
     public ReportHandler() {
-        mConfig = IBConfig.getsInstance();
         mQueue = null;
+        mConfig = IBConfig.getsInstance();
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
