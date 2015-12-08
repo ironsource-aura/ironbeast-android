@@ -28,7 +28,7 @@ public class BaseMainActivity extends Activity {
             case R.id.btnTrackReport:
                 try {
                     params.put("action", "track");
-                    params.put("id", "" + Math.random());
+                    params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
@@ -38,7 +38,7 @@ public class BaseMainActivity extends Activity {
             case R.id.btnPostReport:
                 try {
                     params.put("action", "post");
-                    params.put("id", "" + Math.random());
+                    params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }

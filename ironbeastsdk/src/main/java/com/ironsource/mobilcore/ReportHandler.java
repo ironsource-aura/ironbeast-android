@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import static java.lang.Math.*;
 
 class ReportHandler {
 
@@ -79,31 +81,36 @@ class ReportHandler {
                         }
                     }
                     // Loop over map, and call send() for each one of entries
-                    for (Map.Entry<String, List<JSONObject>> entry : reqMap.entrySet()) {
-                        JSONObject dataObj = new JSONObject();
-                        try {
-                            dataObj.put(ReportIntent.TABLE, entry.getKey());
-                            JSONArray bulk = new JSONArray();
-                            for (JSONObject record: entry.getValue()) {
-                                if (!dataObj.has(ReportIntent.TOKEN)) {
-                                    dataObj.put(ReportIntent.TOKEN, record.get(ReportIntent.TOKEN));
+                    for (Map.Entry<String, List<JSONObject>> pEntry : reqMap.entrySet()) {
+                        // Split each entry-value into list of entries based on byteSizeLimit
+                        // or batchSizeLimit
+                        // then, send each of the subList entries separately
+                        for (List<JSONObject> entry: split(pEntry.getValue())) {
+                            JSONObject dataObj = new JSONObject();
+                            try {
+                                dataObj.put(ReportIntent.TABLE, pEntry.getKey());
+                                JSONArray bulk = new JSONArray();
+                                for (JSONObject record: entry) {
+                                    if (!dataObj.has(ReportIntent.TOKEN)) {
+                                        dataObj.put(ReportIntent.TOKEN, record.get(ReportIntent.TOKEN));
+                                    }
+                                    // Put only the `data` field
+                                    bulk.put(record.getString(ReportIntent.DATA));
                                 }
-                                // Put only the `data` field
-                                bulk.put(record.getString(ReportIntent.DATA));
+                                // `bulk` contains all `data` fields of all objects in the current destination
+                                dataObj.put(ReportIntent.DATA, bulk.toString());
+                            } catch (JSONException e) {
+                                Logger.log("Failed to generate the dataObj to send()", Logger.SDK_DEBUG);
                             }
-                            // `bulk` contains all `data` fields of all objects in the current destination
-                            dataObj.put(ReportIntent.DATA, bulk.toString());
-                        } catch (JSONException e) {
-                            Logger.log("Failed to generate the dataObj to send()", Logger.SDK_DEBUG);
-                        }
-                        // Send each destination/table separately
-                        String message = createMessage(dataObj, true);
-                        SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
-                        // sign-it if it's this bulk eas failed
-                        if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                            for (JSONObject record: entry.getValue()) {
-                                int index = Arrays.asList(records).indexOf(record.toString());
-                                acks[index] = true;
+                            // Send each destination/table separately
+                            String message = createMessage(dataObj, true);
+                            SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                            // sign-it if this bulk was failed
+                            if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
+                                for (JSONObject record: entry) {
+                                    int index = Arrays.asList(records).indexOf(record.toString());
+                                    acks[index] = true;
+                                }
                             }
                         }
                     }
@@ -117,6 +124,26 @@ class ReportHandler {
         } catch (Exception ex) {
             //TODO: may be send error
         }
+    }
+
+    // Split batch of JSONObjects into chunks based on byteSizeLimit || batchSizeLimit
+    List<List<JSONObject>> split(List<JSONObject> batch) {
+        List<List<JSONObject>> chunks = new ArrayList<>();
+        int byteSize;
+        try {
+            byteSize = batch.toString().getBytes("UTF-8").length;
+        } catch (UnsupportedEncodingException e) {
+            byteSize = batch.toString().length();
+        }
+        int nChunks = (int) ceil(max(
+                (double) batch.size() / mConfig.getBulkSize(),
+                (double) byteSize / mConfig.getMaximumRequestLimit()
+        ));
+        for (int i = 0; i < min(nChunks, batch.size()); i++) {
+            int range = (int) ceil((double)batch.size() / nChunks);
+            chunks.add(batch.subList(range * i, min(range + range * i, batch.size())));
+        }
+        return chunks;
     }
 
     String createMessage(JSONObject dataObj, boolean bulk) {
