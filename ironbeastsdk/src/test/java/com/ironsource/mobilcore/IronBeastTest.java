@@ -1,9 +1,7 @@
+package com.ironsource.mobilcore;
+
 import android.content.Context;
 import android.test.mock.MockContext;
-
-import com.ironsource.mobilcore.IronBeast;
-import com.ironsource.mobilcore.Report;
-import com.ironsource.mobilcore.SdkEvent;
 
 import org.json.JSONException;
 import org.json.JSONObject;

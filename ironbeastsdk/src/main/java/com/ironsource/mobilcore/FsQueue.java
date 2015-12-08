@@ -57,14 +57,16 @@ public class FsQueue implements StorageService {
     public int count() { return mRecords; }
 
     @Override
-    public int push(String record) {
+    public int push(String ... records) {
         File file = getFile();
         FileWriter out = null;
+        String data = "";
+        for (String record: records) data += record + "\n";
         try {
             out = new FileWriter(file, true);
-            out.write(record + "\n");
+            out.write(data);
             out.close();
-            mRecords++;
+            mRecords += records.length;
         } catch (IOException e) {
             Logger.log("Failed to write record to 'fs'", Logger.SDK_DEBUG);
         }

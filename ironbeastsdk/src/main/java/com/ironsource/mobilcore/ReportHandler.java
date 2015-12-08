@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import static java.lang.Math.*;
 
-class ReportHandler {
+public class ReportHandler {
 
     public ReportHandler() {
         mQueue = null;
@@ -66,8 +66,8 @@ class ReportHandler {
                     // i.e: { table1: [...], table2: [...] }
                     Map<String, List<JSONObject>> reqMap = new HashMap<String, List<JSONObject>>();
                     String[] records = mQueue.peek();
-                    // acknowledge list
-                    boolean[] acks = new boolean[records.length];
+                    // failures list(not-acknowledge)
+                    List<String> nacks = new ArrayList<>();
                     for (String record:  records) {
                         try {
                             JSONObject obj = new JSONObject(record);
@@ -107,18 +107,13 @@ class ReportHandler {
                             SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
                             // sign-it if this bulk was failed
                             if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                                for (JSONObject record: entry) {
-                                    int index = Arrays.asList(records).indexOf(record.toString());
-                                    acks[index] = true;
-                                }
+                                for (JSONObject record: entry) nacks.add(record.toString());
                             }
                         }
                     }
                     // Clear queue and put back all "infected/failed"
                     mQueue.clear();
-                    for (int i = 0; i < records.length; i++) {
-                        if (acks[i]) mQueue.push(records[i]);
-                    }
+                    mQueue.push(nacks.toArray(new String[nacks.size()]));
                 } // end flush
             }
         } catch (Exception ex) {
@@ -207,7 +202,6 @@ class ReportHandler {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
     }
 
-    public static final String TAG = ReportHandler.class.getSimpleName();
     private IBConfig mConfig;
     private StorageService mQueue;
 }
