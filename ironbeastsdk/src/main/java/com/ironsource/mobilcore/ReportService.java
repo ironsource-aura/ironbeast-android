@@ -26,7 +26,6 @@ public class ReportService extends IntentService {
         } catch (Throwable th) {
             //TODO: send error report
             Logger.log("ReportService service | onHandleIntent ---> " + th.getMessage(), Logger.SDK_DEBUG);
-
         }
     }
 

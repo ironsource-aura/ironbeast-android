@@ -4,20 +4,28 @@ import android.webkit.URLUtil;
 
 import java.net.MalformedURLException;
 
+/**
+ * TODO: finish docs
+ * Create a global configuration options for the IronBeast library.
+ * IBConfig understands the following options:
+ * ...
+ */
 public class IBConfig {
 
 
-    IBConfig () {
+    IBConfig() {
         // TODO(Ariel): Store application info in metadata and
         // use `.getApplicationInfo()` to retrieve these values
-        mFlushInterval = FLUSH_INTERVAL;
-        mBulkSize = BULK_SIZE;
         mIBEndPoint = DEFAULT_URL;
         mLoggerMode = LOG_TYPE.DEBUG;
-        mNumOfRetries = NUM_OF_RETRIES;
+        // Default configuration
+        mBulkSize = 4;
+        mNumOfRetries = 3;
+        mFlushInterval = 60 * 1000;
+        mMaximumRequestLimit = 1024 * 1024;
     }
 
-    public static IBConfig getsInstance () {
+    public static IBConfig getsInstance() {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
                 sInstance = new IBConfig();
@@ -26,20 +34,20 @@ public class IBConfig {
         return sInstance;
     }
 
-    public LOG_TYPE getLogLevel () {
+    public LOG_TYPE getLogLevel() {
         return mLoggerMode;
     }
 
-    public IBConfig setLogLevel (LOG_TYPE logLevel) {
+    public IBConfig setLogLevel(LOG_TYPE logLevel) {
         mLoggerMode = logLevel;
         return this;
     }
 
-    public String getIBEndPoint () {
+    public String getIBEndPoint() {
         return mIBEndPoint;
     }
 
-    public IBConfig setIBEndPoint (String url) throws MalformedURLException {
+    public IBConfig setIBEndPoint(String url) throws MalformedURLException {
         if (URLUtil.isValidUrl(url)) {
             mIBEndPoint = url;
         } else {
@@ -48,45 +56,51 @@ public class IBConfig {
         return this;
     }
 
-    public int getBulkSize () {
+    public int getBulkSize() {
         return mBulkSize;
     }
 
-    public IBConfig setBulkSize (int size) {
+    public IBConfig setBulkSize(int size) {
         mBulkSize = size;
         return this;
     }
 
-    public int getFlushInterval () {
+    public int getFlushInterval() {
         return mFlushInterval;
     }
 
-    public IBConfig setFlushInterval (int interval) {
+    public IBConfig setFlushInterval(int interval) {
         mFlushInterval = interval;
         return this;
     }
 
-    protected int getNumOfRetries () {
+    public long getMaximumRequestLimit()  { return mMaximumRequestLimit; }
+
+    public IBConfig setMaximumRequestLimit(long bytes) {
+        mMaximumRequestLimit = bytes >= 1024 ? bytes : mMaximumRequestLimit;
+        return this;
+    }
+
+    public int getNumOfRetries() {
         return mNumOfRetries;
     }
 
-    protected int getIdleSeconds () {
+    protected int getIdleSeconds() {
         return IDLE_SECONDS;
     }
 
-    protected String getRecordsFile () {
-        return RECORDS_FILENAME;
-    }
+    protected String getRecordsFile() { return RECORDS_FILENAME; }
 
-    protected String getErrorsFile () {
+    protected String getErrorsFile() {
         return ERRORS_FILENAME;
     }
 
-    private int mFlushInterval;
     private int mBulkSize;
     private int mNumOfRetries;
+    private int mFlushInterval;
     private String mIBEndPoint;
     private LOG_TYPE mLoggerMode;
+    private long mMaximumRequestLimit;
 
     private static IBConfig sInstance;
     private static final Object sInstanceLock = new Object();
@@ -97,9 +111,6 @@ public class IBConfig {
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
-    private static final int FLUSH_INTERVAL = 60 * 1000; // 1 second
-    private final int BULK_SIZE = 4;                     // 30 records
-    private final int NUM_OF_RETRIES = 3;
     private static final int IDLE_SECONDS = 3;
 
     enum LOG_TYPE {

@@ -112,7 +112,7 @@ class ReportHandler {
                     for (int i = 0; i < records.length; i++) {
                         if (acks[i]) mQueue.push(records[i]);
                     }
-                }
+                } // end flush
             }
         } catch (Exception ex) {
             //TODO: may be send error
