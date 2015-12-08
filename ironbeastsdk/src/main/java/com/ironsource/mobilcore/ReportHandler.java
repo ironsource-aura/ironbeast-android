@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,8 @@ public class ReportHandler {
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
-    public synchronized void doReport(Context context, Intent intent) {
+    public synchronized boolean doReport(Context context, Intent intent) {
+        boolean success = true;
         Logger.log("doReport --->", Logger.SDK_DEBUG);
         if (null == mQueue) {
             mQueue = getQueue(mConfig.getRecordsFile(), context);
@@ -57,6 +57,7 @@ public class ReportHandler {
                     // If message failed, push it to queue.
                     if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                         mQueue.push(dataObject.toString());
+                        success = false;
                     }
                 } else if (event == SdkEvent.ERROR) {
                     //TODO: create ERROR report
@@ -107,6 +108,7 @@ public class ReportHandler {
                             SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
                             // sign-it if this bulk was failed
                             if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
+                                success = false;
                                 for (JSONObject record: entry) nacks.add(record.toString());
                             }
                         }
@@ -119,6 +121,7 @@ public class ReportHandler {
         } catch (Exception ex) {
             //TODO: may be send error
         }
+        return success;
     }
 
     // Split batch of JSONObjects into chunks based on byteSizeLimit || batchSizeLimit

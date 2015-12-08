@@ -38,6 +38,10 @@ public class ReportHandlerTest {
 
     }
 
+//    private ReportIntent newRecord() {
+//        return new ReportIntent(m)
+//    }
+
     final IBConfig mConfig = spy(IBConfig.getsInstance());
     final StorageService mQueue = spy(new TestsUtils.MockQueue());
     final RemoteService mPoster = spy(new TestsUtils.MockPoster());

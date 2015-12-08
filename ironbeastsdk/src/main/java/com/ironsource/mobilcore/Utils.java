@@ -251,22 +251,16 @@ class Utils {
     }
 
     public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long delay) {
-        Logger.log("stashMobileCoreReport | scheduleSendReportsAction", Logger.SDK_DEBUG);
-        try {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            am.cancel(intent); // cancel previous one
-
-            //will fire log than device not sleep
-            am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
-        } catch (Exception e) {
-//            ReportHandler.openReport(context, SdkEvent.ERROR).setError(e.getMessage()).send();
-        }
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.cancel(intent); // cancel previous one
+        //will fire log than device not sleep
+        am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
     }
 
     /*
-            * The following connection types correspond to Android's own Connectivity Manager connection types. See the getNetworkTypeName method.
-            * A device can be connected simultaneously to any number of these
+    * The following connection types correspond to Android's own Connectivity Manager connection types. See the getNetworkTypeName method.
+    * A device can be connected simultaneously to any number of these
     */
     static class NetworkUtils {
         protected static final int CONNECTION_NONE_INT = -1;

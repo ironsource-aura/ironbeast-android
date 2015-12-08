@@ -5,13 +5,14 @@ import android.webkit.URLUtil;
 import java.net.MalformedURLException;
 
 /**
- * TODO: finish docs
+ * TODO:
+ * - finish docs
+ * - Write toSharedPreferences
  * Create a global configuration options for the IronBeast library.
  * IBConfig understands the following options:
  * ...
  */
 public class IBConfig {
-
 
     IBConfig() {
         // TODO(Ariel): Store application info in metadata and
@@ -21,7 +22,7 @@ public class IBConfig {
         // Default configuration
         mBulkSize = 4;
         mNumOfRetries = 3;
-        mFlushInterval = 60 * 1000;
+        mFlushInterval = 10 * 1000;
         mMaximumRequestLimit = 1024 * 1024;
     }
 
