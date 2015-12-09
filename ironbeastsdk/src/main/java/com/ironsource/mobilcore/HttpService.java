@@ -54,7 +54,7 @@ public class HttpService implements RemoteService {
         DataOutputStream out = null;
         InputStream in = null;
         try {
-            connection = (HttpURLConnection) (new URL(url)).openConnection();
+            connection = createConnection(url);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setConnectTimeout(2000);
@@ -84,6 +84,14 @@ public class HttpService implements RemoteService {
         }
         return response;
     }
+
+    /**
+     * Returns new connection. referred to by given url.
+     */
+    protected HttpURLConnection createConnection(String url) throws IOException {
+        return (HttpURLConnection) (new URL(url)).openConnection();
+    }
+
     private static final Object sInstanceLock = new Object();
     private static HttpService sInstances;
 }
