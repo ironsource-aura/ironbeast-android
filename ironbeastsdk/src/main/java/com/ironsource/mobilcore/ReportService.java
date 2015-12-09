@@ -12,8 +12,6 @@ public class ReportService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Logger.log("ReportService service | onHandleIntent --->", Logger.SDK_DEBUG);
-        final Consts.EServiceType serviceType = Consts.EServiceType.getValue(Consts.EXTRA_SERVICE_TYPE, intent);
-
         try {
             int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
             boolean success = mHandler.doReport(ReportService.this, intent);
