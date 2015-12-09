@@ -8,7 +8,6 @@ public class ReportService extends IntentService {
     public ReportService() {
         super("ReportService");
         mHandler = new ReportHandler();
-        mConfig = IBConfig.getsInstance(this);
     }
 
     @Override
@@ -26,12 +25,11 @@ public class ReportService extends IntentService {
     }
 
     protected void setAlarm() {
-        ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE).setToken(mConfig.getToken());
+        ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
         Utils.scheduleSendReportsAction(this, reportIntent, IBConfig.getsInstance(this).getFlushInterval());
     }
     //
     // Get intent type
     //
     private ReportHandler mHandler;
-    private final IBConfig mConfig;
 }

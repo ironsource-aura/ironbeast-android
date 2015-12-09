@@ -22,15 +22,22 @@ public class ReportHandler {
 
     public ReportHandler() {
         mQueue = null;
+        mConfig = null;
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
     public synchronized boolean doReport(Context context, Intent intent) {
+
         boolean success = true;
         Logger.log("doReport --->", Logger.SDK_DEBUG);
+        if(null == mConfig) {
+            mConfig = IBConfig.getsInstance(context);
+        }
+
         if (null == mQueue) {
             mQueue = getQueue(mConfig.getRecordsFile(), context);
         }
+
         try {
             if (intent.getExtras() != null) {
                 int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
@@ -104,7 +111,7 @@ public class ReportHandler {
                             }
                             // Send each destination/table separately
                             String message = createMessage(dataObj, true);
-                            SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                            SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPointBulk());
                             // sign-it if this bulk was failed
                             if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                                 success = false;
@@ -118,7 +125,8 @@ public class ReportHandler {
                 } // end flush
             }
         } catch (Exception ex) {
-            //TODO: may be send error
+            Logger.log("ReportHandler: doReport error " + ex.getMessage() , Logger.SDK_DEBUG);
+            ex.printStackTrace();
         }
         return success;
     }
