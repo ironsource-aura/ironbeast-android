@@ -9,13 +9,15 @@ import java.util.Map;
 
 public class IronBeast {
 
+    private String mToken;
+
     /**
      * Do not call directly.
      * You should use IronBeast.getInstance()
      */
-    IronBeast(Context context, String token) {
+    public IronBeast(Context context, String token) {
         appContext = context;
-        mConfig = IBConfig.getInstance(context);
+        mConfig = IBConfig.getsInstance(context);
         mToken = token;
     }
 
@@ -40,9 +42,7 @@ public class IronBeast {
     }
 
     public IronBeast setConfig(IBConfig config) {
-
-        mConfig.update(config);
-        mConfig.apply();
+        mConfig = config;
         return this;
     }
 
@@ -101,9 +101,6 @@ public class IronBeast {
     }
 
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
-    private Context appContext;
-    private String mToken;
     private IBConfig mConfig;
-
-
+    private Context appContext;
 }
