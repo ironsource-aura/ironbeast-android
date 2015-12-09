@@ -15,9 +15,7 @@ public class ReportIntent extends Intent implements Report {
         putExtra(EXTRA_REPORT_TYPE, sdkEvent);
     }
 
-    public void send() {
-        mCtx.startService(this);
-    }
+    public void send() { mCtx.startService(this); }
 
     public ReportIntent setToken(String token) {
         putExtra(TOKEN, token);

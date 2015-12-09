@@ -16,7 +16,7 @@ public class ReportService extends IntentService {
 
         try {
             int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
-            boolean success = mHandler.doReport(ReportService.this, intent);
+            boolean success = mHandler.handleReport(ReportService.this, intent);
             if (SdkEvent.ENQUEUE == event || !success) setAlarm();
         } catch (Throwable th) {
             //TODO: send error report

@@ -10,7 +10,12 @@ import java.net.MalformedURLException;
  * - Write toSharedPreferences
  * Create a global configuration options for the IronBeast library.
  * IBConfig understands the following options:
- * ...
+ * IdleSeconds         - idle seconds between each retries requests in ReportHandler.
+ * NumOfRetries        - number of retries requests, when "post" request failed or when
+ *                       the device not connect to the internet.
+ * BulkSize            - maximum entries in each bulk request(on tracking).
+ * FlushInterval       - flushing interval timer
+ * MaximumRequestLimit - maximum bytes in request body.
  */
 public class IBConfig {
 
@@ -21,6 +26,7 @@ public class IBConfig {
         mLoggerMode = LOG_TYPE.DEBUG;
         // Default configuration
         mBulkSize = 4;
+        mIdleSeconds = 3;
         mNumOfRetries = 3;
         mFlushInterval = 10 * 1000;
         mMaximumRequestLimit = 1024 * 1024;
@@ -86,8 +92,18 @@ public class IBConfig {
         return mNumOfRetries;
     }
 
+    public IBConfig setNumOfRetries(int n) {
+        mNumOfRetries = n > 0 ? n : mNumOfRetries;
+        return this;
+    }
+
     protected int getIdleSeconds() {
-        return IDLE_SECONDS;
+        return mIdleSeconds;
+    }
+
+    protected IBConfig setIdleSeconds(int secs) {
+        mIdleSeconds = secs >= 0 ? secs : mIdleSeconds;
+        return this;
     }
 
     protected String getRecordsFile() { return RECORDS_FILENAME; }
@@ -97,6 +113,7 @@ public class IBConfig {
     }
 
     private int mBulkSize;
+    private int mIdleSeconds;
     private int mNumOfRetries;
     private int mFlushInterval;
     private String mIBEndPoint;
@@ -112,7 +129,6 @@ public class IBConfig {
     private static final String BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
-    private static final int IDLE_SECONDS = 3;
 
     enum LOG_TYPE {
         PRODUCTION, DEBUG
