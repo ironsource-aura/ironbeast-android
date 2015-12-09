@@ -20,9 +20,9 @@ import static java.lang.Math.*;
 
 public class ReportHandler {
 
-    public ReportHandler() {
+    public ReportHandler(Context context) {
         mQueue = null;
-        mConfig = IBConfig.getsInstance();
+        mConfig = IBConfig.getsInstance(context);
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 

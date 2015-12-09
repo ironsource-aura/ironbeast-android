@@ -15,8 +15,8 @@ public class IronBeast {
      */
     public IronBeast(Context context, String token) {
         appContext = context;
-        mToken = token;
-        mConfig = IBConfig.getsInstance();
+        mConfig = IBConfig.getsInstance(context);
+        mConfig.setToken(token);
     }
 
     /**
@@ -54,7 +54,7 @@ public class IronBeast {
         //TODO: escaping on data or encode in order to hide not valid characters
         openReport(appContext, SdkEvent.ENQUEUE)
                 .setTable(table)
-                .setToken(mToken)
+                .setToken(mConfig.getToken())
                 .setData(data)
                 .send();
     }
@@ -77,7 +77,7 @@ public class IronBeast {
         //TODO: escaping on data or encode in order to hide not valid characters
         openReport(appContext, SdkEvent.POST_SYNC)
                 .setTable(table)
-                .setToken(mToken)
+                .setToken(mConfig.getToken())
                 .setData(data)
                 .send();
     }
@@ -86,7 +86,8 @@ public class IronBeast {
         post(table, data.toString());
     }
 
-    public void post(String table, Map<String, ?> data) { post(table, new JSONObject(data)); }
+    public void post(String table, Map<String, ?> data) {
+        post(table, new JSONObject(data)); }
 
     public void flush() {
         openReport(appContext, SdkEvent.FLUSH_QUEUE)
@@ -100,5 +101,4 @@ public class IronBeast {
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
     private IBConfig mConfig;
     private Context appContext;
-    private String mToken;
 }
