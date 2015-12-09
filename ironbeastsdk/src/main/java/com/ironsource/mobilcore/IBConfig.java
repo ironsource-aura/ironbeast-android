@@ -20,7 +20,6 @@ public class IBConfig {
         mIBPrefService = IBPrefService.getInstance(context);
         // TODO(Ariel): Store application info in metadata and
         // use `.getApplicationInfo()` to retrieve these values
-        mLoggerMode = LOG_TYPE.DEBUG;
 
         mIBEndPoint = mIBPrefService.getKeyIbEndPoint(DEFAULT_URL);
         mBulkSize = mIBPrefService.getKeyBulkSize(DEFAULT_BULK_SIZE);
@@ -40,7 +39,7 @@ public class IBConfig {
         return sInstance;
     }
 
-    public LOG_TYPE getLogLevel() {
+    public static LOG_TYPE getLogLevel() {
         return mLoggerMode;
     }
 
@@ -109,7 +108,7 @@ public class IBConfig {
     private int mNumOfRetries;
     private int mFlushInterval;
     private String mIBEndPoint;
-    private LOG_TYPE mLoggerMode;
+    private static LOG_TYPE mLoggerMode = LOG_TYPE.DEBUG;
     private long mMaximumRequestLimit;
     private String mToken;
 

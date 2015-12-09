@@ -20,9 +20,8 @@ import static java.lang.Math.*;
 
 public class ReportHandler {
 
-    public ReportHandler(Context context) {
+    public ReportHandler() {
         mQueue = null;
-        mConfig = IBConfig.getsInstance(context);
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 
@@ -34,7 +33,7 @@ public class ReportHandler {
         }
         try {
             if (intent.getExtras() != null) {
-                int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+                int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
                 Bundle bundle = intent.getExtras();
                 JSONObject dataObject = new JSONObject();
                 try {

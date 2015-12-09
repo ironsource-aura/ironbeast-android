@@ -3,14 +3,12 @@ package com.ironsource.mobilcore;
 import android.content.Context;
 import android.content.Intent;
 
-import com.ironsource.mobilcore.Consts.EServiceType;
-
 public class ReportIntent extends Intent implements Report {
 
     public ReportIntent(Context context, int sdkEvent) {
         super(context, ReportService.class);
         mCtx = context;
-        putExtra(EXTRA_REPORT_TYPE, sdkEvent);
+        putExtra(EXTRA_SDK_EVENT, sdkEvent);
     }
 
     public void send() {
@@ -39,5 +37,5 @@ public class ReportIntent extends Intent implements Report {
     public static final String BULK = "bulk";
     public static final String DATA = "data";
     public static final String AUTH = "auth";
-    protected static final String EXTRA_REPORT_TYPE = "report_type";
+    protected static final String EXTRA_SDK_EVENT = "sdk_event";
 }
