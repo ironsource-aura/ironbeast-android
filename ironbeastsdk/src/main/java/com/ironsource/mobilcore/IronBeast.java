@@ -13,10 +13,10 @@ public class IronBeast {
      * Do not call directly.
      * You should use IronBeast.getInstance()
      */
-    public IronBeast(Context context, String token) {
+    IronBeast(Context context, String token) {
         appContext = context;
         mConfig = IBConfig.getInstance(context);
-        mConfig.setToken(token);
+        mToken = token;
     }
 
     /**
@@ -40,7 +40,9 @@ public class IronBeast {
     }
 
     public IronBeast setConfig(IBConfig config) {
-        mConfig = config;
+
+        mConfig.update(config);
+        mConfig.apply();
         return this;
     }
 
@@ -54,7 +56,7 @@ public class IronBeast {
         //TODO: escaping on data or encode in order to hide not valid characters
         openReport(appContext, SdkEvent.ENQUEUE)
                 .setTable(table)
-                .setToken(mConfig.getToken())
+                .setToken(mToken)
                 .setData(data)
                 .send();
     }
@@ -77,7 +79,7 @@ public class IronBeast {
         //TODO: escaping on data or encode in order to hide not valid characters
         openReport(appContext, SdkEvent.POST_SYNC)
                 .setTable(table)
-                .setToken(mConfig.getToken())
+                .setToken(mToken)
                 .setData(data)
                 .send();
     }
@@ -99,6 +101,9 @@ public class IronBeast {
     }
 
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
-    private IBConfig mConfig;
     private Context appContext;
+    private String mToken;
+    private IBConfig mConfig;
+
+
 }

@@ -23,6 +23,13 @@ public class BaseMainActivity extends Activity {
     public void sendReport(View v) {
         int id = v.getId();
         IronBeast tracker = IronBeast.getInstance(this, "myToken");
+        IBConfig.Builder builder = new IBConfig.Builder();
+        try {
+            IBConfig conf = builder.setFlushInterval(3).setIBEndPoint("http://blabla.com").setLogLevel(IBConfig.LOG_TYPE.DEBUG).setBulkSize(4).build();
+            tracker.setConfig(conf);
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
         JSONObject params = new JSONObject();
         switch (id) {
             case R.id.btnTrackReport:
