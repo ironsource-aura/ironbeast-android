@@ -43,13 +43,15 @@ public class ReportHandlerTest {
         reset(mQueue, mPoster);
     }
 
-    // When you tracking an event.
     @Test
-    public void trackOnly() {
+    // When you tracking an event.
+    public void trackOnly() throws Exception {
         mConfig.setBulkSize(Integer.MAX_VALUE);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(mContext, intent);
         verify(mQueue, times(1)).push(reportString);
+        verify(mPoster, never()).isOnline(mContext);
+        verify(mPoster, never()).post(anyString(), anyString());
     }
 
     @Test
@@ -65,7 +67,7 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertTrue(mHandler.handleReport(mContext, intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(any(String.class), eq(mConfig.getIBEndPoint()));
+        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
         verify(mQueue, never()).push(reportString);
     }
 
@@ -74,24 +76,24 @@ public class ReportHandlerTest {
     // Should discard the event, NOT push it to queue and returns true.
     public void postAuthFailed() throws Exception {
         when(mPoster.isOnline(mContext)).thenReturn(true);
-        when(mPoster.post(any(String.class), any(String.class))).thenReturn(new Response() {{
+        when(mPoster.post(anyString(), anyString())).thenReturn(new Response() {{
             code = 401;
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertTrue(mHandler.handleReport(mContext, intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(any(String.class), eq(mConfig.getIBEndPoint()));
+        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
         verify(mQueue, never()).push(reportString);
     }
 
     @Test
-    // When handler get a post-event(or flush), but the device not connection to internet.
+    // When handler get a post-event(or flush), but the device not connected to internet.
     // Should try to post "n" times, put it in the queue if it's failed and returns false.
     public void postWithoutNetwork() throws Exception {
         when(mPoster.isOnline(mContext)).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        // no idle time, but should try out 10 times
+        // no idle time, but should try it out 10 times
         mConfig.setIdleSeconds(0).setNumOfRetries(10);
         assertFalse(mHandler.handleReport(mContext, intent));
         verify(mPoster, times(10)).isOnline(mContext);
@@ -124,8 +126,8 @@ public class ReportHandlerTest {
         // Config this situation
         mConfig.setBulkSize(1).setNumOfRetries(1).setIdleSeconds(0);
         // Two different responses
-        Response ok  = new RemoteService.Response() {{ code = 200; body = "OK"; }};
-        Response fail  = new RemoteService.Response() {{ code = 500; body = "Internal Error"; }};
+        Response ok = new RemoteService.Response() {{ code = 200; body = "OK"; }};
+        Response fail = new RemoteService.Response() {{ code = 500; body = "Internal Error"; }};
         // We're connected
         when(mPoster.isOnline(mContext)).thenReturn(true);
         // All success
