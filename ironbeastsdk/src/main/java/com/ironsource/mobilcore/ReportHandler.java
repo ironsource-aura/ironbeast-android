@@ -22,7 +22,6 @@ public class ReportHandler {
 
     public ReportHandler() {
         mQueue = null;
-        mConfig = IBConfig.getsInstance();
         Logger.log("in reporter", Logger.SDK_DEBUG);
     }
 

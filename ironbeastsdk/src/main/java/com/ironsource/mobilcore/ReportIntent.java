@@ -10,8 +10,6 @@ public class ReportIntent extends Intent implements Report {
     public ReportIntent(Context context, int sdkEvent) {
         super(context, ReportService.class);
         mCtx = context;
-
-        EServiceType.SERVICE_TYPE_REPORT.setValue(Consts.EXTRA_SERVICE_TYPE, this);
         putExtra(EXTRA_REPORT_TYPE, sdkEvent);
     }
 

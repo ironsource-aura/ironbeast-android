@@ -9,14 +9,16 @@ import java.util.Map;
 
 public class IronBeast {
 
+    private String mToken;
+
     /**
      * Do not call directly.
      * You should use IronBeast.getInstance()
      */
     public IronBeast(Context context, String token) {
         appContext = context;
+        mConfig = IBConfig.getsInstance(context);
         mToken = token;
-        mConfig = IBConfig.getsInstance();
     }
 
     /**
@@ -86,7 +88,8 @@ public class IronBeast {
         post(table, data.toString());
     }
 
-    public void post(String table, Map<String, ?> data) { post(table, new JSONObject(data)); }
+    public void post(String table, Map<String, ?> data) {
+        post(table, new JSONObject(data)); }
 
     public void flush() {
         openReport(appContext, SdkEvent.FLUSH_QUEUE)
@@ -100,5 +103,4 @@ public class IronBeast {
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
     private IBConfig mConfig;
     private Context appContext;
-    private String mToken;
 }
