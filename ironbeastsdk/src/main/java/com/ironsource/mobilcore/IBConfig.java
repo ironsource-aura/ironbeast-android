@@ -33,7 +33,7 @@ public class IBConfig {
     }
 
 
-    public static IBConfig getsInstance(Context context) {
+    public static IBConfig getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
                 sInstance = new IBConfig(context);
@@ -42,7 +42,7 @@ public class IBConfig {
         return sInstance;
     }
 
-    public LOG_TYPE getLogLevel() {
+    public static LOG_TYPE getLogLevel() {
         return mLoggerMode;
     }
 
@@ -122,7 +122,7 @@ public class IBConfig {
     private int mNumOfRetries;
     private int mFlushInterval;
     private String mIBEndPoint;
-    private LOG_TYPE mLoggerMode;
+    private static LOG_TYPE mLoggerMode = LOG_TYPE.DEBUG;
     private long mMaximumRequestLimit;
     private String mToken;
 

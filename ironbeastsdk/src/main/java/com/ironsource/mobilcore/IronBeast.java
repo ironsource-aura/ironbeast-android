@@ -15,7 +15,7 @@ public class IronBeast {
      */
     public IronBeast(Context context, String token) {
         appContext = context;
-        mConfig = IBConfig.getsInstance(context);
+        mConfig = IBConfig.getInstance(context);
         mConfig.setToken(token);
     }
 

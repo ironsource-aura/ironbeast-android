@@ -1,25 +1,33 @@
 package com.ironsource.mobilcore;
 
-import com.ironsource.mobilcore.RemoteService.Response;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.test.mock.MockContext;
 
+import com.ironsource.mobilcore.RemoteService.Response;
+
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * ReportHandler unit test. should cover:
@@ -48,7 +56,7 @@ public class ReportHandlerTest {
     public void trackOnly() throws Exception {
         mConfig.setBulkSize(Integer.MAX_VALUE);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
-        mHandler.handleReport(mContext, intent);
+        mHandler.handleReport(intent);
         verify(mQueue, times(1)).push(reportString);
         verify(mPoster, never()).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
@@ -65,7 +73,7 @@ public class ReportHandlerTest {
             body = "OK";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        assertTrue(mHandler.handleReport(mContext, intent));
+        assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
         verify(mQueue, never()).push(reportString);
@@ -81,7 +89,7 @@ public class ReportHandlerTest {
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        assertTrue(mHandler.handleReport(mContext, intent));
+        assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
         verify(mQueue, never()).push(reportString);
@@ -95,7 +103,7 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
         mConfig.setIdleSeconds(0).setNumOfRetries(10);
-        assertFalse(mHandler.handleReport(mContext, intent));
+        assertFalse(mHandler.handleReport(intent));
         verify(mPoster, times(10)).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
         verify(mQueue, times(1)).push(reportString);
@@ -106,7 +114,7 @@ public class ReportHandlerTest {
     // Should do nothing and return true.
     public void flushNothing() {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-        assertTrue(mHandler.handleReport(mContext, intent));
+        assertTrue(mHandler.handleReport(intent));
         verify(mQueue, times(1)).peek();
         verify(mPoster, never()).isOnline(mContext);
     }
@@ -132,16 +140,16 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(true);
         // All success
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok, ok);
-        assertTrue(mHandler.handleReport(mContext, intent));
+        assertTrue(mHandler.handleReport(intent));
         verify(mQueue, never()).push(anyString());
         verify(mQueue, times(1)).clear();
         // Half-success, half-failed
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, fail, ok, fail);
-        assertFalse(mHandler.handleReport(mContext, intent));
+        assertFalse(mHandler.handleReport(intent));
         verify(mQueue, times(1)).push(reportString1, reportString);
         // All failed
         when(mPoster.post(anyString(), anyString())).thenReturn(fail, fail, fail, fail);
-        assertFalse(mHandler.handleReport(mContext, intent));
+        assertFalse(mHandler.handleReport(intent));
         verify(mQueue, times(1)).push(reportString1, reportString1, reportString, reportString);
     }
 
@@ -152,7 +160,7 @@ public class ReportHandlerTest {
         mConfig.setBulkSize(1);
         when(mQueue.push(anyString())).thenReturn(1);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
-        mHandler.handleReport(mContext, intent);
+        mHandler.handleReport(intent);
         verify(mQueue, times(1)).push(reportString);
         // peek() before draining
         verify(mQueue, times(1)).peek();
@@ -168,7 +176,7 @@ public class ReportHandlerTest {
             body = "OK";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        assertTrue(mHandler.handleReport(mContext, intent));
+        assertTrue(mHandler.handleReport(intent));
         JSONObject report = new JSONObject(reportString);
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
                 report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
@@ -179,7 +187,7 @@ public class ReportHandlerTest {
     // Take SdkEvent and Map and generate new MockReport
     private Intent newReport(int event, Map<String, String> report) {
         Intent intent = mock(Intent.class);
-        when(intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR))
+        when(intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR))
                 .thenReturn(event);
         Bundle bundle = mock(Bundle.class);
         for (String key: report.keySet()) when(bundle.get(key)).thenReturn(report.get(key));
@@ -197,10 +205,10 @@ public class ReportHandlerTest {
     final String reportString = new JSONObject(reportMap).toString();
     // Mocking
     final Context mContext = mock(MockContext.class);
-    final IBConfig mConfig = IBConfig.getsInstance();
+    final IBConfig mConfig = IBConfig.getInstance(mContext);
     final StorageService mQueue = spy(new TestsUtils.MockQueue());
     final RemoteService mPoster = spy(new TestsUtils.MockPoster());
-    final ReportHandler mHandler = new ReportHandler() {
+    final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
         protected RemoteService getPoster() { return mPoster; }
         @Override

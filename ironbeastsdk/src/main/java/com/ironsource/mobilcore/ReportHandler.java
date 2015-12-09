@@ -21,20 +21,18 @@ import static java.lang.Math.*;
 public class ReportHandler {
 
     public ReportHandler(Context context) {
-        mQueue = null;
-        mConfig = IBConfig.getsInstance(context);
+        mContext = context;
+        mConfig = IBConfig.getInstance(context);
         Logger.log("in reporter", Logger.SDK_DEBUG);
+        mQueue = getQueue(mConfig.getRecordsFile(), context);
     }
 
-    public synchronized boolean handleReport(Context context, Intent intent) {
+    public synchronized boolean handleReport(Intent intent) {
         boolean success = true;
         Logger.log("doReport --->", Logger.SDK_DEBUG);
-        if (null == mQueue) {
-            mQueue = getQueue(mConfig.getRecordsFile(), context);
-        }
         try {
             if (null == intent.getExtras()) return success;
-            int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+            int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
             Bundle bundle = intent.getExtras();
             JSONObject dataObject = new JSONObject();
             try {
@@ -53,7 +51,7 @@ public class ReportHandler {
                 toFlush = mConfig.getBulkSize() <= mQueue.push(dataObject.toString());
             } else if (event == SdkEvent.POST_SYNC) {
                 String message = createMessage(dataObject, false);
-                SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPoint());
                 // If message failed, push it to queue.
                 if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                     mQueue.push(dataObject.toString());
@@ -105,7 +103,7 @@ public class ReportHandler {
                         }
                         // Send each destination/table separately
                         String message = createMessage(dataObj, true);
-                        SEND_RESULT sendResult = sendData(context, message, mConfig.getIBEndPoint());
+                        SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPoint());
                         // sign-it if this bulk was failed
                         if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                             success = false;
@@ -161,12 +159,12 @@ public class ReportHandler {
         return message;
     }
 
-    protected SEND_RESULT sendData(Context context, String data, String ibEndPoint) {
+    protected SEND_RESULT sendData(String data, String ibEndPoint) {
         SEND_RESULT sendResult = SEND_RESULT.FAILED_RESEND_LATER;
         int nRetry = mConfig.getNumOfRetries();
         RemoteService poster = getPoster();
         while (nRetry-- > 0) {
-            if (poster.isOnline(context)) {
+            if (poster.isOnline(mContext)) {
                 try {
                     RemoteService.Response response = poster.post(data, ibEndPoint);
                     if (response.code == HttpURLConnection.HTTP_OK) {
@@ -207,5 +205,6 @@ public class ReportHandler {
     }
 
     private IBConfig mConfig;
+    private Context mContext;
     private StorageService mQueue;
 }
