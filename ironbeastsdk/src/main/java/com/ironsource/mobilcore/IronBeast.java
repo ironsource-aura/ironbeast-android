@@ -42,7 +42,9 @@ public class IronBeast {
     }
 
     public IronBeast setConfig(IBConfig config) {
-        mConfig = config;
+        IBConfig lConfig = IBConfig.getsInstance();
+        lConfig.update(config);
+        lConfig.apply();
         return this;
     }
 

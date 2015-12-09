@@ -22,11 +22,11 @@ class Logger {
                 Log.e(LOG_TAG, log_string);
                 break;
             case (WARNING):
-                if (IBConfig.getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (IBConfig.getsInstance().getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.w(LOG_TAG, log_string);
                 }
             case (NORMAL):
-                if (IBConfig.getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (IBConfig.getsInstance().getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.i(LOG_TAG, log_string);
                 }
                 break;
