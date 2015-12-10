@@ -100,7 +100,6 @@ public class IBConfig {
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
 
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
-
     }
 
     void apply() {
@@ -177,7 +176,7 @@ public class IBConfig {
         return mNumOfRetries;
     }
 
-    public IBConfig setNumOfRetries(int n) {
+    IBConfig setNumOfRetries(int n) {
         mNumOfRetries = n > 0 ? n : mNumOfRetries;
         return this;
     }
@@ -186,19 +185,33 @@ public class IBConfig {
         return mIdleSeconds;
     }
 
-    protected IBConfig setIdleSeconds(int secs) {
+    IBConfig setIdleSeconds(int secs) {
         mIdleSeconds = secs >= 0 ? secs : mIdleSeconds;
         return this;
     }
 
-    protected String getRecordsFile() { return RECORDS_FILENAME; }
+    String getRecordsFile() { return RECORDS_FILENAME; }
 
-    protected String getErrorsFile() {
+    String getErrorsFile() {
         return ERRORS_FILENAME;
     }
 
-    public void update(IBConfig config) {
+    void update(IBConfig config) {
+        this.setBulkSize(config.getBulkSize());
+        this.setFlushInterval(config.getFlushInterval());
+        this.setLogLevel(config.getLogLevel());
+        this.setMaximumRequestLimit(config.getMaximumRequestLimit());
 
+        try {
+            this.setIBEndPoint(config.getIBEndPoint());
+        } catch (MalformedURLException e) {
+            Logger.log("Failed to set custom IronBeast end point" + config.getIBEndPoint(), Logger.NORMAL);
+        }
+        try {
+            this.setIBEndPointBulk(config.getIBEndPointBulk());
+        } catch (MalformedURLException e) {
+            Logger.log("Failed to set custom IronBeast end point for bulk" + config.getIBEndPoint(), Logger.NORMAL);
+        }
     }
 
     public enum LOG_TYPE {
