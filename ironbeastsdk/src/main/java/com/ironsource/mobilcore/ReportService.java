@@ -27,10 +27,11 @@ public class ReportService extends IntentService {
 
     protected void setAlarm() {
         ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
-        Utils.scheduleSendReportsAction(this, reportIntent, IBConfig.getsInstance(this).getFlushInterval());
+        Utils.scheduleSendReportsAction(this, reportIntent, mConfig.getFlushInterval());
     }
     //
     // Get intent type
     //
+    private IBConfig mConfig;
     private ReportHandler mHandler;
 }

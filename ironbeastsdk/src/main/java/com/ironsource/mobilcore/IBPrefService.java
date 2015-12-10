@@ -26,14 +26,19 @@ class IBPrefService implements SharePrefService {
     @Override
     public String load(String key, String defaultValue) {
         SharedPreferences pr = mContext.getSharedPreferences(Consts.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        return pr.getString(key, defaultValue);
+        if (null != pr) {
+            return pr.getString(key, defaultValue);
+        }
+        return defaultValue;
     }
 
     @Override
     public void save(String key, String value) {
         SharedPreferences pr = mContext.getSharedPreferences(Consts.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pr.edit();
-        editor.putString(key, value);
-        editor.apply();
+        if (null != pr) {
+            SharedPreferences.Editor editor = pr.edit();
+            editor.putString(key, value);
+            editor.apply();
+        }
     }
 }

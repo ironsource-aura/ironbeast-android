@@ -69,7 +69,7 @@ public class IBConfig {
         loadConfig(context);
     }
 
-    static IBConfig getsInstance(Context context) {
+    static IBConfig getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
                 sInstance = new IBConfig(context);
