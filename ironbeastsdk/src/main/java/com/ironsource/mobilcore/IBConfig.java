@@ -1,6 +1,7 @@
 package com.ironsource.mobilcore;
 
 import android.content.Context;
+import android.util.Log;
 import android.webkit.URLUtil;
 
 import java.net.MalformedURLException;
@@ -39,7 +40,7 @@ public class IBConfig {
     private static final String KEY_SDK_TRACKER_ENABLED = "sdk_tracker_enabled";
     // IronBeast sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
-    protected static String IRONBEAST_TRACKER_TOKEN = "";
+    protected static String IRONBEAST_TRACKER_TOKEN = "ironbeast_tracker";
     private boolean mSdkTrackerEnabled;
     private static IBConfig sInstance;
     protected boolean isDefaultConstructorUsed = false;
@@ -72,8 +73,10 @@ public class IBConfig {
     static IBConfig getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
+                Log.d("IBConfig", "null == sInstance");
                 sInstance = new IBConfig(context);
             } else if (sInstance.isDefaultConstructorUsed) {
+                Log.d("IBConfig", "sInstance.isDefaultConstructorUsed");
                 sInstance.loadConfig(context);
             }
         }
