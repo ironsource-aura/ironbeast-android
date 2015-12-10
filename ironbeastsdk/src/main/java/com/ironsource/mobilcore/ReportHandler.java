@@ -21,9 +21,9 @@ import static java.lang.Math.*;
 public class ReportHandler {
 
     public ReportHandler(Context context) {
+        Logger.log("in reporter", Logger.SDK_DEBUG);
         mContext = context;
         mConfig = IBConfig.getInstance(context);
-        Logger.log("in reporter", Logger.SDK_DEBUG);
         mQueue = getQueue(mConfig.getRecordsFile(), context);
     }
 
@@ -45,7 +45,7 @@ public class ReportHandler {
                 Logger.log("Failed to fetch data from Intent", Logger.SDK_DEBUG);
             }
 
-            boolean toFlush = event == SdkEvent.FLUSH_QUEUE;
+            boolean toFlush = event == SdkEvent.FLUSH_QUEUE && mQueue.count() > 0;
             if (event == SdkEvent.ENQUEUE) {
                 toFlush = mConfig.getBulkSize() <= mQueue.push(dataObject.toString());
             } else if (event == SdkEvent.POST_SYNC) {
@@ -65,6 +65,7 @@ public class ReportHandler {
                 // failures list(not-acknowledge)
                 List<String> nacks = new ArrayList<>();
                 for (String record : records) {
+                    Logger.log("Record: " + record, Logger.SDK_DEBUG);
                     try {
                         JSONObject obj = new JSONObject(record);
                         String tName = (String) obj.get(ReportIntent.TABLE);
@@ -73,7 +74,7 @@ public class ReportHandler {
                         }
                         reqMap.get(tName).add(obj);
                     } catch (JSONException e) {
-                        Logger.log("Failed to generate the recordsMap", Logger.SDK_DEBUG);
+                        Logger.log("Failed to generate the recordsMap " + e.getMessage(), Logger.SDK_DEBUG);
                     }
                 }
                 // Loop over map, and call send() for each one of entries
