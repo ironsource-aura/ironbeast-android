@@ -27,7 +27,7 @@ public class BaseMainActivity extends Activity {
         try {
             IBConfig conf = builder.setFlushInterval(3).setIBEndPoint("http://blabla.com").setLogLevel(IBConfig.LOG_TYPE.DEBUG).setBulkSize(4).build();
             tracker.setConfig(conf);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         JSONObject params = new JSONObject();

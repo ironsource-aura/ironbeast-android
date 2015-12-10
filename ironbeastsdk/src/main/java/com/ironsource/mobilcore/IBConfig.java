@@ -26,7 +26,7 @@ public class IBConfig {
     private static final String DEFAULT_BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
-    private static final int DEFAULT_IDLE_SECONDS = 3;
+    private static final int DEFAULT_IDLE_SECONDS = 1;
     private static final int MINIMUM_REQUEST_LIMIT = 1024;
     private static final int DEFAULT_BULK_SIZE = 4;
     private static final int DEFAULT_NUM_OF_RETRIES = 3;
