@@ -33,7 +33,7 @@ public class ReportHandler {
         }
         try {
             if (null == intent.getExtras()) return success;
-            int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+            int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
             Bundle bundle = intent.getExtras();
             JSONObject dataObject = new JSONObject();
             try {

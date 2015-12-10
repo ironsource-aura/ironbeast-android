@@ -13,7 +13,7 @@ public class ReportService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Logger.log("ReportService service | onHandleIntent --->", Logger.SDK_DEBUG);
         try {
-            int event = intent.getIntExtra(ReportIntent.EXTRA_REPORT_TYPE, SdkEvent.ERROR);
+            int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
             boolean success = mHandler.handleReport(ReportService.this, intent);
             if (SdkEvent.ENQUEUE == event || !success) setAlarm();
         } catch (Throwable th) {
@@ -25,7 +25,7 @@ public class ReportService extends IntentService {
 
     protected void setAlarm() {
         ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
-        Utils.scheduleSendReportsAction(this, reportIntent, IBConfig.getsInstance().getFlushInterval());
+        Utils.scheduleSendReportsAction(this, reportIntent, IBConfig.getsInstance(this).getFlushInterval());
     }
     //
     // Get intent type
