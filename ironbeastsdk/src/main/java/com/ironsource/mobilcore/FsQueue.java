@@ -88,8 +88,12 @@ public class FsQueue implements StorageService {
         try {
             fi = getFile();
             in = new FileInputStream(fi);
-            String rawLines = new String(Utils.slurp(in), Charset.forName("UTF-8"));
-            lines = rawLines.split("\n");
+            byte[] data = Utils.slurp(in);
+            if(data != null && data.length > 0) {
+                String rawLines = new String(data, Charset.forName("UTF-8"));
+                lines = rawLines.split("\n");
+            }
+
             in.close();
         } catch(IOException e) {
             Logger.log("Failed to read records from 'fs'", Logger.SDK_DEBUG);
