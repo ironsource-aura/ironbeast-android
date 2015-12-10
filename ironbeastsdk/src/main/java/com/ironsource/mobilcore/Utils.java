@@ -5,6 +5,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 
@@ -70,5 +72,15 @@ class Utils {
         am.cancel(intent); // cancel previous one
         //will fire log than device not sleep
         am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+    }
+
+    public static String getConnectedNetworkType(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+
+        if (info != null && info.isConnected()) {
+            return info.getTypeName();
+        }
+        return "unknown";
     }
 }
