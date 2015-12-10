@@ -91,9 +91,9 @@ public class IBConfig {
 
     void loadConfig(Context context) {
         mIBPrefService = IBPrefService.getInstance(context);
-        mSdkTrackerEnabled = Boolean.getBoolean(mIBPrefService.load(KEY_SDK_TRACKER_ENABLED, "false"));
         mIBEndPoint = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_URL);
         mIBEndPointBulk = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_BULK_URL);
+        mSdkTrackerEnabled = Boolean.getBoolean(mIBPrefService.load(KEY_SDK_TRACKER_ENABLED, "false"));
         mBulkSize = Integer.getInteger(mIBPrefService.load(KEY_BULK_SIZE, ""), DEFAULT_BULK_SIZE);
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
@@ -106,6 +106,7 @@ public class IBConfig {
         mIBPrefService.save(KEY_FLUSH_INTERVAL, String.valueOf(mFlushInterval));
         mIBPrefService.save(KEY_IB_END_POINT, mIBEndPoint);
         mIBPrefService.save(KEY_IB_END_POINT_BULK, mIBEndPointBulk);
+        mIBPrefService.save(KEY_SDK_TRACKER_ENABLED, String.valueOf(mSdkTrackerEnabled));
     }
 
     public LOG_TYPE getLogLevel() {
@@ -195,7 +196,6 @@ public class IBConfig {
         this.setFlushInterval(config.getFlushInterval());
         this.setLogLevel(config.getLogLevel());
         this.setMaximumRequestLimit(config.getMaximumRequestLimit());
-
         try {
             this.setIBEndPoint(config.getIBEndPoint());
         } catch (MalformedURLException e) {

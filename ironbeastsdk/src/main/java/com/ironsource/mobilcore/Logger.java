@@ -2,9 +2,6 @@ package com.ironsource.mobilcore;
 
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 class Logger {
     // only
     public static final int CRITICAL = 2;

@@ -20,12 +20,9 @@ public class IronBeast {
      * You should use IronBeast.getInstance()
      */
     public IronBeast(Context context, String token) {
+        mToken = token;
         mContext = context;
         mConfig = IBConfig.getInstance(context);
-        mToken = token;
-        if (!sInstances.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN)) {
-            getInstance(context, IBConfig.IRONBEAST_TRACKER_TOKEN);
-        }
     }
 
     /**
@@ -43,6 +40,10 @@ public class IronBeast {
             } else {
                 ret = new IronBeast(context.getApplicationContext(), token);
                 sInstances.put(token, ret);
+            }
+            if (!sInstances.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN)) {
+                sInstances.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeast(context,
+                        IBConfig.IRONBEAST_TRACKER_TOKEN));
             }
             return ret;
         }
@@ -62,7 +63,6 @@ public class IronBeast {
      * @param data
      */
     public void track(String table, String data) {
-        //TODO: escaping on data or encode in order to hide not valid characters
         openReport(mContext, SdkEvent.ENQUEUE)
                 .setTable(table)
                 .setToken(mToken)
@@ -85,7 +85,6 @@ public class IronBeast {
      * @param data
      */
     public void post(String table, String data) {
-        //TODO: escaping on data or encode in order to hide not valid characters
         openReport(mContext, SdkEvent.POST_SYNC)
                 .setTable(table)
                 .setToken(mToken)

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 class IBPrefService implements SharePrefService {
 
-
     private static final Object sInstanceLock = new Object();
     static IBPrefService sInstance;
     Context mContext;

@@ -29,7 +29,6 @@ public class ReportHandler {
 
     public synchronized boolean handleReport(Intent intent) {
         boolean success = true;
-        Logger.log("doReport --->", Logger.SDK_DEBUG);
         try {
             if (null == intent.getExtras()) return success;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
@@ -57,8 +56,6 @@ public class ReportHandler {
                     mQueue.push(dataObject.toString());
                     success = false;
                 }
-            } else if (event == SdkEvent.ERROR) {
-                //TODO: create ERROR report
             }
             if (toFlush) {
                 // map all records according to 'table' field
