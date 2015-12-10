@@ -55,15 +55,19 @@ class Utils {
     // auth helper
     // Exception could be: NoSuchAlgorithmException, UnsupportedEncodingException
     // and InvalidKeyException
-    public static String auth(String data, String key) throws Exception {
-        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        sha256_HMAC.init(secret_key);
-        StringBuilder sb = new StringBuilder();
-        for (byte b : sha256_HMAC.doFinal(data.getBytes("UTF-8"))) {
-            sb.append(String.format("%1$02x", b));
+    public static String auth(String data, String key) {
+        try {
+            SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            sha256_HMAC.init(secret_key);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : sha256_HMAC.doFinal(data.getBytes("UTF-8"))) {
+                sb.append(String.format("%1$02x", b));
+            }
+            return sb.toString();
+        } catch(Exception e) {
+            return "";
         }
-        return sb.toString();
     }
 
     public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long delay) {

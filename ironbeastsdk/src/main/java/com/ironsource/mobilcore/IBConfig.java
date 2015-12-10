@@ -21,11 +21,9 @@ import java.net.MalformedURLException;
 public class IBConfig {
     private static final Object sInstanceLock = new Object();
     // Name for persistent storage of app referral SharedPreferences
-    // IBConstants
     private static final String DEFAULT_URL = "http://10.0.2.2:3000/";  // (temporary, just for debugging right now)
     private static final String DEFAULT_BULK_URL = "http://lb.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
-    private static final String ERRORS_FILENAME = "com.ironsource.mobilcore.ib_errors";
     private static final int DEFAULT_IDLE_SECONDS = 1;
     private static final int MINIMUM_REQUEST_LIMIT = 1024;
     private static final int DEFAULT_BULK_SIZE = 4;
@@ -37,9 +35,12 @@ public class IBConfig {
     private static final String KEY_FLUSH_INTERVAL = "flush_interval";
     private static final String KEY_IB_END_POINT = "ib_end_point";
     private static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
-    //TODO: save logger_mode???
-    private static final String KEY_LOGGER_MODE = "logger_mode";
     private static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
+    private static final String KEY_SDK_TRACKER_ENABLED = "sdk_tracker_enabled";
+    // IronBeast sTracker configuration
+    protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
+    protected static String IRONBEAST_TRACKER_TOKEN = "";
+    private boolean mSdkTrackerEnabled;
     private static IBConfig sInstance;
     protected boolean isDefaultConstructorUsed = false;
     IBPrefService mIBPrefService;
@@ -54,13 +55,12 @@ public class IBConfig {
 
     IBConfig() {
         isDefaultConstructorUsed = true;
+        mSdkTrackerEnabled = true;
         mIBEndPoint = DEFAULT_URL;
         mIBEndPointBulk = DEFAULT_BULK_URL;
-
         mBulkSize = DEFAULT_BULK_SIZE;
         mFlushInterval = DEFAULT_FLUSH_INTERVAL;
         mMaximumRequestLimit = DEFAULT_MAX_REQUEST_LIMIT;
-
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
         mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
@@ -91,14 +91,12 @@ public class IBConfig {
 
     void loadConfig(Context context) {
         mIBPrefService = IBPrefService.getInstance(context);
-
+        mSdkTrackerEnabled = Boolean.getBoolean(mIBPrefService.load(KEY_SDK_TRACKER_ENABLED, "false"));
         mIBEndPoint = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_URL);
         mIBEndPointBulk = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_BULK_URL);
-
         mBulkSize = Integer.getInteger(mIBPrefService.load(KEY_BULK_SIZE, ""), DEFAULT_BULK_SIZE);
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
-
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
     }
 
@@ -191,10 +189,6 @@ public class IBConfig {
     }
 
     String getRecordsFile() { return RECORDS_FILENAME; }
-
-    String getErrorsFile() {
-        return ERRORS_FILENAME;
-    }
 
     void update(IBConfig config) {
         this.setBulkSize(config.getBulkSize());
