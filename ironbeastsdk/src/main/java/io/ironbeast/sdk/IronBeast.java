@@ -49,6 +49,11 @@ public class IronBeast {
         }
     }
 
+    /**
+     * This method update default configuration of the IronBeast tracker
+     *
+     * @param config  - new configuration for IronBeast tracker
+     */
     public IronBeast setConfig(IBConfig config) {
         IBConfig lConfig = IBConfig.getsInstance();
         lConfig.update(config);
@@ -57,10 +62,10 @@ public class IronBeast {
     }
 
     /**
-     * Track an event that already stringified.
+     * Track an event that already stringified send data postponed.
      *
      * @param table - IronBeast destination.
-     * @param data
+     * @param data - String, containing the data to track.
      */
     public void track(String table, String data) {
         openReport(mContext, SdkEvent.ENQUEUE)
@@ -81,8 +86,8 @@ public class IronBeast {
     /**
      * Post (send immediately) and event that already stringified.
      *
-     * @param table
-     * @param data
+     * @param table - IronBeast destination table.
+     * @param data - String, containing the data to post.
      */
     public void post(String table, String data) {
         openReport(mContext, SdkEvent.POST_SYNC)
