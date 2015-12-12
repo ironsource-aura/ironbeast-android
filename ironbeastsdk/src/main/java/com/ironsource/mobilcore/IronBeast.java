@@ -114,7 +114,7 @@ public class IronBeast {
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
-            report.put("timestamp", new SimpleDateFormat("yyyy-MM-ddHHmmss")
+            report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
             report.put("connection", Utils.getConnectedNetworkType(sdkTracker.mContext));
