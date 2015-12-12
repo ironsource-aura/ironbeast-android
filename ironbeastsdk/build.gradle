@@ -91,7 +91,7 @@ buildscript {
 
 task deleteJavaDebugLogs << {
     description("This function will delete all SDK DEBUG log level from the project, be careful with it!")
-    FileTree javaFiles = fileTree('src/main/java/com/ironsource/mobilcore') {
+    FileTree javaFiles = fileTree('src/main/java/io/ironbeast/sdk') {
         include '**/*.java'
     }
     String regex = "Logger.log[^,]+[^L]+(.*)Logger.SDK_DEBUG[^;];"

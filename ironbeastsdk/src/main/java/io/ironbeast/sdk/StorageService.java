@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 interface StorageService {
     int count();

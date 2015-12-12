@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -7,7 +7,6 @@ import android.test.mock.MockContext;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.DataOutputStream;

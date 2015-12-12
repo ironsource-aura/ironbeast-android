@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 import android.app.IntentService;
 import android.content.Intent;

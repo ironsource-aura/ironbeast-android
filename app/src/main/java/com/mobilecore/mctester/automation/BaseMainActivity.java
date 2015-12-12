@@ -6,8 +6,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
-import com.ironsource.mobilcore.IBConfig;
-import com.ironsource.mobilcore.IronBeast;
+import io.ironbeast.sdk.IBConfig;
+import io.ironbeast.sdk.IronBeast;
 
 import org.json.JSONException;
 import org.json.JSONObject;

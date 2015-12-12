@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 class Consts {
     protected static final String VER = BuildConfig.VERSION_NAME;

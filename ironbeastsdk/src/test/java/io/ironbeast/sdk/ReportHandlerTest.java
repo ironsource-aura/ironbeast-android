@@ -1,11 +1,11 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.test.mock.MockContext;
 
-import com.ironsource.mobilcore.RemoteService.Response;
+import io.ironbeast.sdk.RemoteService.Response;
 
 import org.json.JSONObject;
 import org.junit.Before;

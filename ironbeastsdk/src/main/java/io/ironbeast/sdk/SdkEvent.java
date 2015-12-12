@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 public class SdkEvent {
     public static final int ENQUEUE = 0;     // save report
