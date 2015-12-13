@@ -100,6 +100,7 @@ public class IBConfig {
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
+        mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
 
     void apply() {
@@ -159,8 +160,8 @@ public class IBConfig {
         return mFlushInterval;
     }
 
-    IBConfig setFlushInterval(int interval) {
-        mFlushInterval = interval;
+    IBConfig setFlushInterval(int seconds) {
+        mFlushInterval = seconds;
         return this;
     }
 
@@ -210,26 +211,25 @@ public class IBConfig {
         }
     }
 
+    IBConfig setSDKTracker(boolean enable) {
+        mSdkTrackerEnabled = enable;
+        return this;
+    }
+
     public enum LOG_TYPE {
         PRODUCTION, DEBUG
     }
-    
-    public static class Builder {
-        LOG_TYPE mLoggerMode;
-        private int mBulkSize;
-        private int mFlushInterval;
-        private String mIBEndPoint;
-        private String mIBEndPointBulk;
-        private long mMaximumRequestLimit;
 
+    public static class Builder {
+        IBConfig mConfig = new IBConfig();
         public IBConfig.Builder setLogLevel(LOG_TYPE logLevel) {
-            mLoggerMode = logLevel;
+            mConfig.setLogLevel(logLevel);
             return this;
         }
 
         public IBConfig.Builder setIBEndPoint(String url) throws MalformedURLException {
             if (URLUtil.isValidUrl(url)) {
-                mIBEndPoint = url;
+                mConfig.setIBEndPoint(url);
             } else {
                 throw new MalformedURLException();
             }
@@ -238,7 +238,7 @@ public class IBConfig {
 
         public IBConfig.Builder setIBEndPointBulk(String url) throws MalformedURLException {
             if (URLUtil.isValidUrl(url)) {
-                mIBEndPointBulk = url;
+                mConfig.setIBEndPointBulk(url);
             } else {
                 throw new MalformedURLException();
             }
@@ -246,39 +246,27 @@ public class IBConfig {
         }
 
         public IBConfig.Builder setBulkSize(int size) {
-            mBulkSize = size;
+            mConfig.setBulkSize(size);
             return this;
         }
 
-        public IBConfig.Builder setFlushInterval(int interval) {
-            mFlushInterval = interval;
+        public IBConfig.Builder setFlushInterval(int seconds) {
+            mConfig.setFlushInterval(seconds);
             return this;
         }
 
         public IBConfig.Builder setMaximumRequestLimit(long bytes) {
-            mMaximumRequestLimit = (bytes >= MINIMUM_REQUEST_LIMIT) ? bytes : mMaximumRequestLimit;
+            mConfig.setMaximumRequestLimit(bytes);
+            return this;
+        }
+
+        public IBConfig.Builder setSDKTracker(boolean enable) {
+            mConfig.setSDKTracker(enable);
             return this;
         }
 
         public IBConfig build() {
-            IBConfig config = new IBConfig();
-            config.setBulkSize(mBulkSize);
-            config.setFlushInterval(mFlushInterval);
-            config.setLogLevel(mLoggerMode);
-            config.setMaximumRequestLimit(mMaximumRequestLimit);
-            try {
-                config.setIBEndPoint(mIBEndPoint);
-            } catch (MalformedURLException ex) {
-                //TODO: do something
-                Logger.log("Failed to set new IronBeast URL for reports", Logger.SDK_DEBUG);
-            }
-            try {
-                config.setIBEndPointBulk(mIBEndPointBulk);
-            } catch (MalformedURLException ex) {
-                //TODO: do something
-                Logger.log("Failed to set new IronBeast URL for bulk reports", Logger.SDK_DEBUG);
-            }
-            return config;
+            return mConfig;
         }
     }
 }
