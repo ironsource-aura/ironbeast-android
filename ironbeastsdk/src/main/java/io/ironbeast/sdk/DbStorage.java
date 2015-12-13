@@ -1,4 +1,4 @@
-package com.ironsource.mobilcore;
+package io.ironbeast.sdk;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,18 +8,30 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import static java.lang.Math.*;
 
 import java.io.File;
 
+// if (addReport("table", "hello world") == 1) {
+//  addTable("table", "token");
+// }
+// JSONObject[] tables = getTables("table"); ==> {table, token}
+// for each table, get `JSONArray arr = getReports("table", limit/30)`
+// merged them -> {table, token, arr}
+// send them ->
+//
+// 1. While insert a "row" to db
+// if the current count is equal to 1, create row in "tables/destination" table(tName, token)
 public class DbStorage {
 
     public DbStorage(Context context) {
         mDb = new DatabaseHandler(context);
     }
 
-    public int insert(String table, String data) {
+    // Assuming event have `table`, `token` and `data` fields
+    public int addEvent(String table, String data, String token) {
         if (this.belowMemThreshold()) {
             // Log something
             // and do what ???(delete some of the records, delete all db, return outOfMemory-code)
@@ -28,11 +40,17 @@ public class DbStorage {
         try {
             SQLiteDatabase db = mDb.getWritableDatabase();
             ContentValues cv = new ContentValues();
+            cv.put(KEY_TABLE, table);
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
-            db.insert(table, null, cv);
-            // Move cursor here instead?
-            n = count(table);
+            db.insert(REPORTS_TABLE, null, cv);
+            // Create "table-row" in "tables" table
+            if ((n = count(table)) == 1) {
+                cv = new ContentValues();
+                cv.put(KEY_TABLE, table);
+                cv.put(KEY_TOKEN, token);
+                db.insert(TABLES_TABLE, null, cv);
+            }
         } catch (final SQLiteException e) {
             // TODO: logging
             mDb.delete();
@@ -45,9 +63,11 @@ public class DbStorage {
     public int count(final String table) {
         int n = 0;
         Cursor c = null;
+        SQLiteDatabase db = null;
         try {
-            SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery("SELECT COUNT(*) FROM " + table, null);
+            db = mDb.getReadableDatabase();
+            c = db.rawQuery("SELECT COUNT(*) FROM " + REPORTS_TABLE + " WHERE " + KEY_TABLE + " = ?",
+                    new String[] {table});
             c.moveToFirst();
             n = c.getInt(0);
         } catch (final SQLiteException e) {
@@ -55,23 +75,23 @@ public class DbStorage {
             mDb.delete();
         } finally {
             if (null != c) c.close();
-            mDb.close();
+            if (null != db) db.close();
         }
         return n;
     }
 
-    public String[] find(String table, int limit) {
+    public String[] getEvents(String table, int limit) {
         Cursor c = null;
         String data = null;
         String lastId = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery("SELECT * FROM " + table  +
-                    " ORDER BY " + KEY_CREATED_AT + " ASC LIMIT " + limit, null);
+            db.rawQuery("SELECT * FROM ? WHERE ? = ? ORDER BY ? ASC LIMIT ?",
+                    new String[] {REPORTS_TABLE, KEY_TABLE, table, KEY_CREATED_AT, String.valueOf(limit)});
             final JSONArray arr = new JSONArray();
             while (c.moveToNext()) {
                 if (c.isLast()) {
-                    lastId = c.getString(c.getColumnIndex("_id"));
+                    lastId = c.getString(c.getColumnIndex(REPORTS_TABLE + "_id"));
                 }
                 arr.put(c.getString(c.getColumnIndex(KEY_DATA)));
             }
@@ -91,6 +111,18 @@ public class DbStorage {
         return null;
     }
 
+//    public String[] getTables() {
+//        Cursor c = null;
+//        try {
+//
+//        } catch (final SQLiteException e) {
+//
+//        } finally {
+//            if (null != c) c.close();
+//            mDb.close();
+//        }
+//    }
+
     // Override in testing mode
     protected boolean belowMemThreshold() {
         return mDb.belowMemThreshold();
@@ -98,7 +130,7 @@ public class DbStorage {
 
     private final DatabaseHandler mDb;
     public static final String KEY_DATA = "data";
-    public static final String KEY_NAME = "name";
+    public static final String KEY_TABLE = "table";
     public static final String KEY_TOKEN = "token";
     public static final String TABLES_TABLE = "tables";
     public static final String REPORTS_TABLE = "reports";
@@ -108,14 +140,14 @@ public class DbStorage {
     private static final int DATABASE_VERSION = 4;
 
     private static final String CREATE_REPORTS_TABLE =
-            "CREATE TABLE " + REPORTS_TABLE + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            "CREATE TABLE " + REPORTS_TABLE + " (" + REPORTS_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     KEY_DATA + " STRING NOT NULL, " +
-                    KEY_CREATED_AT + " INTEGER NOT NULL);";
+                    KEY_TABLE + " STRING NOT NULL, " +
+                    KEY_CREATED_AT + " INTEGER NOT NULL)";
     private static final String CREATE_TABLES_TABLE =
-            "CREATE TABLE " + TABLES_TABLE + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    KEY_NAME + " STRING NOT NULL, " +
-                    KEY_TOKEN + " STRING NOT NULL, " +
-                    KEY_CREATED_AT + " INTEGER NOT NULL);";
+            "CREATE TABLE " + TABLES_TABLE + " (" + REPORTS_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    KEY_TABLE + " STRING NOT NULL UNIQUE, " +
+                    KEY_TOKEN + " STRING NOT NULL);";
     private static final String REPORTS_INDEXING =
             "CREATE INDEX IF NOT EXISTS time_idx ON " + REPORTS_TABLE +
                     " (" + KEY_CREATED_AT + ");";
