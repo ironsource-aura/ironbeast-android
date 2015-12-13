@@ -100,6 +100,7 @@ public class IBConfig {
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
+        mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
 
     void apply() {
@@ -210,10 +211,15 @@ public class IBConfig {
         }
     }
 
+    IBConfig setSDKTracker(boolean enable) {
+        mSdkTrackerEnabled = enable;
+        return this;
+    }
+
     public enum LOG_TYPE {
         PRODUCTION, DEBUG
     }
-    
+
     public static class Builder {
         IBConfig mConfig = new IBConfig();
         public IBConfig.Builder setLogLevel(LOG_TYPE logLevel) {
@@ -251,6 +257,11 @@ public class IBConfig {
 
         public IBConfig.Builder setMaximumRequestLimit(long bytes) {
             mConfig.setMaximumRequestLimit(bytes);
+            return this;
+        }
+
+        public IBConfig.Builder setSDKTracker(boolean enable) {
+            mConfig.setSDKTracker(enable);
             return this;
         }
 

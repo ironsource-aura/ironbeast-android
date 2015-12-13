@@ -54,11 +54,10 @@ public class IronBeast {
      *
      * @param config  - new configuration for IronBeast tracker
      */
-    public IronBeast setConfig(IBConfig config) {
-        IBConfig lConfig = IBConfig.getsInstance();
-        lConfig.update(config);
-        lConfig.apply();
-        return this;
+    public void setConfig(IBConfig config) {
+        mConfig = IBConfig.getsInstance();
+        mConfig.update(config);
+        mConfig.apply();
     }
 
     /**

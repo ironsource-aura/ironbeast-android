@@ -6,11 +6,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
-import io.ironbeast.sdk.IBConfig;
-import io.ironbeast.sdk.IronBeast;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import io.ironbeast.sdk.IBConfig;
+import io.ironbeast.sdk.IronBeast;
 
 public class BaseMainActivity extends Activity {
 
@@ -25,7 +25,12 @@ public class BaseMainActivity extends Activity {
         IronBeast tracker = IronBeast.getInstance(this, "myToken");
         IBConfig.Builder builder = new IBConfig.Builder();
         try {
-            IBConfig conf = builder.setFlushInterval(3).setIBEndPoint("http://10.0.2.2:3000/").setLogLevel(IBConfig.LOG_TYPE.DEBUG).setBulkSize(4).build();
+            IBConfig conf = builder
+                    .setFlushInterval(3)
+                    .setIBEndPoint("http://10.0.2.2:3000/")
+                    .setLogLevel(IBConfig.LOG_TYPE.DEBUG)
+                    .build();
+
             tracker.setConfig(conf);
         }catch (Exception ex) {
             ex.printStackTrace();
