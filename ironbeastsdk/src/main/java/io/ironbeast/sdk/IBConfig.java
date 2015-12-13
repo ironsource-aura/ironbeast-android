@@ -21,9 +21,8 @@ import java.net.MalformedURLException;
  */
 public class IBConfig {
     private static final Object sInstanceLock = new Object();
-    // Name for persistent storage of app referral SharedPreferences
-    private static final String DEFAULT_URL = "http://10.0.2.2:3000/";  // (temporary, just for debugging right now)
-    private static final String DEFAULT_BULK_URL = "http://lb.ironbeast.io/bulk";
+    private static final String DEFAULT_URL = "http://sdk.ironbeast.io";
+    private static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
     private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final int DEFAULT_IDLE_SECONDS = 1;
     private static final int MINIMUM_REQUEST_LIMIT = 1024;

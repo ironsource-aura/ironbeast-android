@@ -101,7 +101,7 @@ public class ReportHandler {
                         }
                         // Send each destination/table separately
                         String message = createMessage(dataObj, true);
-                        SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPoint());
+                        SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPointBulk());
                         // sign-it if this bulk was failed
                         if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
                             success = false;
