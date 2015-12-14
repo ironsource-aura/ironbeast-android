@@ -94,7 +94,7 @@ public class IBConfig {
     void loadConfig(Context context) {
         mIBPrefService = IBPrefService.getInstance(context);
         mIBEndPoint = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_URL);
-        mIBEndPointBulk = mIBPrefService.load(KEY_IB_END_POINT, DEFAULT_BULK_URL);
+        mIBEndPointBulk = mIBPrefService.load(KEY_IB_END_POINT_BULK, DEFAULT_BULK_URL);
         mSdkTrackerEnabled = Boolean.getBoolean(mIBPrefService.load(KEY_SDK_TRACKER_ENABLED, "false"));
         mBulkSize = Integer.getInteger(mIBPrefService.load(KEY_BULK_SIZE, ""), DEFAULT_BULK_SIZE);
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
