@@ -39,7 +39,7 @@ public class IBConfig {
     private static final String KEY_SDK_TRACKER_ENABLED = "sdk_tracker_enabled";
     // IronBeast sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
-    protected static String IRONBEAST_TRACKER_TOKEN = "ironbeast_tracker";
+    protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
     private boolean mSdkTrackerEnabled;
     private static IBConfig sInstance;
     protected boolean isDefaultConstructorUsed = false;
