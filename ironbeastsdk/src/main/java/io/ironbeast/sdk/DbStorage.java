@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +32,7 @@ public class DbStorage {
     }
 
     // Assuming event have `table`, `token` and `data` fields
-    public int addEvent(String table, String data, String token) {
+    public int addEvent(String table, String token, String data) {
         if (this.belowMemThreshold()) {
             // Log something
             // and do what ???(delete some of the records, delete all db, return outOfMemory-code)
@@ -66,8 +67,8 @@ public class DbStorage {
         SQLiteDatabase db = null;
         try {
             db = mDb.getReadableDatabase();
-            c = db.rawQuery("SELECT COUNT(*) FROM " + REPORTS_TABLE + " WHERE " + KEY_TABLE + " = ?",
-                    new String[] {table});
+            c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
+                            REPORTS_TABLE, KEY_TABLE), new String[]{table});
             c.moveToFirst();
             n = c.getInt(0);
         } catch (final SQLiteException e) {
@@ -86,8 +87,13 @@ public class DbStorage {
         String lastId = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            db.rawQuery("SELECT * FROM ? WHERE ? = ? ORDER BY ? ASC LIMIT ?",
-                    new String[] {REPORTS_TABLE, KEY_TABLE, table, KEY_CREATED_AT, String.valueOf(limit)});
+            // WORKS:
+            // c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " ORDER BY ? ASC LIMIT ?",
+            // new String[]{KEY_CREATED_AT, String.valueOf(limit)});
+            c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " WHERE ? = ?",
+                    new String[]{KEY_TABLE, table});
+//            c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " WHERE ? = ?",
+//                    new String[]{KEY_TABLE, table, KEY_CREATED_AT, String.valueOf(limit)});
             final JSONArray arr = new JSONArray();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -130,7 +136,7 @@ public class DbStorage {
 
     private final DatabaseHandler mDb;
     public static final String KEY_DATA = "data";
-    public static final String KEY_TABLE = "table";
+    public static final String KEY_TABLE = "table_name";
     public static final String KEY_TOKEN = "token";
     public static final String TABLES_TABLE = "tables";
     public static final String REPORTS_TABLE = "reports";
@@ -145,7 +151,7 @@ public class DbStorage {
                     KEY_TABLE + " STRING NOT NULL, " +
                     KEY_CREATED_AT + " INTEGER NOT NULL)";
     private static final String CREATE_TABLES_TABLE =
-            "CREATE TABLE " + TABLES_TABLE + " (" + REPORTS_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            "CREATE TABLE " + TABLES_TABLE + " (" + TABLES_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     KEY_TABLE + " STRING NOT NULL UNIQUE, " +
                     KEY_TOKEN + " STRING NOT NULL);";
     private static final String REPORTS_INDEXING =
