@@ -9,22 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import static java.lang.Math.*;
 
 import java.io.File;
 
-// if (addReport("table", "hello world") == 1) {
-//  addTable("table", "token");
-// }
-// JSONObject[] tables = getTables("table"); ==> {table, token}
-// for each table, get `JSONArray arr = getReports("table", limit/30)`
-// merged them -> {table, token, arr}
-// send them ->
-//
-// 1. While insert a "row" to db
-// if the current count is equal to 1, create row in "tables/destination" table(tName, token)
 public class DbStorage {
 
     public DbStorage(Context context) {
@@ -38,6 +29,7 @@ public class DbStorage {
             // and do what ???(delete some of the records, delete all db, return outOfMemory-code)
         }
         int n = 0;
+        Cursor c = null;
         try {
             SQLiteDatabase db = mDb.getWritableDatabase();
             ContentValues cv = new ContentValues();
@@ -45,17 +37,23 @@ public class DbStorage {
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
-            // Create "table-row" in "tables" table
-            if ((n = count(table)) == 1) {
+            // Count number of rows if this destination
+            c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
+                    REPORTS_TABLE, KEY_TABLE), new String[]{table});
+            c.moveToFirst();
+            // Create row in "tables(destinations)" table to store (tableName, token)
+            // in the first insertion to "reports"
+            if ((n = c.getInt(0)) == 1) {
                 cv = new ContentValues();
                 cv.put(KEY_TABLE, table);
                 cv.put(KEY_TOKEN, token);
-                db.insert(TABLES_TABLE, null, cv);
+                db.insertWithOnConflict(TABLES_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         } catch (final SQLiteException e) {
             // TODO: logging
             mDb.delete();
         } finally {
+            if (null != c) c.close();
             mDb.close();
         }
         return n;
@@ -87,13 +85,8 @@ public class DbStorage {
         String lastId = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            // WORKS:
-            // c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " ORDER BY ? ASC LIMIT ?",
-            // new String[]{KEY_CREATED_AT, String.valueOf(limit)});
-            c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " WHERE ? = ?",
-                    new String[]{KEY_TABLE, table});
-//            c = db.rawQuery("SELECT * FROM " + REPORTS_TABLE + " WHERE ? = ?",
-//                    new String[]{KEY_TABLE, table, KEY_CREATED_AT, String.valueOf(limit)});
+            c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s=? ORDER BY ? ASC LIMIT ?",
+                    REPORTS_TABLE, KEY_TABLE), new String[]{table, KEY_CREATED_AT, String.valueOf(limit)});
             final JSONArray arr = new JSONArray();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -117,17 +110,48 @@ public class DbStorage {
         return null;
     }
 
-//    public String[] getTables() {
-//        Cursor c = null;
-//        try {
-//
-//        } catch (final SQLiteException e) {
-//
-//        } finally {
-//            if (null != c) c.close();
-//            mDb.close();
-//        }
-//    }
+    public JSONArray getTables() {
+        Cursor c = null;
+        JSONArray tables = new JSONArray();
+        try {
+            final SQLiteDatabase db = mDb.getReadableDatabase();
+            c = db.rawQuery(String.format("SELECT * FROM %s", TABLES_TABLE), null);
+            while (c.moveToNext()) {
+                try {
+                    JSONObject props = new JSONObject();
+                    props.put(KEY_TABLE, c.getString(c.getColumnIndex(KEY_TABLE)));
+                    props.put(KEY_TOKEN, c.getString(c.getColumnIndex(KEY_TOKEN)));
+                    tables.put(props);
+                } catch (JSONException e) {
+                    Log.d("getTables", "failed to create json");
+                }
+            }
+        } catch (final SQLiteException e) {
+
+        } finally {
+            if (null != c) c.close();
+            mDb.close();
+        }
+        return tables;
+    }
+
+    // Remove events from records table that related to the given "table/destination"
+    // and with an id that less than the "lastId"
+    // Returns the number of rows affected
+    public int deleteEvents(String table, String lastId) {
+        int n = 0;
+        try {
+            final SQLiteDatabase db = mDb.getWritableDatabase();
+            n = db.delete(REPORTS_TABLE, String.format("%s=? AND %s_id <= ?", KEY_TABLE, REPORTS_TABLE),
+                    new String[]{table, lastId});
+        } catch (final SQLiteException e) {
+            Log.e("DATABASE", "failed to cleanup events", e);
+            mDb.delete();
+        } finally {
+            mDb.close();
+        }
+        return n;
+    }
 
     // Override in testing mode
     protected boolean belowMemThreshold() {
