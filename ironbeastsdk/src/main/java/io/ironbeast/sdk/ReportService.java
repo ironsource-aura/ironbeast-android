@@ -2,6 +2,7 @@ package io.ironbeast.sdk;
 
 import android.app.IntentService;
 import android.content.Intent;
+import static java.lang.String.format;
 
 public class ReportService extends IntentService {
 
@@ -25,8 +26,7 @@ public class ReportService extends IntentService {
             boolean success = mHandler.handleReport(intent);
             if (SdkEvent.ENQUEUE == event || !success) setAlarm();
         } catch (Throwable th) {
-            //TODO: send error report
-            Logger.log("ReportService service | onHandleIntent | " + th.getMessage(), Logger.SDK_DEBUG);
+            Logger.log(format("ReportService - onHandleIntent. %s", th), Logger.SDK_ERROR);
         }
 
     }
@@ -36,9 +36,7 @@ public class ReportService extends IntentService {
         ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
         Utils.scheduleSendReportsAction(this, reportIntent, mConfig.getFlushInterval());
     }
-    //
-    // Get intent type
-    //
+
     private IBConfig mConfig;
     private ReportHandler mHandler;
 }

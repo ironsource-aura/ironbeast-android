@@ -40,9 +40,8 @@ public class ReportHandler {
                     Object value = bundle.get(key);
                     dataObject.put(key, value);
                 }
-            } catch (Exception ex) {
-                //TODO: add sending report
-                Logger.log("Failed to fetch data from Intent", Logger.SDK_DEBUG);
+            } catch (Exception e) {
+                Logger.log("Failed to extract data from Intent", Logger.SDK_DEBUG);
             }
 
             boolean toFlush = event == SdkEvent.FLUSH_QUEUE && mQueue.count() > 0;
@@ -114,8 +113,7 @@ public class ReportHandler {
                 mQueue.push(nacks.toArray(new String[nacks.size()]));
             } // end flush
         } catch (Exception e) {
-            Logger.log("Failed parse the given report:" + e.getMessage(), Logger.SDK_DEBUG);
-            //TODO: may be send error
+            Logger.log("Failed parse the given report:" + e, Logger.SDK_DEBUG);
         }
         return success;
     }
@@ -152,7 +150,7 @@ public class ReportHandler {
             }
             message = clone.toString();
         } catch (Exception e) {
-            Logger.log("ReportHandler: failed create message" + e.getMessage(), Logger.SDK_DEBUG);
+            Logger.log("ReportHandler: failed create message" + e, Logger.SDK_DEBUG);
         }
         return message;
     }
@@ -174,9 +172,8 @@ public class ReportHandler {
                         sendResult = SEND_RESULT.FAILED_DELETE;
                         break;
                     }
-                    //TODO: Check ״internal error״ from what android version
                 } catch (IOException e) {
-                    Logger.log("Failed to Post to Ironbeast", Logger.SDK_DEBUG);
+                    Logger.log("ReportHandler - failed to POST report" + e, Logger.SDK_ERROR);
                 }
             }
             try {

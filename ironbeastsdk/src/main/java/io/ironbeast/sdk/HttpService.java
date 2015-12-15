@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import static java.lang.String.format;
 
 /**
  * An HTTP utility class for internal use in this library.
@@ -76,7 +77,7 @@ public class HttpService implements RemoteService {
         } catch(final IOException e) {
             // TODO(Ariel): Create and throw "new ServiceUnavailableException(statusCode, msg)"
             response.code = connection.getResponseCode();
-            Logger.log("HttpService: Service IB Unavailable", Logger.SDK_DEBUG);
+            Logger.log(format("HttpService: Service IB Unavailable, %s", e), Logger.SDK_ERROR);
         } finally {
             if (null != connection) connection.disconnect();
             if (null != out) out.close();
