@@ -160,31 +160,14 @@ public class DbStorage {
 
     private final DatabaseHandler mDb;
     public static final String KEY_DATA = "data";
-    public static final String KEY_TABLE = "table_name";
     public static final String KEY_TOKEN = "token";
+    public static final String KEY_TABLE = "table_name";
     public static final String TABLES_TABLE = "tables";
     public static final String REPORTS_TABLE = "reports";
     public static final String KEY_CREATED_AT = "created_at";
 
     private static final String DATABASE_NAME = "ironbeast";
     private static final int DATABASE_VERSION = 4;
-
-    private static final String CREATE_REPORTS_TABLE =
-            "CREATE TABLE " + REPORTS_TABLE + " (" + REPORTS_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    KEY_DATA + " STRING NOT NULL, " +
-                    KEY_TABLE + " STRING NOT NULL, " +
-                    KEY_CREATED_AT + " INTEGER NOT NULL)";
-    private static final String CREATE_TABLES_TABLE =
-            "CREATE TABLE " + TABLES_TABLE + " (" + TABLES_TABLE + "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    KEY_TABLE + " STRING NOT NULL UNIQUE, " +
-                    KEY_TOKEN + " STRING NOT NULL);";
-    private static final String REPORTS_INDEXING =
-            "CREATE INDEX IF NOT EXISTS time_idx ON " + REPORTS_TABLE +
-                    " (" + KEY_CREATED_AT + ");";
-    private static final String TABLES_INDEXING =
-            "CREATE INDEX IF NOT EXISTS time_idx ON " + TABLES_TABLE +
-                    " (" + KEY_CREATED_AT + ");";
-
 
     private static class DatabaseHandler extends SQLiteOpenHelper {
         DatabaseHandler(Context context) {
@@ -200,16 +183,20 @@ public class DbStorage {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            // Log
-            db.execSQL(CREATE_TABLES_TABLE);
-            db.execSQL(CREATE_REPORTS_TABLE);
-            db.execSQL(REPORTS_INDEXING);
-            db.execSQL(TABLES_INDEXING);
+            // TODO: Log
+            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "%s STRING NOT NULL, %s STRING NOT NULL, %s INTEGER NOT NULL);",
+                    REPORTS_TABLE, REPORTS_TABLE, KEY_DATA, KEY_TABLE, KEY_CREATED_AT));
+            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "%s STRING NOT NULL UNIQUE, %s STRING NOT NULL);",
+                    TABLES_TABLE, TABLES_TABLE, KEY_TABLE, KEY_TOKEN));
+            db.execSQL(String.format("CREATE INDEX IF NOT EXISTS time_idx ON %s (%s);",
+                    REPORTS_TABLE, KEY_CREATED_AT));
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // Log
+            // TODO: Log
             // Drop and create
             db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
             db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
