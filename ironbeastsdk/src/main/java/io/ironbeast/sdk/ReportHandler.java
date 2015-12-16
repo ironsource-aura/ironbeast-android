@@ -1,30 +1,25 @@
 package io.ironbeast.sdk;
 
+import static io.ironbeast.sdk.DbStorage.*;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import static java.lang.Math.*;
 
 public class ReportHandler {
 
     public ReportHandler(Context context) {
-        Logger.log("in reporter", Logger.SDK_DEBUG);
         mContext = context;
         mConfig = IBConfig.getInstance(context);
-        mQueue = getQueue(mConfig.getRecordsFile(), context);
+        mStorage = new DbStorage(context);
     }
 
     public synchronized boolean handleReport(Intent intent) {
@@ -43,99 +38,73 @@ public class ReportHandler {
             } catch (Exception e) {
                 Logger.log("Failed to extract data from Intent", Logger.SDK_DEBUG);
             }
-
-            boolean toFlush = event == SdkEvent.FLUSH_QUEUE && mQueue.count() > 0;
-            if (event == SdkEvent.ENQUEUE) {
-                toFlush = mConfig.getBulkSize() <= mQueue.push(dataObject.toString());
-            } else if (event == SdkEvent.POST_SYNC) {
-                String message = createMessage(dataObject, false);
-                SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPoint());
-                // If message failed, push it to queue.
-                if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                    mQueue.push(dataObject.toString());
+            List<Table> tablesToFlush = new ArrayList<>();
+            switch (event) {
+                case SdkEvent.FLUSH_QUEUE:
+                    tablesToFlush = mStorage.getTables();
+                    break;
+                case SdkEvent.POST_SYNC:
+                    String message = createMessage(dataObject, false);
+                    SEND_RESULT res = sendData(message, mConfig.getIBEndPoint());
+                    if (res != SEND_RESULT.FAILED_RESEND_LATER) break;
+                case SdkEvent.ENQUEUE:
+                    Table table = new Table(dataObject.getString(ReportIntent.TABLE),
+                            dataObject.getString(ReportIntent.TOKEN));
+                    if (mConfig.getBulkSize() <= mStorage.addEvent(table, dataObject.getString(ReportIntent.DATA))) {
+                        tablesToFlush.add(table);
+                    }
+            }
+            // If there's something to flush
+            for (Table table: tablesToFlush) {
+                try {
+                    flush(table);
+                } catch (Exception e) {
+                    Logger.log(e.getMessage(), Logger.SDK_DEBUG);
                     success = false;
+                    break;
                 }
             }
-            if (toFlush) {
-                // map all records according to 'table' field
-                // i.e: { table1: [...], table2: [...] }
-                Map<String, List<JSONObject>> reqMap = new HashMap<String, List<JSONObject>>();
-                String[] records = mQueue.peek();
-                // failures list(not-acknowledge)
-                List<String> nacks = new ArrayList<>();
-                for (String record : records) {
-                    Logger.log("Record: " + record, Logger.SDK_DEBUG);
-                    try {
-                        JSONObject obj = new JSONObject(record);
-                        String tName = (String) obj.get(ReportIntent.TABLE);
-                        if (!reqMap.containsKey(tName)) {
-                            reqMap.put(tName, new ArrayList<JSONObject>());
-                        }
-                        reqMap.get(tName).add(obj);
-                    } catch (JSONException e) {
-                        Logger.log("Failed to generate the recordsMap " + e.getMessage(), Logger.SDK_DEBUG);
-                    }
-                }
-                // Loop over map, and call send() for each one of entries
-                for (Map.Entry<String, List<JSONObject>> pEntry : reqMap.entrySet()) {
-                    // Split each entry-value into list of entries based on byteSizeLimit
-                    // or batchSizeLimit
-                    // then, send each of the subList entries separately
-                    for (List<JSONObject> entry : split(pEntry.getValue())) {
-                        JSONObject dataObj = new JSONObject();
-                        try {
-                            dataObj.put(ReportIntent.TABLE, pEntry.getKey());
-                            JSONArray bulk = new JSONArray();
-                            for (JSONObject record : entry) {
-                                if (!dataObj.has(ReportIntent.TOKEN)) {
-                                    dataObj.put(ReportIntent.TOKEN, record.get(ReportIntent.TOKEN));
-                                }
-                                // Put only the `data` field
-                                bulk.put(record.getString(ReportIntent.DATA));
-                            }
-                            // `bulk` contains all `data` fields of all objects in the current destination
-                            dataObj.put(ReportIntent.DATA, bulk.toString());
-                        } catch (JSONException e) {
-                            Logger.log("Failed to generate the dataObj to send()", Logger.SDK_DEBUG);
-                        }
-                        // Send each destination/table separately
-                        String message = createMessage(dataObj, true);
-                        SEND_RESULT sendResult = sendData(message, mConfig.getIBEndPointBulk());
-                        // sign-it if this bulk was failed
-                        if (sendResult == SEND_RESULT.FAILED_RESEND_LATER) {
-                            success = false;
-                            for (JSONObject record : entry) nacks.add(record.toString());
-                        }
-                    }
-                }
-                // Clear queue and put back all "infected/failed"
-                mQueue.clear();
-                mQueue.push(nacks.toArray(new String[nacks.size()]));
-            } // end flush
         } catch (Exception e) {
             Logger.log("Failed parse the given report:" + e, Logger.SDK_DEBUG);
         }
         return success;
     }
 
-    // Split batch of JSONObjects into chunks based on byteSizeLimit || batchSizeLimit
-    private List<List<JSONObject>> split(List<JSONObject> batch) {
-        List<List<JSONObject>> chunks = new ArrayList<>();
-        int byteSize;
-        try {
-            byteSize = batch.toString().getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            byteSize = batch.toString().length();
+    /**
+     * First, we peek the batch the fits with the `MaximumRequestLimit`
+     * after that we prepare the request and send it.
+     * if the send failed, we stop here, and "continue later".
+     * if everything goes-well, we do it recursively until wil drain and
+     * delete the table.
+     * @param table
+     * @throws Exception
+     */
+    public void flush(Table table) throws Exception {
+        int bulkSize = mConfig.getBulkSize();
+        Batch batch = null;
+        while (bulkSize > 1) {
+            batch = mStorage.getEvents(table.name, bulkSize);
+            if (batch != null) {
+                int byteSize = batch.events.toString().getBytes("UTF-8").length;
+                if (byteSize <= mConfig.getMaximumRequestLimit()) break;
+                bulkSize = (int) (bulkSize / ceil(byteSize / mConfig.getMaximumRequestLimit()));
+            } else break;
         }
-        int nChunks = (int) ceil(max(
-                (double) batch.size() / mConfig.getBulkSize(),
-                (double) byteSize / mConfig.getMaximumRequestLimit()
-        ));
-        for (int i = 0; i < min(nChunks, batch.size()); i++) {
-            int range = (int) ceil((double)batch.size() / nChunks);
-            chunks.add(batch.subList(range * i, min(range + range * i, batch.size())));
+        if (batch != null) {
+            JSONObject event = new JSONObject();
+            event.put(ReportIntent.TABLE, table.name);
+            event.put(ReportIntent.TOKEN, table.token);
+            event.put(ReportIntent.DATA, batch.events.toString());
+            SEND_RESULT res = sendData(createMessage(event, true), mConfig.getIBEndPointBulk());
+            if (res == SEND_RESULT.FAILED_RESEND_LATER) {
+                throw new Exception("Failed flush entries for table: " + table.name);
+            }
+            if (mStorage.deleteEvents(table.name, batch.lastId) < bulkSize || mStorage.count(table) == 0) {
+                mStorage.deleteTable(table.name);
+            } else {
+                flush(table);
+            }
         }
-        return chunks;
     }
 
     private String createMessage(JSONObject dataObj, boolean bulk) {
@@ -191,9 +160,10 @@ public class ReportHandler {
     protected RemoteService getPoster() {
         return HttpService.getInstance();
     }
-    protected StorageService getQueue(String filename, Context context) {
-        return FsQueue.getInstance(filename, context);
-    }
+    // TODO: FIX
+//    protected StorageService getStorage(Context context) {
+//        return new DbStorage(context);
+//    }
 
     enum SEND_RESULT {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
@@ -201,5 +171,5 @@ public class ReportHandler {
 
     private IBConfig mConfig;
     private Context mContext;
-    private StorageService mQueue;
+    private DbStorage mStorage;
 }

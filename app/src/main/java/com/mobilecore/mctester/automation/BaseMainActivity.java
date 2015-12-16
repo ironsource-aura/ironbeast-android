@@ -11,6 +11,15 @@ import org.json.JSONObject;
 
 import io.ironbeast.sdk.IBConfig;
 import io.ironbeast.sdk.IronBeast;
+import io.ironbeast.sdk.DbStorage;
+import io.ironbeast.sdk.IBConfig;
+import io.ironbeast.sdk.IronBeast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class BaseMainActivity extends Activity {
 
@@ -21,16 +30,17 @@ public class BaseMainActivity extends Activity {
     }
 
     public void sendReport(View v) {
+        // IronBeast logic
         int id = v.getId();
         IronBeast tracker = IronBeast.getInstance(this, "myToken");
         IBConfig.Builder builder = new IBConfig.Builder();
         try {
-            IBConfig conf = builder
-                    .setFlushInterval(3)
+            IBConfig conf = builder.setFlushInterval(3)
                     .setIBEndPoint("http://10.0.2.2:3000/")
+                    .setIBEndPointBulk("http://10.0.2.2:3000/")
                     .setLogLevel(IBConfig.LOG_TYPE.DEBUG)
+                    .setBulkSize(2)
                     .build();
-
             tracker.setConfig(conf);
         }catch (Exception ex) {
             ex.printStackTrace();

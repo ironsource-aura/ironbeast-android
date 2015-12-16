@@ -8,13 +8,11 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import static java.lang.Math.*;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DbStorage {
 
@@ -23,7 +21,7 @@ public class DbStorage {
     }
 
     // Assuming event have `table`, `token` and `data` fields
-    public int addEvent(String table, String token, String data) {
+    public int addEvent(Table table, String data) {
         if (this.belowMemThreshold()) {
             // Log something
             // and do what ???(delete some of the records, delete all db, return outOfMemory-code)
@@ -33,20 +31,20 @@ public class DbStorage {
         try {
             SQLiteDatabase db = mDb.getWritableDatabase();
             ContentValues cv = new ContentValues();
-            cv.put(KEY_TABLE, table);
+            cv.put(KEY_TABLE, table.name);
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
             // Count number of rows if this destination
             c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table});
+                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
             c.moveToFirst();
             // Create row in "tables(destinations)" table to store (tableName, token)
             // in the first insertion to "reports"
             if ((n = c.getInt(0)) == 1) {
                 cv = new ContentValues();
-                cv.put(KEY_TABLE, table);
-                cv.put(KEY_TOKEN, token);
+                cv.put(KEY_TABLE, table.name);
+                cv.put(KEY_TOKEN, table.token);
                 db.insertWithOnConflict(TABLES_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         } catch (final SQLiteException e) {
@@ -59,14 +57,14 @@ public class DbStorage {
         return n;
     }
 
-    public int count(final String table) {
+    public int count(Table table) {
         int n = 0;
         Cursor c = null;
         SQLiteDatabase db = null;
         try {
             db = mDb.getReadableDatabase();
             c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                            REPORTS_TABLE, KEY_TABLE), new String[]{table});
+                            REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
             c.moveToFirst();
             n = c.getInt(0);
         } catch (final SQLiteException e) {
@@ -79,52 +77,44 @@ public class DbStorage {
         return n;
     }
 
-    public String[] getEvents(String table, int limit) {
+    public Batch getEvents(String table, int limit) {
         Cursor c = null;
-        String data = null;
         String lastId = null;
+        List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
             c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s=? ORDER BY ? ASC LIMIT ?",
                     REPORTS_TABLE, KEY_TABLE), new String[]{table, KEY_CREATED_AT, String.valueOf(limit)});
-            final JSONArray arr = new JSONArray();
+            events = new ArrayList<>();
             while (c.moveToNext()) {
                 if (c.isLast()) {
                     lastId = c.getString(c.getColumnIndex(REPORTS_TABLE + "_id"));
                 }
-                arr.put(c.getString(c.getColumnIndex(KEY_DATA)));
-            }
-            if (arr.length() > 0) {
-                data = arr.toString();
+                events.add(c.getString(c.getColumnIndex(KEY_DATA)));
             }
         } catch (final SQLiteException e) {
-            lastId = data = null;
+            lastId = null;
+            events = null;
         } finally {
             if (null != c) c.close();
             mDb.close();
         }
-        if (lastId != null && data != null) {
-            final String[] ret = {lastId, data};
-            return ret;
+        if (lastId != null && events != null) {
+            return new Batch(lastId, events);
         }
         return null;
     }
 
-    public JSONArray getTables() {
+    public List<Table> getTables() {
         Cursor c = null;
-        JSONArray tables = new JSONArray();
+        List<Table> tables = new ArrayList<>();
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
             c = db.rawQuery(String.format("SELECT * FROM %s", TABLES_TABLE), null);
             while (c.moveToNext()) {
-                try {
-                    JSONObject props = new JSONObject();
-                    props.put(KEY_TABLE, c.getString(c.getColumnIndex(KEY_TABLE)));
-                    props.put(KEY_TOKEN, c.getString(c.getColumnIndex(KEY_TOKEN)));
-                    tables.put(props);
-                } catch (JSONException e) {
-                    Log.d("getTables", "failed to create json");
-                }
+                String name = c.getString(c.getColumnIndex(KEY_TABLE));
+                String token = c.getString(c.getColumnIndex(KEY_TOKEN));
+                tables.add(new Table(name, token));
             }
         } catch (final SQLiteException e) {
 
@@ -151,6 +141,19 @@ public class DbStorage {
             mDb.close();
         }
         return n;
+    }
+
+    // Delete table
+    public void deleteTable(String name) {
+        try {
+            final SQLiteDatabase db = mDb.getWritableDatabase();
+            db.delete(REPORTS_TABLE, String.format("%s=?", KEY_TABLE), new String[]{name});
+        } catch (final SQLiteException e) {
+            Log.e("DATABASE", "failed to delete table: " + name, e);
+            mDb.delete();
+        } finally {
+            mDb.close();
+        }
     }
 
     // Override in testing mode
@@ -217,5 +220,25 @@ public class DbStorage {
 
         private final File mDatabaseFile;
         private final IBConfig mConfig;
+    }
+
+    static public class Batch {
+        public String lastId;
+        public List<String> events;
+
+        Batch(String lastId, List<String> events) {
+            this.lastId = lastId;
+            this.events = events;
+        }
+    }
+
+    static public class Table {
+        public String name;
+        public String token;
+
+        Table(String name, String token) {
+            this.name = name;
+            this.token = token;
+        }
     }
 }
