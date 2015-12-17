@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import static java.lang.Math.*;
 
@@ -14,17 +13,24 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DbStorage {
+public class DbAdapter {
 
-    public DbStorage(Context context) {
+    public DbAdapter(Context context) {
         mDb = new DatabaseHandler(context);
     }
 
-    // Assuming event have `table`, `token` and `data` fields
+    /**
+     * Insert event to "reports" table.
+     * if it's the first member that related to the given Table, we create
+     * a new destination/table(contains name and token) in the "tables" table.
+     * @param table
+     * @param data
+     * @return
+     */
     public int addEvent(Table table, String data) {
-        if (this.belowMemThreshold()) {
-            // Log something
-            // and do what ???(delete some of the records, delete all db, return outOfMemory-code)
+        if (!this.belowDatabaseLimit()) {
+            Logger.log(TAG, "Database file is above the limit", Logger.SDK_DEBUG);
+            // TODO: Cleanup some events("created_at" column)
         }
         int n = 0;
         Cursor c = null;
@@ -35,12 +41,9 @@ public class DbStorage {
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
-            // Count number of rows if this destination
             c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
                     REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
             c.moveToFirst();
-            // Create row in "tables(destinations)" table to store (tableName, token)
-            // in the first insertion to "reports"
             if ((n = c.getInt(0)) == 1) {
                 cv = new ContentValues();
                 cv.put(KEY_TABLE, table.name);
@@ -48,7 +51,10 @@ public class DbStorage {
                 db.insertWithOnConflict(TABLES_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         } catch (final SQLiteException e) {
-            // TODO: logging
+            Logger.log(TAG, "Failed to insert event to 'records' table", Logger.SDK_DEBUG);
+            // Our assumption is that in general, the exception indicates some failure that is
+            // "probably not recoverable". Better to bomb it and get back on track,
+            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             if (null != c) c.close();
@@ -57,6 +63,12 @@ public class DbStorage {
         return n;
     }
 
+    /**
+     * Get the number of records that sit in the "reports" table and related to
+     * to the given table.
+     * @param table
+     * @return
+     */
     public int count(Table table) {
         int n = 0;
         Cursor c = null;
@@ -68,7 +80,10 @@ public class DbStorage {
             c.moveToFirst();
             n = c.getInt(0);
         } catch (final SQLiteException e) {
-            // TODO: logging
+            Logger.log(TAG, "Failed to count records in table: " + table.name, Logger.SDK_DEBUG);
+            // Our assumption is that in general, the exception indicates some failure that is
+            // "probably not recoverable". Better to bomb it and get back on track,
+            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             if (null != c) c.close();
@@ -77,14 +92,21 @@ public class DbStorage {
         return n;
     }
 
-    public Batch getEvents(String table, int limit) {
+    /**
+     * Get table object and int as a limit, and return a "batch" of events.
+     * @param table
+     * @param limit
+     * @return Batch object contains List of events and "lastId" as a String(that
+     * will be used later to clean up this batch).
+     */
+    public Batch getEvents(Table table, int limit) {
         Cursor c = null;
         String lastId = null;
         List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
             c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s=? ORDER BY ? ASC LIMIT ?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table, KEY_CREATED_AT, String.valueOf(limit)});
+                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
             events = new ArrayList<>();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -93,6 +115,7 @@ public class DbStorage {
                 events.add(c.getString(c.getColumnIndex(KEY_DATA)));
             }
         } catch (final SQLiteException e) {
+            Logger.log(TAG, "Failed to get a events of table" + table.name, Logger.SDK_DEBUG);
             lastId = null;
             events = null;
         } finally {
@@ -105,6 +128,10 @@ public class DbStorage {
         return null;
     }
 
+    /**
+     * Get list of all "destinations/tables" that sit in "tables" table.
+     * @return List of tables contains "name" and "token"
+     */
     public List<Table> getTables() {
         Cursor c = null;
         List<Table> tables = new ArrayList<>();
@@ -117,7 +144,7 @@ public class DbStorage {
                 tables.add(new Table(name, token));
             }
         } catch (final SQLiteException e) {
-
+            Logger.log(TAG, "Failed to get all tables" + e.getMessage(), Logger.SDK_DEBUG);
         } finally {
             if (null != c) c.close();
             mDb.close();
@@ -125,17 +152,24 @@ public class DbStorage {
         return tables;
     }
 
-    // Remove events from records table that related to the given "table/destination"
-    // and with an id that less than the "lastId"
-    // Returns the number of rows affected
-    public int deleteEvents(String table, String lastId) {
+    /**
+     * Remove events from records table that related to the given "table/destination"
+     * and with an id that less than or equal to the "lastId"
+     * @param table
+     * @param lastId
+     * @return the number of rows affected
+     */
+    public int deleteEvents(Table table, String lastId) {
         int n = 0;
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
             n = db.delete(REPORTS_TABLE, String.format("%s=? AND %s_id <= ?", KEY_TABLE, REPORTS_TABLE),
-                    new String[]{table, lastId});
+                    new String[]{table.name, lastId});
         } catch (final SQLiteException e) {
-            Log.e("DATABASE", "failed to cleanup events", e);
+            Logger.log(TAG, "Failed to clean up events from table: " + table.name, Logger.SDK_DEBUG);
+            // Our assumption is that in general, the exception indicates some failure that is
+            // "probably not recoverable". Better to bomb it and get back on track,
+            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             mDb.close();
@@ -143,13 +177,19 @@ public class DbStorage {
         return n;
     }
 
-    // Delete table
-    public void deleteTable(String name) {
+    /**
+     * Getting table object and delete it from the "destinations/tables" table.
+     * @param table
+     */
+    public void deleteTable(Table table) {
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
-            db.delete(REPORTS_TABLE, String.format("%s=?", KEY_TABLE), new String[]{name});
+            db.delete(REPORTS_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
         } catch (final SQLiteException e) {
-            Log.e("DATABASE", "failed to delete table: " + name, e);
+            Logger.log(TAG, "Failed to delete table:" + table.name, Logger.SDK_DEBUG);
+            // Our assumption is that in general, the exception indicates some failure that is
+            // "probably not recoverable". Better to bomb it and get back on track,
+            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             mDb.close();
@@ -157,20 +197,20 @@ public class DbStorage {
     }
 
     // Override in testing mode
-    protected boolean belowMemThreshold() {
-        return mDb.belowMemThreshold();
+    protected boolean belowDatabaseLimit() {
+        return mDb.belowDatabaseLimit();
     }
 
     private final DatabaseHandler mDb;
+    private static final int DATABASE_VERSION = 4;
     public static final String KEY_DATA = "data";
     public static final String KEY_TOKEN = "token";
     public static final String KEY_TABLE = "table_name";
+    public static final String KEY_CREATED_AT = "created_at";
     public static final String TABLES_TABLE = "tables";
     public static final String REPORTS_TABLE = "reports";
-    public static final String KEY_CREATED_AT = "created_at";
-
     private static final String DATABASE_NAME = "ironbeast";
-    private static final int DATABASE_VERSION = 4;
+    private static final String TAG = "DbAdapter";
 
     private static class DatabaseHandler extends SQLiteOpenHelper {
         DatabaseHandler(Context context) {
@@ -186,7 +226,7 @@ public class DbStorage {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            // TODO: Log
+            Logger.log(TAG, "Creating the IronBeastSdk database", Logger.SDK_DEBUG);
             db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                             "%s STRING NOT NULL, %s STRING NOT NULL, %s INTEGER NOT NULL);",
                     REPORTS_TABLE, REPORTS_TABLE, KEY_DATA, KEY_TABLE, KEY_CREATED_AT));
@@ -199,21 +239,21 @@ public class DbStorage {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // TODO: Log
-            // Drop and create
+            Logger.log(TAG, "Upgrading the IronBeastSdk database", Logger.SDK_DEBUG);
             db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
             db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
             onCreate(db);
         }
 
-        public boolean belowMemThreshold() {
-            // TODO: move to IBConfig
-            // An integer number of bytes. IronBeast attempts to limit the size of its persistent data
-            // queue based on the storage capacity of the device, but will always allow queing below this limit.
-            // Higher values will take up more storage even when user storage is very full.
-            int minimumDatabaseLimit = 20 * 1024 * 1024; // 20 Mb
+        /**
+         * Test if the persistent data amount below the "databaseLimit" only if
+         * there is not enough free space in the storage capacity of the device.
+         * @return
+         */
+        public boolean belowDatabaseLimit() {
             if (mDatabaseFile.exists()) {
-                return max(mDatabaseFile.getUsableSpace(), minimumDatabaseLimit) >= mDatabaseFile.length();
+                long limit = max(mDatabaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
+                return limit >= mDatabaseFile.length();
             }
             return true;
         }

@@ -10,6 +10,9 @@ class Logger {
     private static final boolean mIsSuperDevMode = BuildConfig.IS_SUPER_DEV_MODE;
     private static final String LOG_TAG = Logger.class.getSimpleName();
 
+    public static void log(String tag, String msg, int level) {
+        log(String.format("[%s]: %s", tag, msg), level);
+    }
 
     public static void log(String logString, int log_level) {
         switch (log_level) {

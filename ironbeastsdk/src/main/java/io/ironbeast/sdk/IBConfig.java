@@ -23,19 +23,20 @@ public class IBConfig {
     private static final Object sInstanceLock = new Object();
     private static final String DEFAULT_URL = "http://sdk.ironbeast.io";
     private static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
-    private static final String RECORDS_FILENAME = "com.ironsource.mobilcore.ib_records";
     private static final int DEFAULT_IDLE_SECONDS = 1;
-    private static final int MINIMUM_REQUEST_LIMIT = 1024;
+    private static final int KILOBYTE = 1024;
     private static final int DEFAULT_BULK_SIZE = 4;
     private static final int DEFAULT_NUM_OF_RETRIES = 3;
     private static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
-    private static final int DEFAULT_MAX_REQUEST_LIMIT = MINIMUM_REQUEST_LIMIT * MINIMUM_REQUEST_LIMIT;
+    private static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
+    private static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
     //Shared prefs keys for metadata
     private static final String KEY_BULK_SIZE = "bulk_size";
     private static final String KEY_FLUSH_INTERVAL = "flush_interval";
     private static final String KEY_IB_END_POINT = "ib_end_point";
     private static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
     private static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
+    private static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
     private static final String KEY_SDK_TRACKER_ENABLED = "sdk_tracker_enabled";
     // IronBeast sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
@@ -48,10 +49,11 @@ public class IBConfig {
     private int mBulkSize;
     private int mNumOfRetries;
     private int mFlushInterval;
+    private int mIdleSeconds;
+    private long mMaximumRequestLimit;
+    private long mMaximumDatabaseLimit;
     private String mIBEndPoint;
     private String mIBEndPointBulk;
-    private long mMaximumRequestLimit;
-    private int mIdleSeconds;
 
     IBConfig() {
         isDefaultConstructorUsed = true;
@@ -61,6 +63,7 @@ public class IBConfig {
         mBulkSize = DEFAULT_BULK_SIZE;
         mFlushInterval = DEFAULT_FLUSH_INTERVAL;
         mMaximumRequestLimit = DEFAULT_MAX_REQUEST_LIMIT;
+        mMaximumDatabaseLimit = DEFAUL_MAX_DATABASE_LIMIT;
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
         mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
@@ -99,12 +102,14 @@ public class IBConfig {
         mBulkSize = Integer.getInteger(mIBPrefService.load(KEY_BULK_SIZE, ""), DEFAULT_BULK_SIZE);
         mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
+        mMaximumDatabaseLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, ""), DEFAUL_MAX_DATABASE_LIMIT);
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
         mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
 
     void apply() {
         mIBPrefService.save(KEY_MAX_REQUEST_LIMIT, String.valueOf(mMaximumRequestLimit));
+        mIBPrefService.save(KEY_MAX_DATABASE_LIMIT, String.valueOf(mMaximumDatabaseLimit));
         mIBPrefService.save(KEY_BULK_SIZE, String.valueOf(mBulkSize));
         mIBPrefService.save(KEY_FLUSH_INTERVAL, String.valueOf(mFlushInterval));
         mIBPrefService.save(KEY_IB_END_POINT, mIBEndPoint);
@@ -170,7 +175,16 @@ public class IBConfig {
     }
 
     IBConfig setMaximumRequestLimit(long bytes) {
-        mMaximumRequestLimit = (bytes >= MINIMUM_REQUEST_LIMIT) ? bytes : mMaximumRequestLimit;
+        mMaximumRequestLimit = bytes >= KILOBYTE ? bytes : mMaximumRequestLimit;
+        return this;
+    }
+
+    public long getMaximumDatabaseLimit() {
+        return mMaximumDatabaseLimit;
+    }
+
+    IBConfig setMaximumDatabaseLimit(long bytes) {
+        mMaximumRequestLimit = bytes >= (KILOBYTE * KILOBYTE) ? bytes : mMaximumRequestLimit;
         return this;
     }
 
@@ -191,8 +205,6 @@ public class IBConfig {
         mIdleSeconds = secs >= 0 ? secs : mIdleSeconds;
         return this;
     }
-
-    String getRecordsFile() { return RECORDS_FILENAME; }
 
     void update(IBConfig config) {
         this.setBulkSize(config.getBulkSize());

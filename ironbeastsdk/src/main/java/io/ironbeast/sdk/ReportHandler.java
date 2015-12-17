@@ -1,6 +1,6 @@
 package io.ironbeast.sdk;
 
-import static io.ironbeast.sdk.DbStorage.*;
+import static io.ironbeast.sdk.DbAdapter.*;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +19,7 @@ public class ReportHandler {
     public ReportHandler(Context context) {
         mContext = context;
         mConfig = IBConfig.getInstance(context);
-        mStorage = new DbStorage(context);
+        mStorage = new DbAdapter(context);
     }
 
     public synchronized boolean handleReport(Intent intent) {
@@ -83,7 +83,7 @@ public class ReportHandler {
         int bulkSize = mConfig.getBulkSize();
         Batch batch = null;
         while (bulkSize > 1) {
-            batch = mStorage.getEvents(table.name, bulkSize);
+            batch = mStorage.getEvents(table, bulkSize);
             if (batch != null) {
                 int byteSize = batch.events.toString().getBytes("UTF-8").length;
                 if (byteSize <= mConfig.getMaximumRequestLimit()) break;
@@ -99,8 +99,8 @@ public class ReportHandler {
             if (res == SEND_RESULT.FAILED_RESEND_LATER) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }
-            if (mStorage.deleteEvents(table.name, batch.lastId) < bulkSize || mStorage.count(table) == 0) {
-                mStorage.deleteTable(table.name);
+            if (mStorage.deleteEvents(table, batch.lastId) < bulkSize || mStorage.count(table) == 0) {
+                mStorage.deleteTable(table);
             } else {
                 flush(table);
             }
@@ -162,7 +162,7 @@ public class ReportHandler {
     }
     // TODO: FIX
 //    protected StorageService getStorage(Context context) {
-//        return new DbStorage(context);
+//        return new DbAdapter(context);
 //    }
 
     enum SEND_RESULT {
@@ -171,5 +171,5 @@ public class ReportHandler {
 
     private IBConfig mConfig;
     private Context mContext;
-    private DbStorage mStorage;
+    private DbAdapter mStorage;
 }
