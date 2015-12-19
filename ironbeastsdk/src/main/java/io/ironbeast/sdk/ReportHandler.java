@@ -49,7 +49,7 @@ public class ReportHandler {
                 case SdkEvent.POST_SYNC:
                     String message = createMessage(dataObject, false);
                     SEND_RESULT res = sendData(message, mConfig.getIBEndPoint());
-                    if (res != SEND_RESULT.FAILED_RESEND_LATER) break;
+                    if (success = (res != SEND_RESULT.FAILED_RESEND_LATER)) break;
                 case SdkEvent.ENQUEUE:
                     Table table = new Table(dataObject.getString(ReportIntent.TABLE),
                             dataObject.getString(ReportIntent.TOKEN));
