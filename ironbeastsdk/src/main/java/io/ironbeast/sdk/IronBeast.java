@@ -39,7 +39,7 @@ public class IronBeast {
      * Use this to get a singleton instance of IronBeastTracker instead of creating one directly
      * for yourself.
      */
-    public static IronBeastTracker newTracker(String token) {
+    public IronBeastTracker newTracker(String token) {
         if (null == token) {
             throw new IllegalArgumentException("Please provide valid token");
         }
