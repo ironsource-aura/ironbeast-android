@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class IronBeast {
@@ -17,106 +18,94 @@ public class IronBeast {
      * Do not call directly.
      * You should use IronBeast.getInstance()
      */
-    public IronBeast(Context context, String token) {
-        mToken = token;
+    public IronBeast(Context context) {
         mContext = context;
         mConfig = IBConfig.getInstance(context);
     }
 
+    public static IronBeast getInstance(Context context) {
+        if (null == context) {
+            throw new IllegalArgumentException("Please provide valid context");
+        }
+        synchronized (sInstanceLockObject) {
+            if (sInstance == null) {
+                sInstance = new IronBeast(context.getApplicationContext());
+            }
+        }
+        return sInstance;
+    }
+
     /**
-     * Use this to get a singleton instance of IronBeast instead of creating one directly
+     * Use this to get a singleton instance of IronBeastTracker instead of creating one directly
      * for yourself.
      */
-    public static IronBeast getInstance(Context context, String token) {
-        if (null == token || null == context) {
-            return null;
+    public static IronBeastTracker newTracker(String token) {
+        if (null == token) {
+            throw new IllegalArgumentException("Please provide valid token");
         }
-        synchronized (sInstances) {
-            IronBeast ret;
-            if (sInstances.containsKey(token)) {
-                ret = sInstances.get(token);
+        synchronized (sAvailableTrackers) {
+            IronBeastTracker ret;
+            Context context = sInstance.mContext;
+            if (sAvailableTrackers.containsKey(token)) {
+                ret = sAvailableTrackers.get(token);
             } else {
-                ret = new IronBeast(context.getApplicationContext(), token);
-                sInstances.put(token, ret);
+                ret = new IronBeastTracker(sInstance.mContext, token);
+                sAvailableTrackers.put(token, ret);
             }
-            if (!sInstances.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN)) {
-                sInstances.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeast(context,
-                        IBConfig.IRONBEAST_TRACKER_TOKEN));
+            if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && IBConfig.getInstance(context).isErrorReportingEnabled()) {
+                sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(context, IBConfig.IRONBEAST_TRACKER_TOKEN));
             }
             return ret;
         }
     }
 
     /**
-     * This method update default configuration of the IronBeast tracker
+     * function enable to report errors from SDK
      *
-     * @param config  - new configuration for IronBeast tracker
+     * @param enable - enable/disable error reports
      */
-    public void setConfig(IBConfig config) {
-        mConfig = IBConfig.getsInstance();
-        mConfig.update(config);
-        mConfig.apply();
+    public void enableErrorReporting(boolean enable) {
+        mConfig.enableErrorReporting(enable);
+    }
+
+    public void setLogType(IBConfig.LOG_TYPE logType) {
+        Logger.logLevel  = logType;
     }
 
     /**
-     * Track an event that already stringified send data postponed.
+     * function set report bulk max size
      *
-     * @param table - IronBeast destination.
-     * @param data - String, containing the data to track.
+     * @param size - max size of report bulk (rows)
      */
-    public void track(String table, String data) {
-        openReport(mContext, SdkEvent.ENQUEUE)
-                .setTable(table)
-                .setToken(mToken)
-                .setData(data)
-                .send();
-    }
-
-    public void track(String table, Map<String, ?> data) {
-        track(table, new JSONObject(data));
-    }
-
-    public void track(String table, JSONObject data) {
-        track(table, data.toString());
+    public void setBulkSize(int size) {
+        mConfig.setBulkSize(size);
     }
 
     /**
-     * Post (send immediately) and event that already stringified.
+     * function set report max size in bytes
      *
-     * @param table - IronBeast destination table.
-     * @param data - String, containing the data to post.
+     * @param bytes - max size of report (file size)
      */
-    public void post(String table, String data) {
-        openReport(mContext, SdkEvent.POST_SYNC)
-                .setTable(table)
-                .setToken(mToken)
-                .setData(data)
-                .send();
+    public void setMaximumRequestLimit(long bytes) {
+        mConfig.setMaximumRequestLimit(bytes);
     }
 
-    public void post(String table, JSONObject data) {
-        post(table, data.toString());
-    }
 
-    public void post(String table, Map<String, ?> data) {
-        post(table, new JSONObject(data));
-    }
-
-    public void flush() {
-        openReport(mContext, SdkEvent.FLUSH_QUEUE)
-                .send();
-    }
-
-    protected Report openReport(Context context, int event) {
-        return new ReportIntent(context, event);
+    /**
+     * function set report flush intervals
+     *
+     * @param seconds - time for flush
+     */
+    public void setFlushInterval(int seconds) {
+        mConfig.setFlushInterval(seconds);
     }
 
     protected static void trackError(String str) {
-        IronBeast sdkTracker = sInstances.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
+        IronBeastTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
-            report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
             report.put("connection", Utils.getConnectedNetworkType(sdkTracker.mContext));
@@ -126,8 +115,10 @@ public class IronBeast {
         } catch (JSONException e) {}
     }
 
-    private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
+    private static final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
+    private static IronBeast sInstance;
     private IBConfig mConfig;
     private Context mContext;
-    private String mToken;
+
+    final static Object sInstanceLockObject = new Object();
 }
