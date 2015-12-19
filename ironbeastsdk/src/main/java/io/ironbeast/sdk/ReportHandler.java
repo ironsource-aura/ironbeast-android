@@ -53,7 +53,7 @@ public class ReportHandler {
                     break;
                 case SdkEvent.POST_SYNC:
                     String message = createMessage(dataObject, false);
-                    SEND_RESULT res = send(message, mConfig.getIBEndPoint());
+                    SEND_RESULT res = sendData(message, mConfig.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN)));
                     if (success = (res != SEND_RESULT.FAILED_RESEND_LATER)) break;
                 case SdkEvent.ENQUEUE:
                     Table table = new Table(dataObject.getString(ReportIntent.TABLE),
@@ -96,7 +96,7 @@ public class ReportHandler {
             event.put(ReportIntent.TABLE, table.name);
             event.put(ReportIntent.TOKEN, table.token);
             event.put(ReportIntent.DATA, batch.events.toString());
-            SEND_RESULT res = send(createMessage(event, true), mConfig.getIBEndPointBulk());
+            SEND_RESULT res = sendData(createMessage(event, true), mConfig.getIBEndPointBulk(table.token));
             if (res == SEND_RESULT.FAILED_RESEND_LATER) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }
