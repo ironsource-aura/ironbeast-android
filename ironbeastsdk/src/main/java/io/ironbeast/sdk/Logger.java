@@ -10,6 +10,8 @@ class Logger {
     private static final boolean mIsSuperDevMode = BuildConfig.IS_SUPER_DEV_MODE;
     private static final String LOG_TAG = Logger.class.getSimpleName();
 
+    public static IBConfig.LOG_TYPE logLevel = IBConfig.LOG_TYPE.PRODUCTION;
+
     public static void log(String tag, String msg, int level) {
         log(String.format("[%s]: %s", tag, msg), level);
     }
@@ -20,7 +22,7 @@ class Logger {
                 Log.w(LOG_TAG, logString);
                 break;
             case (NORMAL):
-                if (IBConfig.getsInstance().getLogLevel() == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (logLevel == IBConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.i(LOG_TAG, logString);
                 }
                 break;
