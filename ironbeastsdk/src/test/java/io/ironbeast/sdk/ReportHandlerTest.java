@@ -14,6 +14,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.*;
+
+
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportHandlerTest {
@@ -45,9 +64,10 @@ public class ReportHandlerTest {
             body = "OK";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
+        String token = reportMap.get(ReportIntent.TOKEN);
         assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
+        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint(token)));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
@@ -61,9 +81,11 @@ public class ReportHandlerTest {
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
+        String token = reportMap.get(ReportIntent.TOKEN);
+
         assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint()));
+        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint(token)));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
@@ -75,6 +97,8 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
         mConfig.setNumOfRetries(10);
+        mConfig.setNumOfRetries(10);
+
         assertFalse(mHandler.handleReport(intent));
         verify(mPoster, times(10)).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
@@ -98,7 +122,9 @@ public class ReportHandlerTest {
     // If everything goes well, it should drain the table, and then delete it.
     public void flushSuccess() throws Exception {
         // Config this situation
-        mConfig.setBulkSize(2).setNumOfRetries(1);
+        mConfig.setBulkSize(2);
+        mConfig.setNumOfRetries(1);
+        mConfig.setIdleSeconds(0);
         // Another table to test
         final Table mTable1 = new Table("a8m", "a8m_token") {
             @Override
@@ -158,7 +184,9 @@ public class ReportHandlerTest {
     // should stop-flushing, and return false
     public void flushFailed() throws Exception {
         // Config this situation
-        mConfig.setBulkSize(2).setNumOfRetries(1);
+        mConfig.setBulkSize(2);
+        mConfig.setNumOfRetries(1);
+        mConfig.setIdleSeconds(0);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         // Batch result
         when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
@@ -195,7 +223,9 @@ public class ReportHandlerTest {
     // handler decrease the bulkSize(limit) and ask for limit of 1.
     // in this situation it doesn't have another choice except sending this batch(of length 1).
     public void maxRequestLimit() throws Exception {
-        mConfig.setMaximumRequestLimit(1024 * 1024 + 1).setBulkSize(2);
+        mConfig.setMaximumRequestLimit(1024 * 1024 + 1);
+        mConfig.setBulkSize(2);
+        mConfig.setIdleSeconds(0);
         final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
@@ -228,9 +258,10 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertTrue(mHandler.handleReport(intent));
         JSONObject report = new JSONObject(reportMap);
+        String token = reportMap.get(ReportIntent.TOKEN);
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
                 report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
-        verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint()));
+        verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint(token)));
     }
 
     // Constant report arguments for testing

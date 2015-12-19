@@ -8,12 +8,18 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
-import static junit.framework.Assert.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Basic IronBeastAPI test cases
@@ -29,10 +35,12 @@ public class IronBeastTest {
     @Test
     public void testGetInstance() {
         MockContext context = mock(MockContext.class);
-        IronBeast tracker1 = IronBeast.getInstance(context, "token1");
-        IronBeast tracker2 = IronBeast.getInstance(context, "token1");
+        IronBeast ironBeast = IronBeast.getInstance(context);
+
+        IronBeastTracker tracker1 = ironBeast.newTracker("token1");
+        IronBeastTracker tracker2 = ironBeast.newTracker("token1");
         assertTrue("should not initialized new tracker witht the same token", tracker1 == tracker2);
-        IronBeast tracker3 = IronBeast.getInstance(context, "token2");
+        IronBeastTracker tracker3 = ironBeast.newTracker("token2");
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
 
@@ -126,7 +134,7 @@ public class IronBeastTest {
     // Configure test
     final String mToken = "token";
     TestsUtils.MockReport mSpyReport = spy(new TestsUtils.MockReport());
-    final IronBeast mTracker = new IronBeast(mock(MockContext.class), mToken) {
+    final IronBeastTracker mTracker =  new IronBeastTracker(mock(MockContext.class), mToken) {
         @Override
         public Report openReport(Context context, int event) {
             mSpyReport.mType = event;
