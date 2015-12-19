@@ -7,8 +7,12 @@ import android.net.NetworkInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import static java.lang.String.format;
 
@@ -19,11 +23,11 @@ public class HttpService implements RemoteService {
 
     public static HttpService getInstance() {
         synchronized (sInstanceLock) {
-            if (null == sInstances) {
-                sInstances = new HttpService();
+            if (null == sInstance) {
+                sInstance = new HttpService();
             }
         }
-        return sInstances;
+        return sInstance;
     }
 
     /**
@@ -75,9 +79,11 @@ public class HttpService implements RemoteService {
             in.close();
             in = null;
         } catch(final IOException e) {
-            // TODO(Ariel): Create and throw "new ServiceUnavailableException(statusCode, msg)"
-            response.code = connection.getResponseCode();
-            Logger.log(format("HttpService: Service IB Unavailable, %s", e), Logger.SDK_ERROR);
+            if ((response.code = connection.getResponseCode()) > 500) {
+                Logger.log(TAG, "Service IB unavailable:" + e, Logger.SDK_DEBUG);
+            } else {
+                throw e;
+            }
         } finally {
             if (null != connection) connection.disconnect();
             if (null != out) out.close();
@@ -93,6 +99,7 @@ public class HttpService implements RemoteService {
         return (HttpURLConnection) (new URL(url)).openConnection();
     }
 
+    private static final String TAG = "HttpService";
     private static final Object sInstanceLock = new Object();
-    private static HttpService sInstances;
+    private static HttpService sInstance;
 }

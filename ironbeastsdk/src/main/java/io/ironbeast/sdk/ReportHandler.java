@@ -1,6 +1,6 @@
 package io.ironbeast.sdk;
 
-import static io.ironbeast.sdk.DbAdapter.*;
+import io.ironbeast.sdk.StorageService.*;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.os.Bundle;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +22,7 @@ public class ReportHandler {
     public ReportHandler(Context context) {
         mContext = context;
         mConfig = IBConfig.getInstance(context);
-        mStorage = new DbAdapter(context);
+        mStorage = getStorage(context);
     }
 
     public synchronized boolean handleReport(Intent intent) {
@@ -36,7 +39,7 @@ public class ReportHandler {
                     dataObject.put(key, value);
                 }
             } catch (Exception e) {
-                Logger.log("Failed to extract data from Intent", Logger.SDK_DEBUG);
+                Logger.log(TAG, "Failed extracting the data from Intent", Logger.SDK_DEBUG);
             }
             List<Table> tablesToFlush = new ArrayList<>();
             switch (event) {
@@ -54,7 +57,7 @@ public class ReportHandler {
                         tablesToFlush.add(table);
                     }
             }
-            // If there's something to flush
+            // If there's something to flush, it'll no be empty.
             for (Table table: tablesToFlush) {
                 try {
                     flush(table);
@@ -107,10 +110,16 @@ public class ReportHandler {
         }
     }
 
-    private String createMessage(JSONObject dataObj, boolean bulk) {
+    /**
+     * Prepare the giving object before sending it to IronBeast(Do auth, etc..)
+     * @param obj  - the given event to working on.
+     * @param bulk - indicate if it need to add a bulk field.
+     * @return
+     */
+    private String createMessage(JSONObject obj, boolean bulk) {
         String message = "";
         try {
-            JSONObject clone = new JSONObject(dataObj.toString());
+            JSONObject clone = new JSONObject(obj.toString());
             String data = clone.getString(ReportIntent.DATA);
             clone.put(ReportIntent.AUTH,
                     Utils.auth(data, (String) clone.remove(ReportIntent.TOKEN)));
@@ -124,14 +133,19 @@ public class ReportHandler {
         return message;
     }
 
-    protected SEND_RESULT sendData(String data, String ibEndPoint) {
+    /**
+     * @param data - Stringified JSON. used as a request body.
+     * @param url  - IronBeast url endpoint.
+     * @return SEND_RESULT ENUM that indicate what to do later on.
+     */
+    protected SEND_RESULT sendData(String data, String url) {
         SEND_RESULT sendResult = SEND_RESULT.FAILED_RESEND_LATER;
         int nRetry = mConfig.getNumOfRetries();
         RemoteService poster = getPoster();
         while (nRetry-- > 0) {
             if (poster.isOnline(mContext)) {
                 try {
-                    RemoteService.Response response = poster.post(data, ibEndPoint);
+                    RemoteService.Response response = poster.post(data, url);
                     if (response.code == HttpURLConnection.HTTP_OK) {
                         sendResult = SEND_RESULT.SUCCESS;
                         break;
@@ -141,14 +155,16 @@ public class ReportHandler {
                         sendResult = SEND_RESULT.FAILED_DELETE;
                         break;
                     }
+                } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
+                    Logger.log(TAG, "Connectivity error, try again or later", Logger.SDK_DEBUG);
                 } catch (IOException e) {
-                    Logger.log("ReportHandler - failed to POST report" + e, Logger.SDK_ERROR);
+                    Logger.log(TAG, "Service IronBeast is unavailable right now", Logger.SDK_ERROR);
                 }
             }
             try {
                 TimeUnit.SECONDS.sleep(mConfig.getIdleSeconds());
             } catch (InterruptedException e) {
-                Logger.log("Failed to sleep between retries", Logger.SDK_DEBUG);
+                Logger.log(TAG, "Failed to sleep between retries", Logger.SDK_DEBUG);
             }
         }
         return sendResult;
@@ -160,16 +176,16 @@ public class ReportHandler {
     protected RemoteService getPoster() {
         return HttpService.getInstance();
     }
-    // TODO: FIX
-//    protected StorageService getStorage(Context context) {
-//        return new DbAdapter(context);
-//    }
+    protected StorageService getStorage(Context context) {
+        return DbAdapter.getInstance(context);
+    }
 
     enum SEND_RESULT {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
     }
 
+    private static final String TAG = "ReportHandler";
+    private StorageService mStorage;
     private IBConfig mConfig;
     private Context mContext;
-    private DbAdapter mStorage;
 }

@@ -13,10 +13,26 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DbAdapter {
+public class DbAdapter implements StorageService {
 
+    /**
+     * Do not call directly. You should use DbAdapter.getInstance()
+     */
     public DbAdapter(Context context) {
         mDb = new DatabaseHandler(context);
+    }
+
+    /**
+     * Use this to get a singleton instance of DbAdapter instead of creating
+     * one directly for yourself.
+     */
+    public static DbAdapter getInstance(Context context) {
+        synchronized (sInstanceLock) {
+            if (null == sInstance) {
+                sInstance = new DbAdapter(context);
+            }
+        }
+        return sInstance;
     }
 
     /**
@@ -196,11 +212,13 @@ public class DbAdapter {
         }
     }
 
-    // Override in testing mode
+    // For testing, to allow for mocking
     protected boolean belowDatabaseLimit() {
         return mDb.belowDatabaseLimit();
     }
 
+    private static final Object sInstanceLock = new Object();
+    private static DbAdapter sInstance;
     private final DatabaseHandler mDb;
     private static final int DATABASE_VERSION = 4;
     public static final String KEY_DATA = "data";
@@ -260,25 +278,5 @@ public class DbAdapter {
 
         private final File mDatabaseFile;
         private final IBConfig mConfig;
-    }
-
-    static public class Batch {
-        public String lastId;
-        public List<String> events;
-
-        Batch(String lastId, List<String> events) {
-            this.lastId = lastId;
-            this.events = events;
-        }
-    }
-
-    static public class Table {
-        public String name;
-        public String token;
-
-        Table(String name, String token) {
-            this.name = name;
-            this.token = token;
-        }
     }
 }

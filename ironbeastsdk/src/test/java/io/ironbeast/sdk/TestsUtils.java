@@ -33,22 +33,4 @@ public class TestsUtils {
         @Override
         public Response post(String data, String url) throws IOException { return null; }
     }
-
-    static class MockQueue implements StorageService {
-
-        @Override
-        public int count() { return 0; }
-
-        @Override
-        public int push(String ... records) { return 0; }
-
-        @Override
-        public String[] drain() { return new String[0]; }
-
-        @Override
-        public String[] peek() { return new String[0]; }
-
-        @Override
-        public void clear() { }
-    }
 }
