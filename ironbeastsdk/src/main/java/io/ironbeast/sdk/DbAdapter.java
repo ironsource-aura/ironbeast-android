@@ -212,7 +212,9 @@ public class DbAdapter implements StorageService {
         }
     }
 
-    // For testing, to allow for mocking
+    /**
+     * For testing purpose. to allow mocking this behavior.
+     */
     protected boolean belowDatabaseLimit() {
         return mDb.belowDatabaseLimit();
     }
@@ -221,15 +223,19 @@ public class DbAdapter implements StorageService {
     private static DbAdapter sInstance;
     private final DatabaseHandler mDb;
     private static final int DATABASE_VERSION = 4;
+    private static final String DATABASE_NAME = "ironbeast";
+    private static final String TAG = "DbAdapter";
     public static final String KEY_DATA = "data";
     public static final String KEY_TOKEN = "token";
     public static final String KEY_TABLE = "table_name";
     public static final String KEY_CREATED_AT = "created_at";
     public static final String TABLES_TABLE = "tables";
     public static final String REPORTS_TABLE = "reports";
-    private static final String DATABASE_NAME = "ironbeast";
-    private static final String TAG = "DbAdapter";
 
+    /**
+     * Private subclass that take care of opening(or creating), upgrading
+     * or deleting the database.
+     */
     private static class DatabaseHandler extends SQLiteOpenHelper {
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
