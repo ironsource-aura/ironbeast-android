@@ -85,10 +85,10 @@ public class ReportHandler {
      */
     public void flush(Table table) throws Exception {
         int bulkSize = mConfig.getBulkSize();
-        Batch batch = null;
-        while (bulkSize >= 1) {
+        Batch batch;
+        while (true) {
             batch = mStorage.getEvents(table, bulkSize);
-            if (batch != null) {
+            if (batch != null && batch.events.size() > 1) {
                 int byteSize = batch.events.toString().getBytes("UTF-8").length;
                 if (byteSize <= mConfig.getMaximumRequestLimit()) break;
                 bulkSize = (int) (bulkSize / ceil(byteSize / mConfig.getMaximumRequestLimit()));

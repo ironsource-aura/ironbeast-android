@@ -157,7 +157,7 @@ public class IBConfig {
     }
 
     IBConfig setBulkSize(int size) {
-        mBulkSize = size;
+        mBulkSize = size > 0 ? size : mBulkSize;
         return this;
     }
 

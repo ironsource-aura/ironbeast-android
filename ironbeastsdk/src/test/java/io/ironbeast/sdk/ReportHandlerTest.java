@@ -215,8 +215,8 @@ public class ReportHandlerTest {
     // When tracking an event(record) to some table and the count numbder
     // is greater or equal to bulk-size, should flush the queue.
     public void trackCauseFlush() {
-        mConfig.setBulkSize(1);
-        when(mStorage.addEvent(mTable, DATA)).thenReturn(1);
+        mConfig.setBulkSize(2);
+        when(mStorage.addEvent(mTable, DATA)).thenReturn(2);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
         verify(mStorage, times(1)).addEvent(mTable, DATA);
@@ -224,9 +224,33 @@ public class ReportHandlerTest {
     }
 
     @Test
-    // When flushing events and
-    public void maxRequestLimit() {
-
+    // ByteSize limits logic
+    // The scenario goes like this:
+    // Ask for events with limit of 2 and the batch is too large.
+    // handler decrease the bulkSize(limit) and ask for limit of 1.
+    // in this situation it doesn't have another choice except sending this batch(of length 1).
+    public void maxRequestLimit() throws Exception {
+        mConfig.setMaximumRequestLimit(1024 * 1024 + 1).setBulkSize(2).setIdleSeconds(0);
+        final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
+        when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
+            add(mTable);
+        }});
+        when(mStorage.getEvents(eq(mTable), anyInt())).thenReturn(new Batch("2", new ArrayList<String>() {{
+            add(chunk);
+            add(chunk);
+        }}), new Batch("1", new ArrayList<String>() {{
+            add(chunk);
+        }}), new Batch("2", new ArrayList<String>() {{
+            add(chunk);
+        }}));
+        when(mStorage.deleteEvents(eq(mTable), anyString())).thenReturn(1);
+        when(mStorage.count(mTable)).thenReturn(1, 0);
+        when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok);
+        Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
+        mHandler.handleReport(intent);
+        verify(mStorage, times(2)).getEvents(mTable, 2);
+        verify(mStorage, times(1)).getEvents(mTable, 1);
+        verify(mStorage, times(1)).deleteTable(mTable);
     }
 
     @Test
