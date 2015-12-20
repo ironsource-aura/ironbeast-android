@@ -11,15 +11,6 @@ import org.json.JSONObject;
 
 import io.ironbeast.sdk.IBConfig;
 import io.ironbeast.sdk.IronBeast;
-import io.ironbeast.sdk.DbStorage;
-import io.ironbeast.sdk.IBConfig;
-import io.ironbeast.sdk.IronBeast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Arrays;
 
 public class BaseMainActivity extends Activity {
 
