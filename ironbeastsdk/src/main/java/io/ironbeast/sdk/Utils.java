@@ -1,42 +1,30 @@
 package io.ironbeast.sdk;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Build;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 class Utils {
 
-    /**************
-     * AsyncTask utility methods
-     ***************/
-
-    public static <G, R> void executeAsyncTask(AsyncTask<Void, G, R> task) {
-        executeAsyncTask(task, (Void[]) null);
-    }
-
-    @SuppressLint({"InlinedApi", "NewApi"})
-    public static <P, G, R> void executeAsyncTask(AsyncTask<P, G, R> task, P... params) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-        } else {
-            task.execute(params);
-        }
-    }
-
-    // Extract input stream
+    /**
+     * helper function that extract a buffer from the given inputStream
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
     public static byte[] slurp(final InputStream inputStream)
             throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -52,9 +40,13 @@ class Utils {
         return buffer.toByteArray();
     }
 
-    // auth helper
-    // Exception could be: NoSuchAlgorithmException, UnsupportedEncodingException
-    // and InvalidKeyException
+    /**
+     * IronBeast auth function
+     * Exception could be: NoSuchAlgorithmException and InvalidKeyException
+     * @param data
+     * @param key
+     * @return auth string
+     */
     public static String auth(String data, String key) {
         try {
             SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
@@ -65,7 +57,7 @@ class Utils {
                 sb.append(String.format("%1$02x", b));
             }
             return sb.toString();
-        } catch(Exception e) {
+        } catch(NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
             return "";
         }
     }

@@ -13,8 +13,6 @@ import java.util.Map;
 
 public class IronBeast {
 
-    private String mToken;
-
     /**
      * Do not call directly.
      * You should use IronBeast.getInstance()
@@ -131,4 +129,5 @@ public class IronBeast {
     private static final Map<String, IronBeast> sInstances = new HashMap<String, IronBeast>();
     private IBConfig mConfig;
     private Context mContext;
+    private String mToken;
 }
