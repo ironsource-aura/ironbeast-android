@@ -176,13 +176,6 @@ public class ReportHandlerTest {
         verify(mStorage, times(1)).getEvents(mTable1, mConfig.getBulkSize());
         verify(mStorage, times(1)).deleteEvents(mTable1, "4");
         verify(mStorage, times(1)).deleteTable(mTable1);
-        // One failed, we stop sending
-//        when(mPoster.post(anyString(), anyString())).thenReturn(fail, ok, ok);
-//        assertFalse(mHandler.handleReport(intent));
-//        verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
-//        verify(mStorage, never()).deleteEvents(mTable, anyString());
-//        verify(mStorage, never()).count(mTable);
-//        verify(mStorage, never()).deleteTable(mTable);
     }
 
     @Test
@@ -219,9 +212,8 @@ public class ReportHandlerTest {
     }
 
     @Test
-    // When tracking an event(record) to some table
-    // When tracking a track-event, and the  is greater or equal to
-    // bulk-size, should flush the queue.
+    // When tracking an event(record) to some table and the count numbder
+    // is greater or equal to bulk-size, should flush the queue.
     public void trackCauseFlush() {
         mConfig.setBulkSize(1);
         when(mStorage.addEvent(mTable, DATA)).thenReturn(1);
@@ -229,6 +221,12 @@ public class ReportHandlerTest {
         mHandler.handleReport(intent);
         verify(mStorage, times(1)).addEvent(mTable, DATA);
         verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
+    }
+
+    @Test
+    // When flushing events and
+    public void maxRequestLimit() {
+
     }
 
     @Test
