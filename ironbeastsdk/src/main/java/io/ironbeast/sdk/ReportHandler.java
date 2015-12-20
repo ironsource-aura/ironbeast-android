@@ -25,6 +25,12 @@ public class ReportHandler {
         mStorage = getStorage(context);
     }
 
+    /**
+     * handleReport responsible to handle the given ReportIntent based on the
+     * event-type(that could be one of the 3: FLUSH, ENQUEUE or POST_SYNC).
+     * @param intent
+     * @return
+     */
     public synchronized boolean handleReport(Intent intent) {
         boolean success = true;
         try {
@@ -81,7 +87,6 @@ public class ReportHandler {
      * delete the table.
      * @param table
      * @throws Exception
-     * TODO: LIMIT RECURSION AND TEST BULK_SIZE > 1
      */
     public void flush(Table table) throws Exception {
         int bulkSize = mConfig.getBulkSize();
