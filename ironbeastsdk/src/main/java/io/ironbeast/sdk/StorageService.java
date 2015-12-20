@@ -28,7 +28,7 @@ interface StorageService {
     }
 
     /**
-     * Table contains `name`, and `table` that represent
+     * Table contains `name`, and `token` that represent
      * an IronBeastSDK destination/table
      */
     class Table {

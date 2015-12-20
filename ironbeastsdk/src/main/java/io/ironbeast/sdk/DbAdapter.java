@@ -41,7 +41,7 @@ public class DbAdapter implements StorageService {
      * a new destination/table(contains name and token) in the "tables" table.
      * @param table
      * @param data
-     * @return
+     * @return number of rows in "records" related to the given table.
      */
     public int addEvent(Table table, String data) {
         if (!this.belowDatabaseLimit()) {

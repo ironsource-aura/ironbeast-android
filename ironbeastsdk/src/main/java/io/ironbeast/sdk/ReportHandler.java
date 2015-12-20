@@ -81,6 +81,7 @@ public class ReportHandler {
      * delete the table.
      * @param table
      * @throws Exception
+     * TODO: LIMIT RECURSION AND TEST BULK_SIZE > 1
      */
     public void flush(Table table) throws Exception {
         int bulkSize = mConfig.getBulkSize();
