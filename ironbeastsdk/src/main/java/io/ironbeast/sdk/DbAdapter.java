@@ -248,6 +248,10 @@ public class DbAdapter implements StorageService {
             mDatabaseFile.delete();
         }
 
+        /**
+         * Called when the database is created for the FIRST time.
+         * If a database already exists, this method will NOT be called.
+         */
         @Override
         public void onCreate(SQLiteDatabase db) {
             Logger.log(TAG, "Creating the IronBeastSdk database", Logger.SDK_DEBUG);
@@ -261,12 +265,19 @@ public class DbAdapter implements StorageService {
                     REPORTS_TABLE, KEY_CREATED_AT));
         }
 
+        /**
+         * Called when the database needs to be upgraded.
+         * This method will only be called if the database already exists on disk,
+         * but the DATABASE_VERSION is different than the version of the database that exists on disk.
+         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Logger.log(TAG, "Upgrading the IronBeastSdk database", Logger.SDK_DEBUG);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
-            onCreate(db);
+            if (oldVersion != newVersion) {
+                Logger.log(TAG, "Upgrading the IronBeastSdk database", Logger.SDK_DEBUG);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
+                db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
+                onCreate(db);
+            }
         }
 
         /**
