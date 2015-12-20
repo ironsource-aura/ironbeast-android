@@ -200,7 +200,7 @@ public class DbAdapter implements StorageService {
     public void deleteTable(Table table) {
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
-            db.delete(REPORTS_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
+            db.delete(TABLES_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to delete table:" + table.name, Logger.SDK_DEBUG);
             // Our assumption is that in general, the exception indicates some failure that is
