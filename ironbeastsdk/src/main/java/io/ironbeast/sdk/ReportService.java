@@ -13,30 +13,29 @@ public class ReportService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Logger.log("---> onCreate", Logger.SDK_DEBUG);
         mConfig = IBConfig.getInstance(this.getApplicationContext());
         mHandler = new ReportHandler(this.getApplicationContext());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Logger.log("ReportService service | onHandleIntent --->", Logger.SDK_DEBUG);
         try {
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
             boolean success = mHandler.handleReport(intent);
             if (SdkEvent.ENQUEUE == event || !success) setAlarm();
         } catch (Throwable th) {
-            Logger.log(format("ReportService - onHandleIntent. %s", th), Logger.SDK_ERROR);
+            Logger.log(TAG, "onHandleIntent error: " + th, Logger.SDK_ERROR);
         }
 
     }
 
     protected void setAlarm() {
-        Logger.log("--> setAlarm", Logger.SDK_DEBUG);
+        Logger.log(TAG, "Setting alarm", Logger.SDK_DEBUG);
         ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
         Utils.scheduleSendReportsAction(this, reportIntent, mConfig.getFlushInterval());
     }
 
+    final private String TAG = "ReportService";
     private IBConfig mConfig;
     private ReportHandler mHandler;
 }
