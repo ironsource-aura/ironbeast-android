@@ -176,9 +176,9 @@ public class ReportHandler {
         return sendResult;
     }
 
-    ////////////////////////////////////////
-    // For testing, to allow for mocking ///
-    ////////////////////////////////////////
+    /**
+     * For testing purpose. to allow mocking this behavior.
+     */
     protected RemoteService getPoster() {
         return HttpService.getInstance();
     }

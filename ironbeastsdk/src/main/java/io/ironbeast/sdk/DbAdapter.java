@@ -19,7 +19,7 @@ public class DbAdapter implements StorageService {
      * Do not call directly. You should use DbAdapter.getInstance()
      */
     public DbAdapter(Context context) {
-        mDb = new DatabaseHandler(context);
+        mDb = getSQLHandler(context);
     }
 
     /**
@@ -215,9 +215,8 @@ public class DbAdapter implements StorageService {
     /**
      * For testing purpose. to allow mocking this behavior.
      */
-    protected boolean belowDatabaseLimit() {
-        return mDb.belowDatabaseLimit();
-    }
+    protected boolean belowDatabaseLimit() { return mDb.belowDatabaseLimit(); }
+    protected DatabaseHandler getSQLHandler(Context context) { return new DatabaseHandler(context); }
 
     private static final Object sInstanceLock = new Object();
     private static DbAdapter sInstance;
@@ -236,7 +235,7 @@ public class DbAdapter implements StorageService {
      * Private subclass that take care of opening(or creating), upgrading
      * or deleting the database.
      */
-    private static class DatabaseHandler extends SQLiteOpenHelper {
+    protected static class DatabaseHandler extends SQLiteOpenHelper {
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mDatabaseFile = context.getDatabasePath(DATABASE_NAME);
