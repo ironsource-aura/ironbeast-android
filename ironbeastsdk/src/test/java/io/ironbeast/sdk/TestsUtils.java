@@ -28,7 +28,7 @@ public class TestsUtils {
 
     static class MockPoster implements RemoteService {
         @Override
-        public boolean isOnline(Context context) { return false; }
+        public boolean isOnline(Context context) { return true; }
 
         @Override
         public Response post(String data, String url) throws IOException { return null; }

@@ -12,14 +12,19 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
@@ -121,70 +126,125 @@ public class ReportHandlerTest {
         verify(mPoster, never()).isOnline(mContext);
     }
 
-//    @Test
-//     TODO: Add byte-limit test
-//     When handler get a flush-event and there's items in the storage.
-//     Should call `getEvents()` for each table recursively, and send
-//     each of the bulks separately to "mConfig.IronBestBulkEndPoint".
-//     if the bulk is "too big(bytes/or bulkSize)", we split it into chunks(many bulks with the same destination).
-//     if some of the "bulk-request" failed(500>=), we put all its entries back to the queue, and clear all the others.
-//    public void flushReports() throws Exception {
-//        // One more report, with different destination
-//        String reportString1 = new JSONObject(reportString).put(ReportIntent.TABLE, "a8m").toString();
-//        when(mQueue.peek()).thenReturn(new String[]{reportString1, reportString1, reportString, reportString});
-//        Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-//        // Config this situation
-//        mConfig.setBulkSize(1).setNumOfRetries(1).setIdleSeconds(0);
-//        // Two different responses
-//        Response ok = new RemoteService.Response() {{ code = 200; body = "OK"; }};
-//        Response fail = new RemoteService.Response() {{ code = 500; body = "Internal Error"; }};
-//        // We're connected
-//        when(mPoster.isOnline(mContext)).thenReturn(true);
-//        // All success
-//        when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok, ok);
-//        assertTrue(mHandler.handleReport(intent));
-//        verify(mQueue, never()).push(anyString());
-//        verify(mQueue, times(1)).clear();
-//        // Half-success, half-failed
-//        when(mPoster.post(anyString(), anyString())).thenReturn(ok, fail, ok, fail);
+    @Test
+    // TODO: Add byte-limit test
+    // When handler get a flush-event, it should ask for the all tables with `getTables`,
+    // and then call `getEvents` for each of them with `maximumBulkSize`.
+    // If everything goes well, it should drain the table, and then delete it.
+    public void flushSuccess() throws Exception {
+        // Config this situation
+        mConfig.setBulkSize(2).setNumOfRetries(1).setIdleSeconds(0);
+        // Another table to test
+        final Table mTable1 = new Table("a8m", "a8m_token") {
+            @Override
+            public boolean equals(Object obj) {
+                Table table = (Table) obj;
+                return this.name == table.name && this.token == table.token;
+            }
+        };
+        List<Table> tables = new ArrayList<Table>() {{ add(mTable); add(mTable1); }};
+        when(mStorage.getTables()).thenReturn(tables);
+        // mTable batch result
+        when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
+                .thenReturn(new Batch("2", new ArrayList<String>() {{
+                    add("foo");
+                    add("bar");
+                }}), new Batch("3", new ArrayList<String>() {{
+                    add("foo");
+                }}));
+        // mTable1 batch result
+        when(mStorage.getEvents(mTable1, mConfig.getBulkSize()))
+                .thenReturn(new Batch("4", new ArrayList<String>() {{
+                    add("foo");
+                }}));
+        when(mStorage.deleteEvents(mTable, "2")).thenReturn(2);
+        when(mStorage.deleteEvents(mTable1, "4")).thenReturn(1);
+        when(mStorage.count(mTable)).thenReturn(1);
+        Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
+        // We're connected
+        when(mPoster.isOnline(mContext)).thenReturn(true);
+        // All success
+        when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok);
+        assertTrue(mHandler.handleReport(intent));
+        verify(mStorage, times(2)).getEvents(mTable, mConfig.getBulkSize());
+        verify(mStorage, times(1)).deleteEvents(mTable, "2");
+        verify(mStorage, times(1)).deleteEvents(mTable, "3");
+        // In the second and the third time, it assume that the table is empty
+        // because NUMBER_OF_DELETES < NUMBER_OF_DESIRED
+        verify(mStorage, times(1)).count(mTable);
+        verify(mStorage, times(1)).deleteTable(mTable);
+        verify(mStorage, times(1)).getEvents(mTable1, mConfig.getBulkSize());
+        verify(mStorage, times(1)).deleteEvents(mTable1, "4");
+        verify(mStorage, times(1)).deleteTable(mTable1);
+        // One failed, we stop sending
+//        when(mPoster.post(anyString(), anyString())).thenReturn(fail, ok, ok);
 //        assertFalse(mHandler.handleReport(intent));
-//        verify(mQueue, times(1)).push(reportString1, reportString);
-//        // All failed
-//        when(mPoster.post(anyString(), anyString())).thenReturn(fail, fail, fail, fail);
-//        assertFalse(mHandler.handleReport(intent));
-//        verify(mQueue, times(1)).push(reportString1, reportString1, reportString, reportString);
-//    }
-//
-//    @Test
-//    // When tracking a track-event, and the queue-size is greater or equal to
-//    // bulk-size, should flush the queue.
-//    public void trackCauseFlush() {
-//        mConfig.setBulkSize(1);
-//        when(mQueue.push(anyString())).thenReturn(1);
-//        Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
-//        mHandler.handleReport(intent);
-//        verify(mQueue, times(1)).push(reportString);
-//        // peek() before draining
-//        verify(mQueue, times(1)).peek();
-//    }
-//
-//    @Test
-//    // Test data format
-//    // Should omit the "token" field and add "auth"
-//    public void dataFormat() throws Exception{
-//        when(mPoster.isOnline(mContext)).thenReturn(true);
-//        when(mPoster.post(any(String.class), any(String.class))).thenReturn(new Response() {{
-//            code = 200;
-//            body = "OK";
-//        }});
-//        Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-//        assertTrue(mHandler.handleReport(intent));
-//        JSONObject report = new JSONObject(reportString);
-//        report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
-//                report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
-//        verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint()));
-//    }
-//
+//        verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
+//        verify(mStorage, never()).deleteEvents(mTable, anyString());
+//        verify(mStorage, never()).count(mTable);
+//        verify(mStorage, never()).deleteTable(mTable);
+    }
+
+    @Test
+    // When handler get a flush-event, and there's no tables to drain(i.e: no event)
+    // Should do-nothing, and return true
+    public void flushNoItems() throws Exception {
+        Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
+        assertTrue(mHandler.handleReport(intent));
+        verify(mStorage, times(1)).getTables();
+        verify(mStorage, never()).getEvents(any(Table.class), anyInt());
+    }
+
+    @Test
+    // When handler try to flush a batch, and it encounter an error(e.g: connectivity)
+    // should stop-flushing, and return false
+    public void flushFailed() throws Exception {
+        // Config this situation
+        mConfig.setBulkSize(2).setNumOfRetries(1).setIdleSeconds(0);
+        Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
+        // Batch result
+        when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
+                .thenReturn(new Batch("2", new ArrayList<String>() {{
+                    add("foo");
+                    add("bar");
+                }}));
+        when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
+            add(mTable);
+        }});
+        when(mPoster.post(anyString(), anyString())).thenReturn(fail);
+        assertFalse(mHandler.handleReport(intent));
+        verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
+        verify(mStorage, never()).deleteEvents(mTable, "2");
+        verify(mStorage, never()).deleteTable(mTable);
+    }
+
+    @Test
+    // When tracking an event(record) to some table
+    // When tracking a track-event, and the  is greater or equal to
+    // bulk-size, should flush the queue.
+    public void trackCauseFlush() {
+        mConfig.setBulkSize(1);
+        when(mStorage.addEvent(mTable, DATA)).thenReturn(1);
+        Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
+        mHandler.handleReport(intent);
+        verify(mStorage, times(1)).addEvent(mTable, DATA);
+        verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
+    }
+
+    @Test
+    // Test data format
+    // Should omit the "token" field and add "auth"
+    public void dataFormat() throws Exception{
+        when(mPoster.isOnline(mContext)).thenReturn(true);
+        when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
+        Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
+        assertTrue(mHandler.handleReport(intent));
+        JSONObject report = new JSONObject(reportMap);
+        report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
+                report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
+        verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint()));
+    }
+
     // Helper method.
     // Take SdkEvent and Map and generate new MockReport
     private Intent newReport(int event, Map<String, String> report) {
@@ -198,19 +258,22 @@ public class ReportHandlerTest {
     }
 
     // Constant report arguments for testing
-    final String DATA = "hello world";
-    final Table mTable = new Table("table", "token") {
+    final String TABLE = "ib_table", TOKEN = "ib_token", DATA = "hello world";
+    final Map<String, String> reportMap = new HashMap<String, String>(){{
+        put(ReportIntent.DATA, DATA);
+        put(ReportIntent.TOKEN, TOKEN);
+        put(ReportIntent.TABLE, TABLE);
+    }};
+    final Table mTable = new Table(TABLE, TOKEN) {
         @Override
         public boolean equals(Object obj) {
             Table table = (Table) obj;
             return this.name == table.name && this.token == table.token;
         }
     };
-    final Map<String, String> reportMap = new HashMap<String, String>(){{
-        put(ReportIntent.DATA, DATA);
-        put(ReportIntent.TOKEN, "token");
-        put(ReportIntent.TABLE, "table");
-    }};
+    // Two different responses
+    final Response ok = new RemoteService.Response() {{ code = 200; body = "OK"; }};
+    final Response fail = new RemoteService.Response() {{ code = 503; body = "Service Unavailable"; }};
     // Mocking
     final Context mContext = mock(MockContext.class);
     final IBConfig mConfig = IBConfig.getInstance(mContext);
