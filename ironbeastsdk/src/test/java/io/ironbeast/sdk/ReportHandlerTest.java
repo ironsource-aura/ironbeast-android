@@ -12,44 +12,16 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static junit.framework.Assert.*;
+import static org.mockito.Mockito.*;
 
-/**
- * ReportHandler unit test. should cover:
- * 1. Getting single post-event, should "Post" it to IronBeast
- *    to "IronBeastEndPoint"
- *    - if it's success, we're cool.
- *    - if it's fail, should "write/push" it to StorageService
- * 2. Getting track-event, should write it to StorageService,
- *    - if the StorageService.count() is greater or equal to "BulkSize" should
- *      flush(see below) the queue.
- * 3. Flush should drain the queue and map the entries based on the destination/table field.
- *    then, send each "bulk" separately to "IronBestBulkEndPoint".
- *    if the bulk is "too big(bytes/or bulkSize)", we split it into chunks.
- *    if some of the "bulk-request" failed(500>=), we put all its entries back to the queue.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ReportHandlerTest {
 
