@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class IronBeastTracker {
 
-    protected String mToken;
-    protected Context mContext;
-    protected IBConfig mConfig;
+    private String mToken;
+    private Context mContext;
+    private IBConfig mConfig;
 
     IronBeastTracker(Context context, String token) {
         mContext = context;

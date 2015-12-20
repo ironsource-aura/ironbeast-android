@@ -3,7 +3,6 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.os.Build;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -45,15 +44,11 @@ public class IronBeast {
         }
         synchronized (sAvailableTrackers) {
             IronBeastTracker ret;
-            Context context = sInstance.mContext;
             if (sAvailableTrackers.containsKey(token)) {
                 ret = sAvailableTrackers.get(token);
             } else {
                 ret = new IronBeastTracker(sInstance.mContext, token);
                 sAvailableTrackers.put(token, ret);
-            }
-            if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && IBConfig.getInstance(context).isErrorReportingEnabled()) {
-                sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(context, IBConfig.IRONBEAST_TRACKER_TOKEN));
             }
             return ret;
         }
@@ -66,6 +61,9 @@ public class IronBeast {
      */
     public void enableErrorReporting(boolean enable) {
         mConfig.enableErrorReporting(enable);
+        if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && enable) {
+            sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(mContext, IBConfig.IRONBEAST_TRACKER_TOKEN));
+        }
     }
 
     public void setLogType(IBConfig.LOG_TYPE logType) {
@@ -102,17 +100,21 @@ public class IronBeast {
 
     protected static void trackError(String str) {
         IronBeastTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
+        //TODO: sdkTracker maybe NULL
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
             report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
-            report.put("connection", Utils.getConnectedNetworkType(sdkTracker.mContext));
+            report.put("connection", Utils.getConnectedNetworkType(sInstance.mContext));
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
-        } catch (JSONException e) {}
+        } catch (Exception e) {
+            //TODO: not good maybe stack here :))))
+            Logger.log("Failed to track Error" + e, Logger.SDK_DEBUG);
+        }
     }
 
     private static final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
