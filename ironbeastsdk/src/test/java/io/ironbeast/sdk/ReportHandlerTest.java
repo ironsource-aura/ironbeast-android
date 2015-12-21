@@ -108,7 +108,7 @@ public class ReportHandlerTest {
             @Override
             public boolean equals(Object obj) {
                 Table table = (Table) obj;
-                return this.name == table.name && this.token == table.token;
+                return this.name.equals(table.name) && this.token.equals(table.token);
             }
         };
         List<Table> tables = new ArrayList<Table>() {{ add(mTable); add(mTable1); }};
@@ -259,7 +259,7 @@ public class ReportHandlerTest {
         @Override
         public boolean equals(Object obj) {
             Table table = (Table) obj;
-            return this.name == table.name && this.token == table.token;
+            return this.name.equals(table.name) && this.token.equals(table.token);
         }
     };
     // Two different responses

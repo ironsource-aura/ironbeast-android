@@ -140,7 +140,7 @@ public class DbAdapterTest {
         @Override
         public boolean equals(Object obj) {
             Table table = (Table) obj;
-            return this.name == table.name && this.token == table.token;
+            return this.name.equals(table.name) && this.token.equals(table.token);
         }
     };
     final DatabaseHandler mHandler = mock(DatabaseHandler.class);
