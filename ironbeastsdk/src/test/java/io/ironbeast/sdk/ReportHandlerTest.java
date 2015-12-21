@@ -78,7 +78,7 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
-        mConfig.setIdleSeconds(0).setNumOfRetries(10);
+        mConfig.setNumOfRetries(10);
         assertFalse(mHandler.handleReport(intent));
         verify(mPoster, times(10)).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
@@ -102,7 +102,7 @@ public class ReportHandlerTest {
     // If everything goes well, it should drain the table, and then delete it.
     public void flushSuccess() throws Exception {
         // Config this situation
-        mConfig.setBulkSize(2).setNumOfRetries(1).setIdleSeconds(0);
+        mConfig.setBulkSize(2).setNumOfRetries(1);
         // Another table to test
         final Table mTable1 = new Table("a8m", "a8m_token") {
             @Override
@@ -162,7 +162,7 @@ public class ReportHandlerTest {
     // should stop-flushing, and return false
     public void flushFailed() throws Exception {
         // Config this situation
-        mConfig.setBulkSize(2).setNumOfRetries(1).setIdleSeconds(0);
+        mConfig.setBulkSize(2).setNumOfRetries(1);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         // Batch result
         when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
@@ -199,7 +199,7 @@ public class ReportHandlerTest {
     // handler decrease the bulkSize(limit) and ask for limit of 1.
     // in this situation it doesn't have another choice except sending this batch(of length 1).
     public void maxRequestLimit() throws Exception {
-        mConfig.setMaximumRequestLimit(1024 * 1024 + 1).setBulkSize(2).setIdleSeconds(0);
+        mConfig.setMaximumRequestLimit(1024 * 1024 + 1).setBulkSize(2);
         final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);

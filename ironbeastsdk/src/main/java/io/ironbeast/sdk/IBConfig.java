@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
  * - Write toSharedPreferences
  * Create a global configuration options for the IronBeast library.
  * IBConfig understands the following options:
- * IdleSeconds         - idle seconds between each retries requests in ReportHandler.
  * NumOfRetries        - number of retries requests, when "post" request failed or when
  *                       the device not connect to the internet.
  * BulkSize            - maximum entries in each bulk request(on tracking).
@@ -23,10 +22,9 @@ public class IBConfig {
     private static final Object sInstanceLock = new Object();
     private static final String DEFAULT_URL = "http://sdk.ironbeast.io";
     private static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
-    private static final int DEFAULT_IDLE_SECONDS = 1;
     private static final int KILOBYTE = 1024;
     private static final int DEFAULT_BULK_SIZE = 4;
-    private static final int DEFAULT_NUM_OF_RETRIES = 3;
+    private static final int DEFAULT_NUM_OF_RETRIES = 2;
     private static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
     private static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
     private static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
@@ -49,7 +47,6 @@ public class IBConfig {
     private int mBulkSize;
     private int mNumOfRetries;
     private int mFlushInterval;
-    private int mIdleSeconds;
     private long mMaximumRequestLimit;
     private long mMaximumDatabaseLimit;
     private String mIBEndPoint;
@@ -65,7 +62,6 @@ public class IBConfig {
         mMaximumRequestLimit = DEFAULT_MAX_REQUEST_LIMIT;
         mMaximumDatabaseLimit = DEFAUL_MAX_DATABASE_LIMIT;
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
-        mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
 
     IBConfig(Context context) {
@@ -104,7 +100,6 @@ public class IBConfig {
         mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
         mMaximumDatabaseLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, ""), DEFAUL_MAX_DATABASE_LIMIT);
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
-        mIdleSeconds = DEFAULT_IDLE_SECONDS;
     }
 
     void apply() {
@@ -194,15 +189,6 @@ public class IBConfig {
 
     IBConfig setNumOfRetries(int n) {
         mNumOfRetries = n > 0 ? n : mNumOfRetries;
-        return this;
-    }
-
-    protected int getIdleSeconds() {
-        return mIdleSeconds;
-    }
-
-    IBConfig setIdleSeconds(int secs) {
-        mIdleSeconds = secs >= 0 ? secs : mIdleSeconds;
         return this;
     }
 

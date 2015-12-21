@@ -14,7 +14,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import static java.lang.Math.*;
 
 public class ReportHandler {
@@ -54,7 +53,7 @@ public class ReportHandler {
                     break;
                 case SdkEvent.POST_SYNC:
                     String message = createMessage(dataObject, false);
-                    SEND_RESULT res = sendData(message, mConfig.getIBEndPoint());
+                    SEND_RESULT res = send(message, mConfig.getIBEndPoint());
                     if (success = (res != SEND_RESULT.FAILED_RESEND_LATER)) break;
                 case SdkEvent.ENQUEUE:
                     Table table = new Table(dataObject.getString(ReportIntent.TABLE),
@@ -104,7 +103,7 @@ public class ReportHandler {
             event.put(ReportIntent.TABLE, table.name);
             event.put(ReportIntent.TOKEN, table.token);
             event.put(ReportIntent.DATA, batch.events.toString());
-            SEND_RESULT res = sendData(createMessage(event, true), mConfig.getIBEndPointBulk());
+            SEND_RESULT res = send(createMessage(event, true), mConfig.getIBEndPointBulk());
             if (res == SEND_RESULT.FAILED_RESEND_LATER) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }
@@ -144,7 +143,7 @@ public class ReportHandler {
      * @param url  - IronBeast url endpoint.
      * @return SEND_RESULT ENUM that indicate what to do later on.
      */
-    protected SEND_RESULT sendData(String data, String url) {
+    protected SEND_RESULT send(String data, String url) {
         SEND_RESULT sendResult = SEND_RESULT.FAILED_RESEND_LATER;
         int nRetry = mConfig.getNumOfRetries();
         RemoteService poster = getPoster();
@@ -166,11 +165,6 @@ public class ReportHandler {
                 } catch (IOException e) {
                     Logger.log(TAG, "Service IronBeast is unavailable right now", Logger.SDK_ERROR);
                 }
-            }
-            try {
-                TimeUnit.SECONDS.sleep(mConfig.getIdleSeconds());
-            } catch (InterruptedException e) {
-                Logger.log(TAG, "Failed to sleep between retries", Logger.SDK_DEBUG);
             }
         }
         return sendResult;
