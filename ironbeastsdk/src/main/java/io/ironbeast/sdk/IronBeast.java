@@ -21,7 +21,7 @@ public class IronBeast {
         mContext = context;
         mConfig = IBConfig.getInstance(context);
     }
-
+    public static IronBeast getInstance() {return  sInstance;}
     public static IronBeast getInstance(Context context) {
         if (null == context) {
             throw new IllegalArgumentException("Please provide valid context");
@@ -98,7 +98,7 @@ public class IronBeast {
         mConfig.setFlushInterval(seconds);
     }
 
-    protected static void trackError(String str) {
+    protected void trackError(String str) {
         IronBeastTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
         //TODO: sdkTracker maybe NULL
         try {
@@ -117,10 +117,11 @@ public class IronBeast {
         }
     }
 
-    private static final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
-    private static IronBeast sInstance;
+
     private IBConfig mConfig;
     private Context mContext;
+    private final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
 
+    private static IronBeast sInstance;
     final static Object sInstanceLockObject = new Object();
 }

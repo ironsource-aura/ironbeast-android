@@ -27,7 +27,7 @@ class Logger {
                 }
                 break;
             case (SDK_ERROR):
-                IronBeast.trackError(logString);
+                IronBeast.getInstance().trackError(logString);
             case (SDK_DEBUG):
                 if (!mIsSuperDevMode) {
                     break;
