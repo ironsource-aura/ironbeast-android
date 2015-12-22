@@ -9,22 +9,37 @@ import android.view.View;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+
 import io.ironbeast.sdk.IronBeast;
 import io.ironbeast.sdk.IronBeastTracker;
 
 public class BaseMainActivity extends Activity {
-
+    IronBeast ironBeast;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
+
+        ironBeast = IronBeast.getInstance(this);
+        ironBeast.enableErrorReporting(true);
+        ironBeast.setBulkSize(10);
     }
 
     public void sendReport(View v) {
         // IronBeast logic
         int id = v.getId();
-        IronBeast ironBeast = IronBeast.getInstance(this);
         IronBeastTracker tracker = ironBeast.newTracker("myToken");
+        try {
+            tracker.setIBEndPoint("http://google.com");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        try {
+            tracker.setIBEndPointBulk("http://google.com/bulk");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
         JSONObject params = new JSONObject();
         switch (id) {
