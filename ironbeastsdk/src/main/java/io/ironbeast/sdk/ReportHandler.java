@@ -31,7 +31,7 @@ public class ReportHandler {
      * handleReport responsible to handle the given ReportIntent based on the
      * event-type(that could be one of the 3: FLUSH, ENQUEUE or POST_SYNC).
      * @param intent
-     * @return
+     * @return result of the handleReport if success true or failed false
      */
     public synchronized boolean handleReport(Intent intent) {
         boolean success = true;
@@ -85,6 +85,7 @@ public class ReportHandler {
      */
     public void flush(Table table) throws Exception {
         int bulkSize = mConfig.getBulkSize();
+        Logger.log(TAG, "Flush bulkSize " + bulkSize, Logger.SDK_DEBUG);
         Batch batch;
         while (true) {
             batch = mStorage.getEvents(table, bulkSize);

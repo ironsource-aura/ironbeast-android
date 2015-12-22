@@ -13,6 +13,8 @@ import java.util.Map;
 
 public class IronBeast {
 
+    private static final String TAG = IronBeast.class.getSimpleName();
+
     /**
      * Do not call directly.
      * You should use IronBeast.getInstance()
@@ -61,9 +63,6 @@ public class IronBeast {
      */
     public void enableErrorReporting(boolean enable) {
         mConfig.enableErrorReporting(enable);
-        if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && enable) {
-            sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(mContext, IBConfig.IRONBEAST_TRACKER_TOKEN));
-        }
     }
 
     public void setLogType(IBConfig.LOG_TYPE logType) {
@@ -99,6 +98,12 @@ public class IronBeast {
     }
 
     protected void trackError(String str) {
+        Logger.log(TAG, "trackError " + str, Logger.SDK_DEBUG);
+        if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && mConfig.isErrorReportingEnabled()) {
+            sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(mContext, IBConfig.IRONBEAST_TRACKER_TOKEN));
+            Logger.log(TAG, "error tracker created " + str, Logger.SDK_DEBUG);
+        }
+
         IronBeastTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
         //TODO: sdkTracker maybe NULL
         try {
@@ -107,13 +112,13 @@ public class IronBeast {
             report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
-            report.put("connection", Utils.getConnectedNetworkType(sInstance.mContext));
+            report.put("connection", Utils.getConnectedNetworkType(mContext));
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
         } catch (Exception e) {
             //TODO: not good maybe stack here :))))
-            Logger.log("Failed to track Error" + e, Logger.SDK_DEBUG);
+            Logger.log("Failed to track Error " + e, Logger.SDK_DEBUG);
         }
     }
 
