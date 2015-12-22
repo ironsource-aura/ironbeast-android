@@ -10,7 +10,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 

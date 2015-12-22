@@ -63,17 +63,10 @@ public class ReportHandler {
                     }
             }
             // If there's something to flush, it'll no be empty.
-            for (Table table: tablesToFlush) {
-                try {
-                    flush(table);
-                } catch (Exception e) {
-                    Logger.log(e.getMessage(), Logger.SDK_DEBUG);
-                    success = false;
-                    break;
-                }
-            }
+            for (Table table: tablesToFlush) flush(table);
         } catch (Exception e) {
-            Logger.log("Failed parse the given report:" + e, Logger.SDK_DEBUG);
+            success = false;
+            Logger.log(TAG, e.getMessage(), Logger.SDK_DEBUG);
         }
         return success;
     }
@@ -133,7 +126,7 @@ public class ReportHandler {
             }
             message = clone.toString();
         } catch (Exception e) {
-            Logger.log("ReportHandler: failed create message" + e, Logger.SDK_DEBUG);
+            Logger.log(TAG, "Failed create message" + e, Logger.SDK_DEBUG);
         }
         return message;
     }
