@@ -7,6 +7,7 @@ import android.webkit.URLUtil;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * TODO:
@@ -21,6 +22,8 @@ import java.util.HashMap;
  * MaximumRequestLimit - maximum bytes in request body.
  */
 class IBConfig {
+    private static final String TAG = IBConfig.class.getSimpleName();
+
     private static final Object sInstanceLock = new Object();
     private static final String DEFAULT_URL = "http://sdk.ironbeast.io";
     private static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
@@ -74,12 +77,12 @@ class IBConfig {
         mIBEndPoint = new HashMap<>();
         mIBEndPointBulk = new HashMap<>();
 
-        mEnableErrorReporting = Boolean.getBoolean(mIBPrefService.load(KEY_ENABLE_ERROR_REPORTING, "false"));
+        mEnableErrorReporting = Boolean.parseBoolean(mIBPrefService.load(KEY_ENABLE_ERROR_REPORTING, "false"));
 
-        mFlushInterval = Integer.getInteger(mIBPrefService.load(KEY_FLUSH_INTERVAL, ""), DEFAULT_FLUSH_INTERVAL);
-        mMaximumRequestLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, ""), DEFAULT_MAX_REQUEST_LIMIT);
-        mMaximumDatabaseLimit = Integer.getInteger(mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, ""), DEFAUL_MAX_DATABASE_LIMIT);
-        mBulkSize = Integer.getInteger(mIBPrefService.load(KEY_BULK_SIZE, ""), DEFAULT_BULK_SIZE);
+        mFlushInterval = Integer.parseInt(mIBPrefService.load(KEY_FLUSH_INTERVAL, String.valueOf(DEFAULT_FLUSH_INTERVAL)));
+        mMaximumRequestLimit = Integer.parseInt(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, String.valueOf(DEFAULT_MAX_REQUEST_LIMIT)));
+        mMaximumDatabaseLimit = Integer.parseInt(mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, String.valueOf(DEFAUL_MAX_DATABASE_LIMIT)));
+        mBulkSize = Integer.parseInt(mIBPrefService.load(KEY_BULK_SIZE, String.valueOf(DEFAULT_BULK_SIZE)));
         mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
     }
 
@@ -116,14 +119,13 @@ class IBConfig {
         return DEFAULT_BULK_URL;
     }
 
-    IBConfig setIBEndPointBulk(String token, String url) throws MalformedURLException {
+    protected void setIBEndPointBulk(String token, String url) throws MalformedURLException {
         if (URLUtil.isValidUrl(url)) {
             mIBEndPointBulk.put(token, url);
             mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), url);
         } else {
             throw new MalformedURLException();
         }
-        return this;
     }
 
     public int getBulkSize() {
@@ -185,6 +187,11 @@ class IBConfig {
 
     public boolean isErrorReportingEnabled() {
         return mEnableErrorReporting;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ENGLISH, "[%s] flushInterval %d req limit %d db limit %s bSize %d error enable ", TAG, mFlushInterval, mMaximumRequestLimit, mMaximumDatabaseLimit, mBulkSize) + mEnableErrorReporting;
     }
 
     public enum LOG_TYPE {
