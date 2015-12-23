@@ -16,13 +16,18 @@ import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import io.ironbeast.sdk.RemoteService.Response;
+import io.ironbeast.sdk.StorageService.Batch;
+import io.ironbeast.sdk.StorageService.Table;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
@@ -39,7 +44,11 @@ public class ReportHandlerTest {
 
     @Before
     public void clearMocks() {
-        reset(mStorage, mPoster);
+        reset(mStorage, mPoster, mSharedPref);
+    }
+    @Before
+    public void setUp() {
+
     }
 
     @Test
@@ -96,7 +105,6 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
-        mConfig.setNumOfRetries(10);
         mConfig.setNumOfRetries(10);
 
         assertFalse(mHandler.handleReport(intent));
@@ -255,6 +263,7 @@ public class ReportHandlerTest {
     public void dataFormat() throws Exception {
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
+
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertTrue(mHandler.handleReport(intent));
         JSONObject report = new JSONObject(reportMap);
@@ -283,9 +292,16 @@ public class ReportHandlerTest {
     final Response fail = new RemoteService.Response() {{ code = 503; body = "Service Unavailable"; }};
     // Mocking
     final Context mContext = mock(MockContext.class);
-    final IBConfig mConfig = IBConfig.getInstance(mContext);
     final StorageService mStorage = mock(DbAdapter.class);
     final RemoteService mPoster = mock(HttpService.class);
+    final SharePrefService mSharedPref =  spy(new TestsUtils.MockSharedPrefs());
+    final IBConfig mConfig = new IBConfig(mContext) {
+        @Override
+        protected SharePrefService getPrefService(Context context) {
+            return mSharedPref;
+        }
+    };
+
     final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
         protected RemoteService getPoster() { return mPoster; }
