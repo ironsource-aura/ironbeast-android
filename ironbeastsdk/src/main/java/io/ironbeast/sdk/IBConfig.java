@@ -1,7 +1,6 @@
 package io.ironbeast.sdk;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.URLUtil;
 
@@ -45,7 +44,7 @@ class IBConfig {
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
     protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
     private static IBConfig sInstance;
-    IBPrefService mIBPrefService;
+    SharePrefService mIBPrefService;
     private boolean mEnableErrorReporting;
     private int mBulkSize;
     private int mNumOfRetries;
@@ -72,7 +71,7 @@ class IBConfig {
     }
 
     void loadConfig(Context context) {
-        mIBPrefService = IBPrefService.getInstance(context);
+        mIBPrefService = getPrefService(context);
 
         mIBEndPoint = new HashMap<>();
         mIBEndPointBulk = new HashMap<>();
@@ -91,7 +90,7 @@ class IBConfig {
             return mIBEndPoint.get(token);
         }
         String url = mIBPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), "");
-        if (!TextUtils.isEmpty(url)) {
+        if (URLUtil.isValidUrl(url)) {
             mIBEndPointBulk.put(token, url);
             return url;
         }
@@ -112,7 +111,7 @@ class IBConfig {
             return mIBEndPointBulk.get(token);
         }
         String url = mIBPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), "");
-        if (!TextUtils.isEmpty(url)) {
+        if (!URLUtil.isValidUrl(url)) {
             mIBEndPointBulk.put(token, url);
             return url;
         }
@@ -197,4 +196,8 @@ class IBConfig {
     public enum LOG_TYPE {
         PRODUCTION, DEBUG
     }
+    protected SharePrefService getPrefService(Context context) {
+        return IBPrefService.getInstance(context);
+    }
+
 }
