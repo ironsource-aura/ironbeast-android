@@ -10,10 +10,6 @@ import java.util.Map;
 
 public class IronBeastTracker {
 
-    private String mToken;
-    private Context mContext;
-    private IBConfig mConfig;
-
     IronBeastTracker(Context context, String token) {
         mContext = context;
         mToken = token;
@@ -74,20 +70,14 @@ public class IronBeastTracker {
     }
 
     public void setIBEndPoint(String url) throws MalformedURLException {
-        if (URLUtil.isValidUrl(url)) {
-            mConfig.setIBEndPoint(mToken, url);
-        } else {
-            throw new MalformedURLException();
-        }
+        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
     }
 
     public void setIBEndPointBulk(String url) throws MalformedURLException {
-        if (URLUtil.isValidUrl(url)) {
-            mConfig.setIBEndPointBulk(mToken, url);
-        } else {
-            throw new MalformedURLException();
-        }
+        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
     }
 
-
+    private String mToken;
+    private Context mContext;
+    private IBConfig mConfig;
 }

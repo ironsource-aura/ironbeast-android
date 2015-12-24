@@ -1,11 +1,12 @@
 package io.ironbeast.sdk;
 
+import io.ironbeast.sdk.StorageService.Batch;
+import io.ironbeast.sdk.StorageService.Table;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
@@ -13,9 +14,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.ironbeast.sdk.StorageService.Batch;
-import io.ironbeast.sdk.StorageService.Table;
 
 import static java.lang.Math.ceil;
 

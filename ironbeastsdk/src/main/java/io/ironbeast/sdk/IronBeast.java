@@ -23,7 +23,9 @@ public class IronBeast {
         mContext = context;
         mConfig = IBConfig.getInstance(context);
     }
+
     public static IronBeast getInstance() {return  sInstance;}
+
     public static IronBeast getInstance(Context context) {
         if (null == context) {
             throw new IllegalArgumentException("Please provide valid context");
@@ -42,7 +44,7 @@ public class IronBeast {
      */
     public IronBeastTracker newTracker(String token) {
         if (null == token) {
-            throw new IllegalArgumentException("Please provide valid token");
+            throw new IllegalArgumentException("Token should be valid String");
         }
         synchronized (sAvailableTrackers) {
             IronBeastTracker ret;
@@ -98,14 +100,11 @@ public class IronBeast {
     }
 
     protected void trackError(String str) {
-        Logger.log(TAG, "trackError " + str, Logger.SDK_DEBUG);
-        if (!sAvailableTrackers.containsKey(IBConfig.IRONBEAST_TRACKER_TOKEN) && mConfig.isErrorReportingEnabled()) {
-            sAvailableTrackers.put(IBConfig.IRONBEAST_TRACKER_TOKEN, new IronBeastTracker(mContext, IBConfig.IRONBEAST_TRACKER_TOKEN));
-            Logger.log(TAG, "error tracker created " + str, Logger.SDK_DEBUG);
+        String token = IBConfig.IRONBEAST_TRACKER_TOKEN;
+        if (!sAvailableTrackers.containsKey(token) && mConfig.isErrorReportingEnabled()) {
+            sAvailableTrackers.put(token, new IronBeastTracker(mContext, token));
         }
-
         IronBeastTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
-        //TODO: sdkTracker maybe NULL
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
@@ -117,8 +116,7 @@ public class IronBeast {
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
         } catch (Exception e) {
-            //TODO: not good maybe stack here :))))
-            Logger.log("Failed to track Error " + e, Logger.SDK_DEBUG);
+            // Ignore here
         }
     }
 
@@ -126,7 +124,6 @@ public class IronBeast {
     private IBConfig mConfig;
     private Context mContext;
     private final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
-
     private static IronBeast sInstance;
     final static Object sInstanceLockObject = new Object();
 }
