@@ -1,7 +1,6 @@
 package io.ironbeast.sdk;
 
-import io.ironbeast.sdk.StorageService.Batch;
-import io.ironbeast.sdk.StorageService.Table;
+import io.ironbeast.sdk.StorageService.*;
 
 import android.content.Context;
 import android.content.Intent;

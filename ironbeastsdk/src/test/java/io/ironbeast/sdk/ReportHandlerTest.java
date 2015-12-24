@@ -1,23 +1,20 @@
 package io.ironbeast.sdk;
 
+import java.util.*;
 import android.content.Context;
 import android.content.Intent;
 import android.test.mock.MockContext;
-import io.ironbeast.sdk.RemoteService.Response;
-import static io.ironbeast.sdk.TestsUtils.newReport;
 import org.json.JSONObject;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static io.ironbeast.sdk.TestsUtils.newReport;
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import io.ironbeast.sdk.RemoteService.Response;
 import io.ironbeast.sdk.StorageService.Batch;
 import io.ironbeast.sdk.StorageService.Table;
 
