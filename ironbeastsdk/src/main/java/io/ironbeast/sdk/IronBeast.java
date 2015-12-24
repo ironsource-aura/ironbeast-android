@@ -13,8 +13,6 @@ import java.util.Map;
 
 public class IronBeast {
 
-    private static final String TAG = IronBeast.class.getSimpleName();
-
     /**
      * Do not call directly.
      * You should use IronBeast.getInstance()
@@ -28,7 +26,7 @@ public class IronBeast {
 
     public static IronBeast getInstance(Context context) {
         if (null == context) {
-            throw new IllegalArgumentException("Please provide valid context");
+            throw new IllegalArgumentException("`context` should be valid Context object");
         }
         synchronized (sInstanceLockObject) {
             if (sInstance == null) {
@@ -44,7 +42,7 @@ public class IronBeast {
      */
     public IronBeastTracker newTracker(String token) {
         if (null == token) {
-            throw new IllegalArgumentException("Token should be valid String");
+            throw new IllegalArgumentException("`token` should be valid String");
         }
         synchronized (sAvailableTrackers) {
             IronBeastTracker ret;
@@ -116,7 +114,7 @@ public class IronBeast {
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
         } catch (Exception e) {
-            // Ignore here
+           // Ignore this situationg
         }
     }
 
@@ -126,4 +124,5 @@ public class IronBeast {
     private final Map<String, IronBeastTracker> sAvailableTrackers = new HashMap<>();
     private static IronBeast sInstance;
     final static Object sInstanceLockObject = new Object();
+    private static final String TAG = "IronBeast";
 }
