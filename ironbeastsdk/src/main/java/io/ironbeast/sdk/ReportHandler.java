@@ -23,7 +23,7 @@ public class ReportHandler {
 
     public ReportHandler(Context context) {
         mContext = context;
-        mConfig = IBConfig.getInstance(context);
+        mConfig = getConfig(context);
         mStorage = getStorage(context);
     }
 
@@ -175,6 +175,7 @@ public class ReportHandler {
     protected StorageService getStorage(Context context) {
         return DbAdapter.getInstance(context);
     }
+    protected IBConfig getConfig(Context context) { return IBConfig.getInstance(context); }
 
     enum SEND_RESULT {
         SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER

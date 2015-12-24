@@ -190,7 +190,11 @@ class IBConfig {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "[%s] flushInterval %d req limit %d db limit %s bSize %d error enable ", TAG, mFlushInterval, mMaximumRequestLimit, mMaximumDatabaseLimit, mBulkSize) + mEnableErrorReporting;
+        return String.format(Locale.ENGLISH, "[%s] flushInterval %d " +
+                "req limit %d db limit %s bSize %d error enable ",
+                TAG, mFlushInterval, mMaximumRequestLimit,
+                mMaximumDatabaseLimit, mBulkSize) +
+                mEnableErrorReporting;
     }
 
     public enum LOG_TYPE {
@@ -199,5 +203,4 @@ class IBConfig {
     protected SharePrefService getPrefService(Context context) {
         return IBPrefService.getInstance(context);
     }
-
 }

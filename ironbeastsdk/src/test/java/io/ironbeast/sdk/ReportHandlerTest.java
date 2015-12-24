@@ -44,11 +44,7 @@ public class ReportHandlerTest {
 
     @Before
     public void clearMocks() {
-        reset(mStorage, mPoster, mSharedPref);
-    }
-    @Before
-    public void setUp() {
-
+        reset(mStorage, mPoster, mConfig);
     }
 
     @Test
@@ -67,16 +63,18 @@ public class ReportHandlerTest {
     // Should call "isOnline()" and "post()" (with the given event), NOT add the event to the
     // persistence data storage, and returns true
     public void postSuccess() throws Exception {
+        String url = "http://host.com/post";
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(new Response() {{
             code = 200;
             body = "OK";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        String token = reportMap.get(ReportIntent.TOKEN);
+        when(mConfig.getIBEndPoint(anyString())).thenReturn(url);
+        when(mConfig.getNumOfRetries()).thenReturn(1);
         assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint(token)));
+        verify(mPoster, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
@@ -84,17 +82,18 @@ public class ReportHandlerTest {
     // When handler get a post-event and we get an authentication error(40X) from Poster
     // Should discard the event, NOT add it to thr storage and returns true.
     public void postAuthFailed() throws Exception {
+        String url = "http://host.com";
+        when(mConfig.getNumOfRetries()).thenReturn(10);
+        when(mConfig.getIBEndPoint(TOKEN)).thenReturn(url);
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(new Response() {{
             code = 401;
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        String token = reportMap.get(ReportIntent.TOKEN);
-
         assertTrue(mHandler.handleReport(intent));
         verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(mConfig.getIBEndPoint(token)));
+        verify(mPoster, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
@@ -105,8 +104,7 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
-        mConfig.setNumOfRetries(10);
-
+        when(mConfig.getNumOfRetries()).thenReturn(10);
         assertFalse(mHandler.handleReport(intent));
         verify(mPoster, times(10)).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
@@ -130,9 +128,9 @@ public class ReportHandlerTest {
     // If everything goes well, it should drain the table, and then delete it.
     public void flushSuccess() throws Exception {
         // Config this situation
-        mConfig.setBulkSize(2);
-        mConfig.setNumOfRetries(1);
-        mConfig.setIdleSeconds(0);
+        when(mConfig.getBulkSize()).thenReturn(2);
+        when(mConfig.getNumOfRetries()).thenReturn(1);
+        when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024));
         // Another table to test
         final Table mTable1 = new Table("a8m", "a8m_token") {
             @Override
@@ -191,10 +189,6 @@ public class ReportHandlerTest {
     // When handler try to flush a batch, and it encounter an error(e.g: connectivity)
     // should stop-flushing, and return false
     public void flushFailed() throws Exception {
-        // Config this situation
-        mConfig.setBulkSize(2);
-        mConfig.setNumOfRetries(1);
-        mConfig.setIdleSeconds(0);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         // Batch result
         when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
@@ -231,9 +225,9 @@ public class ReportHandlerTest {
     // handler decrease the bulkSize(limit) and ask for limit of 1.
     // in this situation it doesn't have another choice except sending this batch(of length 1).
     public void maxRequestLimit() throws Exception {
-        mConfig.setMaximumRequestLimit(1024 * 1024 + 1);
-        mConfig.setBulkSize(2);
-        mConfig.setIdleSeconds(0);
+        when(mConfig.getBulkSize()).thenReturn(2);
+        when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024 * 1024 + 1));
+        when(mConfig.getNumOfRetries()).thenReturn(1);
         final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
@@ -261,16 +255,16 @@ public class ReportHandlerTest {
     // Test data format
     // Should omit the "token" field and add "auth"
     public void dataFormat() throws Exception {
+        when(mConfig.getNumOfRetries()).thenReturn(1);
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
-
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertTrue(mHandler.handleReport(intent));
         JSONObject report = new JSONObject(reportMap);
         String token = reportMap.get(ReportIntent.TOKEN);
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
                 report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
-        verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint(token)));
+        verify(mPoster, times(1)).post(eq(report.toString()), anyString());
     }
 
     // Constant report arguments for testing
@@ -294,18 +288,13 @@ public class ReportHandlerTest {
     final Context mContext = mock(MockContext.class);
     final StorageService mStorage = mock(DbAdapter.class);
     final RemoteService mPoster = mock(HttpService.class);
-    final SharePrefService mSharedPref =  spy(new TestsUtils.MockSharedPrefs());
-    final IBConfig mConfig = new IBConfig(mContext) {
-        @Override
-        protected SharePrefService getPrefService(Context context) {
-            return mSharedPref;
-        }
-    };
-
+    final IBConfig mConfig = mock(IBConfig.class);
     final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
         protected RemoteService getPoster() { return mPoster; }
         @Override
         protected StorageService getStorage(Context context) { return mStorage; }
+        @Override
+        protected IBConfig getConfig(Context context) { return mConfig; }
     };
 }
