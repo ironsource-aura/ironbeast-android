@@ -72,7 +72,8 @@ public class HttpService implements RemoteService {
             in.close();
             in = null;
         } catch(final IOException e) {
-            if ((response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
+            if (connection != null &&
+                    (response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
                 Logger.log(TAG, "Service IB unavailable:" + e, Logger.SDK_DEBUG);
             } else {
                 throw e;

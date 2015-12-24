@@ -31,12 +31,12 @@ public class BaseMainActivity extends Activity {
         int id = v.getId();
         IronBeastTracker tracker = ironBeast.newTracker("myToken");
         try {
-            tracker.setIBEndPoint("http://google.com");
+            tracker.setIBEndPoint("http://10.0.2.2:3000/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         try {
-            tracker.setIBEndPointBulk("http://google.com/bulk");
+            tracker.setIBEndPointBulk("http://10.0.2.2:3000/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

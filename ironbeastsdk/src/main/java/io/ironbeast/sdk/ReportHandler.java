@@ -85,7 +85,6 @@ public class ReportHandler {
      */
     public void flush(Table table) throws Exception {
         int bulkSize = mConfig.getBulkSize();
-        Logger.log(TAG, "Flush bulkSize " + bulkSize, Logger.SDK_DEBUG);
         Batch batch;
         while (true) {
             batch = mStorage.getEvents(table, bulkSize);

@@ -111,7 +111,7 @@ class IBConfig {
             return mIBEndPointBulk.get(token);
         }
         String url = mIBPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), "");
-        if (!URLUtil.isValidUrl(url)) {
+        if (URLUtil.isValidUrl(url)) {
             mIBEndPointBulk.put(token, url);
             return url;
         }
