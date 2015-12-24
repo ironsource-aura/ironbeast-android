@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,7 +72,16 @@ public class TestsUtils {
             return this;
         }
 
-        public String get(String key) { return mBackedMock.get(key).toString(); }
+        // Hack to ignore keys ordering
+        public String get(String key) {
+            JSONArray events = new JSONArray();
+            for (String event :mBackedMock.get(key)) {
+                try {
+                    events.put(new JSONObject(event));
+                } catch(JSONException e) {}
+            }
+            return events.toString();
+        }
 
         // catch all incoming requests
         final public Map<String, List<String>> mBackedMock = new HashMap<String, List<String>>();
