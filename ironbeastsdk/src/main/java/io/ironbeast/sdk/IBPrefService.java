@@ -5,10 +5,6 @@ import android.content.SharedPreferences;
 
 class IBPrefService implements SharePrefService {
 
-    private static final Object sInstanceLock = new Object();
-    static IBPrefService sInstance;
-    Context mContext;
-
     public IBPrefService(Context context) {
         mContext = context;
     }
@@ -40,4 +36,8 @@ class IBPrefService implements SharePrefService {
             editor.apply();
         }
     }
+
+    private static final Object sInstanceLock = new Object();
+    static IBPrefService sInstance;
+    Context mContext;
 }

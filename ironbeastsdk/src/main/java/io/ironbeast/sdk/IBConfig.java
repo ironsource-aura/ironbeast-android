@@ -47,7 +47,6 @@ class IBConfig {
     SharePrefService mIBPrefService;
     private boolean mEnableErrorReporting;
     private int mBulkSize;
-    private int mNumOfRetries;
     private int mFlushInterval;
 
     private HashMap<String, String> mIBEndPoint;
@@ -82,7 +81,6 @@ class IBConfig {
         mMaximumRequestLimit = Integer.parseInt(mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, String.valueOf(DEFAULT_MAX_REQUEST_LIMIT)));
         mMaximumDatabaseLimit = Integer.parseInt(mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, String.valueOf(DEFAUL_MAX_DATABASE_LIMIT)));
         mBulkSize = Integer.parseInt(mIBPrefService.load(KEY_BULK_SIZE, String.valueOf(DEFAULT_BULK_SIZE)));
-        mNumOfRetries = DEFAULT_NUM_OF_RETRIES;
     }
 
     public String getIBEndPoint(String token) {
@@ -164,19 +162,7 @@ class IBConfig {
     }
 
     public int getNumOfRetries() {
-        return mNumOfRetries;
-    }
-
-    void setNumOfRetries(int n) {
-        mNumOfRetries = n > 0 ? n : mNumOfRetries;
-    }
-
-    protected int getIdleSeconds() {
-        return mIdleSeconds;
-    }
-
-    void setIdleSeconds(int secs) {
-        mIdleSeconds = secs >= 0 ? secs : mIdleSeconds;
+        return DEFAULT_NUM_OF_RETRIES;
     }
 
     public void enableErrorReporting(boolean enable) {
