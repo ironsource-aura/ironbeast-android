@@ -1,21 +1,17 @@
 package io.ironbeast.sdk;
 
+import java.util.*;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.test.mock.MockContext;
-
 import io.ironbeast.sdk.RemoteService.Response;
 import io.ironbeast.sdk.StorageService.*;
-
+import static io.ironbeast.sdk.TestsUtils.newReport;
 import org.json.JSONObject;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.*;
-
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -214,6 +210,7 @@ public class ReportHandlerTest {
         }}));
         when(mStorage.deleteEvents(eq(mTable), anyString())).thenReturn(1);
         when(mStorage.count(mTable)).thenReturn(1, 0);
+        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         mHandler.handleReport(intent);
@@ -225,7 +222,7 @@ public class ReportHandlerTest {
     @Test
     // Test data format
     // Should omit the "token" field and add "auth"
-    public void dataFormat() throws Exception{
+    public void dataFormat() throws Exception {
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
@@ -234,18 +231,6 @@ public class ReportHandlerTest {
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
                 report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
         verify(mPoster, times(1)).post(eq(report.toString()), eq(mConfig.getIBEndPoint()));
-    }
-
-    // Helper method.
-    // Take SdkEvent and Map and generate new MockReport
-    private Intent newReport(int event, Map<String, String> report) {
-        Intent intent = mock(Intent.class);
-        when(intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR))
-                .thenReturn(event);
-        Bundle bundle = mock(Bundle.class);
-        for (String key: report.keySet()) when(bundle.get(key)).thenReturn(report.get(key));
-        when(intent.getExtras()).thenReturn(bundle);
-        return intent;
     }
 
     // Constant report arguments for testing
@@ -269,7 +254,7 @@ public class ReportHandlerTest {
     final Context mContext = mock(MockContext.class);
     final IBConfig mConfig = IBConfig.getInstance(mContext);
     final StorageService mStorage = mock(DbAdapter.class);
-    final RemoteService mPoster = spy(new TestsUtils.MockPoster());
+    final RemoteService mPoster = mock(HttpService.class);
     final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
         protected RemoteService getPoster() { return mPoster; }

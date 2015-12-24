@@ -146,7 +146,9 @@ public class DbAdapterTest {
     final DatabaseHandler mHandler = mock(DatabaseHandler.class);
     final Context mContext = mock(MockContext.class);
     final DbAdapter mAdapter = new DbAdapter(mContext) {
-      @Override
-      protected DatabaseHandler getSQLHandler(Context context) { return mHandler; }
+        @Override
+        protected DatabaseHandler getSQLHandler(Context context) { return mHandler; }
+        @Override
+        protected boolean belowDatabaseLimit() { return true; }
     };
 }

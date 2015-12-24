@@ -14,11 +14,11 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * DbAdapter End2End test cases.
+ * DbAdapter integration with SQLite test cases.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
-public class DbAdapterE2E {
+public class DbIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +87,17 @@ public class DbAdapterE2E {
             mAdapter.addEvent(mTable, DATA);
         }
         assertEquals(mAdapter.count(mTable), n);
-        assertEquals(mAdapter.count(table1), n/2);
+        assertEquals(mAdapter.count(table1), n / 2);
+        assertEquals(mAdapter.count(null), n + n/2);
+    }
+
+    @Test
+    public void vacuum() {
+        int n = 80;
+        for (int i = 0; i < n; i++) mAdapter.addEvent(mTable, DATA);
+        assertEquals(mAdapter.count(mTable), n);
+        mAdapter.vacuum();
+        assertEquals(mAdapter.count(mTable), 64);
     }
 
     DbAdapter mAdapter;

@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import static java.lang.Math.*;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class DbAdapter implements StorageService {
     public int addEvent(Table table, String data) {
         if (!this.belowDatabaseLimit()) {
             Logger.log(TAG, "Database file is above the limit", Logger.SDK_DEBUG);
-            // TODO: Cleanup some events("created_at" column)
+            vacuum();
         }
         int n = 0;
         Cursor c = null;
@@ -91,8 +92,11 @@ public class DbAdapter implements StorageService {
         SQLiteDatabase db = null;
         try {
             db = mDb.getReadableDatabase();
-            c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                            REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
+            String qs = "SELECT COUNT(*) FROM " + REPORTS_TABLE;
+            if (table != null) {
+                qs += String.format(" WHERE %s = '%s'", KEY_TABLE, table.name);
+            }
+            c = db.rawQuery(qs, null);
             c.moveToFirst();
             n = c.getInt(0);
         } catch (final SQLiteException e) {
@@ -203,6 +207,34 @@ public class DbAdapter implements StorageService {
             db.delete(TABLES_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to delete table:" + table.name, Logger.SDK_DEBUG);
+            // Our assumption is that in general, the exception indicates some failure that is
+            // "probably not recoverable". Better to bomb it and get back on track,
+            // than to leave it filling up the disk.
+            mDb.delete();
+        } finally {
+            mDb.close();
+        }
+    }
+
+    /**
+     * Delete the oldest 20 percent rows from "Reports" table
+     * and run vacuum, to reduces the file fragmentation.
+     */
+    public void vacuum() {
+        int nRows = count(null);
+        int limit = (int) (((double) nRows / 100) * 20);
+        try {
+            final SQLiteDatabase db = mDb.getWritableDatabase();
+            final String id = REPORTS_TABLE + "_id";
+            String qs = "DELETE FROM " + REPORTS_TABLE +
+                    " WHERE " + id + " IN (SELECT " + id +
+                    " FROM " + REPORTS_TABLE +
+                    " ORDER BY "+ KEY_CREATED_AT + " ASC" +
+                    " LIMIT " + limit + ")";
+            db.execSQL(qs);
+            db.execSQL("VACUUM");
+        } catch (SQLiteException e) {
+            Logger.log(TAG, "Failed to shrink and vacuum db:" + e, Logger.SDK_DEBUG);
             // Our assumption is that in general, the exception indicates some failure that is
             // "probably not recoverable". Better to bomb it and get back on track,
             // than to leave it filling up the disk.
