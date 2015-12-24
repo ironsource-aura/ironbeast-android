@@ -3,13 +3,13 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
  * An HTTP utility class for internal use in this library.
@@ -57,9 +57,6 @@ public class HttpService implements RemoteService {
             connection = createConnection(url);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
-            connection.setConnectTimeout(2000);
-            connection.setReadTimeout(4000);
-            connection.setDoInput(true);
             connection.setDoOutput(true);
             // Output
             out = new DataOutputStream(connection.getOutputStream());
@@ -74,7 +71,7 @@ public class HttpService implements RemoteService {
             in.close();
             in = null;
         } catch(final IOException e) {
-            if ((response.code = connection.getResponseCode()) >= 400) {
+            if ((response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
                 Logger.log(TAG, "Service IB unavailable:" + e, Logger.SDK_DEBUG);
             } else {
                 throw e;
@@ -91,10 +88,16 @@ public class HttpService implements RemoteService {
      * Returns new connection. referred to by given url.
      */
     protected HttpURLConnection createConnection(String url) throws IOException {
-        return (HttpURLConnection) (new URL(url)).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+        connection.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT_MILLIS);
+        connection.setReadTimeout(DEFAULT_READ_TIMEOUT_MILLIS);
+        connection.setDoInput(true);
+        return connection;
     }
 
-    private static final String TAG = "HttpService";
-    private static final Object sInstanceLock = new Object();
     private static HttpService sInstance;
+    private static final Object sInstanceLock = new Object();
+    private static final String TAG = "HttpService";
+    private static final int DEFAULT_READ_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10 * 1000; // 10s
 }
