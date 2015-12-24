@@ -28,13 +28,13 @@ public class HttpServiceTest {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
         // #1
-        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
+        when(networkInfo.isConnected()).thenReturn(true);
         assertTrue(mPoster.isOnline(mContext));
         // #2
-        when(networkInfo.isConnectedOrConnecting()).thenReturn(false);
+        when(networkInfo.isConnected()).thenReturn(false);
         assertFalse(mPoster.isOnline(mContext));
         // #3
-        when(networkInfo.isConnectedOrConnecting()).thenThrow(new SecurityException());
+        when(networkInfo.isConnected()).thenThrow(new SecurityException());
         assertTrue(mPoster.isOnline(mContext));
     }
 
