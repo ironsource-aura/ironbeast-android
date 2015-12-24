@@ -3,10 +3,8 @@ package io.ironbeast.sdk;
 import java.util.List;
 
 public interface StorageService {
-    // Table
     List<Table> getTables();
     void deleteTable(Table table);
-    // Events
     int count(Table table);
     Batch getEvents(Table table, int limit);
     int deleteEvents(Table table, String lastId);

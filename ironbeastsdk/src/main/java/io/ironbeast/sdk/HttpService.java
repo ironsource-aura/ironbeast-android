@@ -26,7 +26,8 @@ public class HttpService implements RemoteService {
     }
 
     /**
-     * Test if there's a network
+     * Detect whether there's an Internet connection available.
+     * @return boolean
      */
     public boolean isOnline(Context context) {
         boolean isOnline;
@@ -34,9 +35,8 @@ public class HttpService implements RemoteService {
             final ConnectivityManager cm =
                     (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             final NetworkInfo netInfo = cm.getActiveNetworkInfo();
-            isOnline = netInfo != null && netInfo.isConnectedOrConnecting();
+            isOnline = netInfo != null && netInfo.isConnected();
         } catch (final SecurityException e) {
-            // We don't have permission to check connectivity, will assume we are online
             isOnline = true;
         }
         return isOnline;
@@ -47,6 +47,7 @@ public class HttpService implements RemoteService {
      * If you want to use machine 'localhost'(for personal testing), you should use: `10.0.2.2`
      * to get host loopback interface.
      * That's because Android emulator runs inside a Virtual Machine(QEMU)
+     * @return RemoteService.Response that has code and body.
      */
     public Response post(final String data, final String url) throws IOException {
         Response response = new Response();
