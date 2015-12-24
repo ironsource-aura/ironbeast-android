@@ -17,9 +17,6 @@
         android:theme="@style/AppTheme">
         <service
             android:name="io.ironbeast.sdk.ReportService" />
-            android:enabled="true"
-            android:exported="false"
-            android:process=":ibReportService" />
 
         <activity
             android:name=".MainActivity"
