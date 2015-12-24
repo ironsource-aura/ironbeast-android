@@ -18,18 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestsUtils {
-    static class MockSharedPrefs implements SharePrefService {
 
-        @Override
-        public String load(String key, String defaultValue) {
-            return "0";
-        }
-
-        @Override
-        public void save(String key, String value) {
-
-        }
-    }
     static class MockReport implements Report {
         @Override
         public void send() {}

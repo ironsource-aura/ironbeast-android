@@ -1,11 +1,9 @@
 package io.ironbeast.sdk;
 
-import java.util.*;
 import android.content.Context;
 import android.content.Intent;
 import android.test.mock.MockContext;
 import io.ironbeast.sdk.RemoteService.Response;
-import io.ironbeast.sdk.StorageService.*;
 import static io.ironbeast.sdk.TestsUtils.newReport;
 import org.json.JSONObject;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -14,30 +12,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.ironbeast.sdk.RemoteService.Response;
 import io.ironbeast.sdk.StorageService.Batch;
 import io.ironbeast.sdk.StorageService.Table;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportHandlerTest {

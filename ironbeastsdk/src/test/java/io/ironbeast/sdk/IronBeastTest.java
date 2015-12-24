@@ -13,13 +13,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static junit.framework.Assert.*;
 
 /**
  * Basic IronBeastAPI test cases
@@ -39,7 +34,7 @@ public class IronBeastTest {
 
         IronBeastTracker tracker1 = ironBeast.newTracker("token1");
         IronBeastTracker tracker2 = ironBeast.newTracker("token1");
-        assertTrue("should not initialized new tracker witht the same token", tracker1 == tracker2);
+        assertTrue("should not initialized new tracker with the same token", tracker1 == tracker2);
         IronBeastTracker tracker3 = ironBeast.newTracker("token2");
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
