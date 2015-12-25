@@ -53,7 +53,6 @@ class IBConfig {
     private HashMap<String, String> mIBEndPointBulk;
     private long mMaximumRequestLimit;
     private long mMaximumDatabaseLimit;
-    private int mIdleSeconds;
 
     IBConfig(Context context) {
         loadConfig(context);
@@ -69,6 +68,12 @@ class IBConfig {
         return sInstance;
     }
 
+
+    /**
+     * function called on instance initialization and load data from SharedPref service
+     *
+     * @param context
+     */
     void loadConfig(Context context) {
         mIBPrefService = getPrefService(context);
 
@@ -83,6 +88,12 @@ class IBConfig {
         mBulkSize = Integer.parseInt(mIBPrefService.load(KEY_BULK_SIZE, String.valueOf(DEFAULT_BULK_SIZE)));
     }
 
+    /**
+     * Function provide custom end point url for report if was set or default IronBeast Url
+     *
+     * @param token uniq publisher token
+     * @return url of tracker end point if
+     */
     public String getIBEndPoint(String token) {
         if (mIBEndPoint.containsKey(token)) {
             return mIBEndPoint.get(token);
@@ -95,6 +106,13 @@ class IBConfig {
         return DEFAULT_URL;
     }
 
+    /**
+     * Function set custom URL for tracker
+     *
+     * @param token uniq publisher token
+     * @param url   custom tracker URL
+     * @throws MalformedURLException
+     */
     protected void setIBEndPoint(String token, String url) throws MalformedURLException {
         if (URLUtil.isValidUrl(url)) {
             mIBEndPoint.put(token, url);
@@ -104,6 +122,12 @@ class IBConfig {
         }
     }
 
+    /**
+     * Function provide custom end point url for bulk report if was set or default IronBeast Url
+     *
+     * @param token uniq publisher token
+     * @return url of tracker end point if
+     */
     public String getIBEndPointBulk(String token) {
         if (mIBEndPointBulk.containsKey(token)) {
             return mIBEndPointBulk.get(token);
@@ -116,6 +140,13 @@ class IBConfig {
         return DEFAULT_BULK_URL;
     }
 
+    /**
+     * Function set custom URL for tracker
+     *
+     * @param token uniq publisher token
+     * @param url   custom tracker URL
+     * @throws MalformedURLException
+     */
     protected void setIBEndPointBulk(String token, String url) throws MalformedURLException {
         if (URLUtil.isValidUrl(url)) {
             mIBEndPointBulk.put(token, url);
@@ -125,15 +156,30 @@ class IBConfig {
         }
     }
 
+    /**
+     * Function return the max number of reports in sending bulk
+     *
+     * @return
+     */
     public int getBulkSize() {
         return mBulkSize;
     }
 
+    /**
+     * Function set the max number of reports in sending bulk
+     *
+     * @param size max number of reports in bulk
+     */
     void setBulkSize(int size) {
         mBulkSize = size > 0 ? size : mBulkSize;
         mIBPrefService.save(KEY_BULK_SIZE, String.valueOf(mBulkSize));
     }
 
+    /**
+     * Function return next flush time of report
+     *
+     * @return automatic flush time
+     */
     public int getFlushInterval() {
         return mFlushInterval;
     }
@@ -147,6 +193,14 @@ class IBConfig {
         return mMaximumRequestLimit;
     }
 
+    void setMaximumRequestLimit(long bytes) {
+        mMaximumRequestLimit = bytes >= KILOBYTE ? bytes : mMaximumRequestLimit;
+        mIBPrefService.save(KEY_MAX_REQUEST_LIMIT, String.valueOf(mMaximumRequestLimit));
+    }
+
+    /**
+     * @return maximum size of saved reports
+     */
     public long getMaximumDatabaseLimit() {
         return mMaximumDatabaseLimit;
     }
@@ -156,20 +210,28 @@ class IBConfig {
         mIBPrefService.save(KEY_MAX_DATABASE_LIMIT, String.valueOf(mMaximumDatabaseLimit));
     }
 
-    void setMaximumRequestLimit(long bytes) {
-        mMaximumRequestLimit = bytes >= KILOBYTE ? bytes : mMaximumRequestLimit;
-        mIBPrefService.save(KEY_MAX_REQUEST_LIMIT, String.valueOf(mMaximumRequestLimit));
-    }
-
+    /**
+     * @return sdk num of retries on sending report failed
+     */
     public int getNumOfRetries() {
         return DEFAULT_NUM_OF_RETRIES;
     }
 
+    /**
+     * Function enable/disable sending error reports
+     *
+     * @param enable
+     */
     public void enableErrorReporting(boolean enable) {
         mEnableErrorReporting = enable;
         mIBPrefService.save(KEY_ENABLE_ERROR_REPORTING, String.valueOf(mEnableErrorReporting));
     }
 
+    /**
+     * Function return if SDK sending error reports
+     *
+     * @return
+     */
     public boolean isErrorReportingEnabled() {
         return mEnableErrorReporting;
     }
@@ -177,16 +239,24 @@ class IBConfig {
     @Override
     public String toString() {
         return String.format(Locale.ENGLISH, "[%s] flushInterval %d " +
-                "req limit %d db limit %s bSize %d error enable ",
+                        "req limit %d db limit %s bSize %d error enable ",
                 TAG, mFlushInterval, mMaximumRequestLimit,
                 mMaximumDatabaseLimit, mBulkSize) +
                 mEnableErrorReporting;
     }
 
-    public enum LOG_TYPE {
-        PRODUCTION, DEBUG
-    }
+
+    /**
+     * Function provide Preference service to save and load IBConfig data
+     *
+     * @param context application Context
+     * @return SharePrefService
+     */
     protected SharePrefService getPrefService(Context context) {
         return IBPrefService.getInstance(context);
+    }
+
+    public enum LOG_TYPE {
+        PRODUCTION, DEBUG
     }
 }
