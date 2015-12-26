@@ -24,22 +24,22 @@ class IBConfig {
     private static final String TAG = IBConfig.class.getSimpleName();
 
     private static final Object sInstanceLock = new Object();
-    private static final String DEFAULT_URL = "http://sdk.ironbeast.io";
-    private static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
-    private static final int KILOBYTE = 1024;
-    private static final int DEFAULT_BULK_SIZE = 4;
-    private static final int DEFAULT_NUM_OF_RETRIES = 2;
-    private static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
-    private static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
-    private static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
+    protected static final String DEFAULT_URL = "http://sdk.ironbeast.io";
+    protected static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
+    protected static final int KILOBYTE = 1024;
+    protected static final int DEFAULT_BULK_SIZE = 4;
+    protected static final int DEFAULT_NUM_OF_RETRIES = 2;
+    protected static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
+    protected static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
+    protected static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
     //Shared prefs keys for metadata
-    private static final String KEY_BULK_SIZE = "bulk_size";
-    private static final String KEY_FLUSH_INTERVAL = "flush_interval";
-    private static final String KEY_IB_END_POINT = "ib_end_point";
-    private static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
-    private static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
-    private static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
-    private static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
+    protected static final String KEY_BULK_SIZE = "bulk_size";
+    protected static final String KEY_FLUSH_INTERVAL = "flush_interval";
+    protected static final String KEY_IB_END_POINT = "ib_end_point";
+    protected static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
+    protected static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
+    protected static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
+    protected static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
     // IronBeast sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
     protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
@@ -98,9 +98,9 @@ class IBConfig {
         if (mIBEndPoint.containsKey(token)) {
             return mIBEndPoint.get(token);
         }
-        String url = mIBPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), "");
+        String url = mIBPrefService.load(String.format("%s_%s", KEY_IB_END_POINT, token), "");
         if (URLUtil.isValidUrl(url)) {
-            mIBEndPointBulk.put(token, url);
+            mIBEndPoint.put(token, url);
             return url;
         }
         return DEFAULT_URL;
@@ -111,15 +111,10 @@ class IBConfig {
      *
      * @param token uniq publisher token
      * @param url   custom tracker URL
-     * @throws MalformedURLException
      */
     protected void setIBEndPoint(String token, String url) throws MalformedURLException {
-        if (URLUtil.isValidUrl(url)) {
-            mIBEndPoint.put(token, url);
-            mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT, token), url);
-        } else {
-            throw new MalformedURLException();
-        }
+        mIBEndPointBulk.put(token, url);
+        mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT, token), url);
     }
 
     /**
@@ -148,12 +143,8 @@ class IBConfig {
      * @throws MalformedURLException
      */
     protected void setIBEndPointBulk(String token, String url) throws MalformedURLException {
-        if (URLUtil.isValidUrl(url)) {
-            mIBEndPointBulk.put(token, url);
-            mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), url);
-        } else {
-            throw new MalformedURLException();
-        }
+        mIBEndPointBulk.put(token, url);
+        mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), url);
     }
 
     /**
