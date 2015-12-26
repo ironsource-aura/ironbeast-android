@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -78,5 +80,15 @@ class Utils {
             return info.getTypeName();
         }
         return "unknown";
+    }
+
+    public static boolean isValidUrl(String url) {
+        boolean isValidUrl = false;
+        try {
+            new URL(url);
+            isValidUrl = true;
+        } catch (MalformedURLException e) {
+        }
+        return isValidUrl;
     }
 }
