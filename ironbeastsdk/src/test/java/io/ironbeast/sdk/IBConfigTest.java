@@ -102,6 +102,6 @@ public class IBConfigTest extends TestCase {
         String customUrl = "blabla.com";
         String prefKey = String.format("%s_%s", IBConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey), anyString())).thenReturn(customUrl);
-        assertEquals(mIBConfig.getIBEndPoint(token), IBConfig.DEFAULT_BULK_URL);
+        assertEquals(mIBConfig.getIBEndPointBulk(token), IBConfig.DEFAULT_BULK_URL);
     }
 }
