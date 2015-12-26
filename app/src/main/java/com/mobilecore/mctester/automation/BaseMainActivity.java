@@ -9,8 +9,6 @@ import android.view.View;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-
 import io.ironbeast.sdk.IronBeast;
 import io.ironbeast.sdk.IronBeastTracker;
 
@@ -30,18 +28,6 @@ public class BaseMainActivity extends Activity {
         // IronBeast logic
         int id = v.getId();
         IronBeastTracker tracker = ironBeast.newTracker("myToken");
-        try {
-            tracker.setIBEndPoint("http://google.com");
-            String url = tracker.getIBEndPoint();
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        try {
-            tracker.setIBEndPointBulk("http://10.0.2.2:3000/");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
 
         JSONObject params = new JSONObject();
         switch (id) {
