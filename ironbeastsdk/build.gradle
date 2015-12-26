@@ -30,15 +30,24 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'mobileCore.pro'
-            buildConfigField(STRING, "DEFAULT_URL", '"http://lb.ironbeast.io"')
-            buildConfigField(STRING, "BULK_URL", '"http://lb.ironbeast.io/bulk"')
+            buildConfigField(STRING, "DEFAULT_URL", '"http://sdk.ironbeast.io"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://sdk.ironbeast.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
         }
-
         debug {
-            //mcDiscovery http://lb.ironbeast.io/bulk
-            buildConfigField(STRING, "DEFAULT_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com"')
-            buildConfigField(STRING, "BULK_URL", '"http://IronBeastELB-Staging-920640948.us-east-1.elb.amazonaws.com/bulk"')
+            buildConfigField(STRING, "DEFAULT_URL", '"http:/10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http:/10.0.2.2:3000"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+        }
+        debugGoogleEmulator {
+            buildConfigField(STRING, "DEFAULT_URL", '"http:/10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http:/10.0.2.2:3000"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+        }
+
+        debugGenyMotionEmulator {
+            buildConfigField(STRING, "DEFAULT_URL", '"http:/10.0.3.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http:/10.0.3.2:3000"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
 

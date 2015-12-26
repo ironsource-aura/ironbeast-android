@@ -4,7 +4,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.mobilecore.ironbeast.automation"
+        applicationId "io.ironbeast.sdk.tester"
         minSdkVersion 10
         targetSdkVersion 22
     }
@@ -14,18 +14,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
-    }
-
-    productFlavors {
-        automationTester {
-            applicationId "com.mobilecore.ironbeast.automation"
-            versionName "2.0-preloadtrue"
-        }
-        manualTester {
-            applicationId "com.mobilecore.ironbeast.xxxx"
-            versionName "2.0-preloadfalse"
-        }
-
     }
 }
 

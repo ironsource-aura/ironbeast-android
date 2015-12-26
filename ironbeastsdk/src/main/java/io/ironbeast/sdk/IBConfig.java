@@ -21,10 +21,9 @@ import java.util.Locale;
  */
 class IBConfig {
     private static final String TAG = IBConfig.class.getSimpleName();
-
     private static final Object sInstanceLock = new Object();
-    protected static final String DEFAULT_URL = "http://sdk.ironbeast.io";
-    protected static final String DEFAULT_BULK_URL = "http://sdk.ironbeast.io/bulk";
+    protected static final String DEFAULT_URL = BuildConfig.DEFAULT_URL;
+    protected static final String DEFAULT_BULK_URL = BuildConfig.DEFAULT_BULK_URL;
     protected static final int KILOBYTE = 1024;
     protected static final int DEFAULT_BULK_SIZE = 4;
     protected static final int DEFAULT_NUM_OF_RETRIES = 2;
