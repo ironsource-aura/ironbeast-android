@@ -20,6 +20,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        project.version = versionName
+        project.archivesBaseName = "IronBeastSDK"
     }
     buildTypes {
         def BOOLEAN = "boolean"
@@ -62,7 +64,7 @@ android {
 
     sourceSets {
         main {
-            resources.srcDirs = ["src/main/java"]
+            java.srcDirs = ["src/main/java"]
         }
         test {
             resources {
@@ -101,38 +103,23 @@ buildscript {
     }
 }
 
-task deleteJavaDebugLogs << {
-    description("This function will delete all SDK DEBUG log level from the project, be careful with it!")
-    FileTree javaFiles = fileTree('src/main/java/io/ironbeast/sdk') {
-        include '**/*.java'
-    }
-    String regex = "Logger.log[^,]+[^L]+(.*)Logger.SDK_DEBUG[^;];"
-    javaFiles.each { File javaFile ->
-        println "Start replacing regex on $javaFile.name"
-        String content = javaFile.getText()
-        content = content.replaceAll(regex, "")
-        javaFile.setText(content)
-    }
+task clearJar(type: Delete) {
+    delete "../output/${archivesBaseName}${version}_release.jar"
+    delete "../output/${archivesBaseName}${version}_debug.jar"
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-
-    if (name.equalsIgnoreCase("debug")) {
-        return; // Skip debug builds.
-    }
-    task("javadoc${variant.name.capitalize()}", type: Javadoc) {
-        description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-        exclude '**/internal/**'
-        failOnError false
-    }
-
-    task("bundleJavadoc${variant.name.capitalize()}", type: Jar) {
-        description "Bundles Javadoc into zip for $variant.name."
-        classifier = "javadoc"
-        from tasks["javadoc${variant.name.capitalize()}"]
-    }
+task makeReleaseJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('../output/')
+    include('classes.jar')
+    rename ('classes.jar', "${archivesBaseName}_v${version}_release.jar")
+}
+task makeDebugJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('../output/')
+    include('classes.jar')
+    rename ('classes.jar', "${archivesBaseName}_v${version}_debug.jar")
 }
 
+assembleRelease.dependsOn(clearJar, makeReleaseJar)
+assembleDebug.dependsOn(clearJar, makeDebugJar)
