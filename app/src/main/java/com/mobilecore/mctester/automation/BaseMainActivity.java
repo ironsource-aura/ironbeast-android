@@ -31,7 +31,9 @@ public class BaseMainActivity extends Activity {
         int id = v.getId();
         IronBeastTracker tracker = ironBeast.newTracker("myToken");
         try {
-            tracker.setIBEndPoint("http://10.0.2.2:3000/");
+            tracker.setIBEndPoint("http://google.com");
+            String url = tracker.getIBEndPoint();
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
