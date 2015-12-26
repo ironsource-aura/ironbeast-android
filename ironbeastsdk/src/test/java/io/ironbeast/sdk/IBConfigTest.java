@@ -40,11 +40,11 @@ public class IBConfigTest extends TestCase {
         verify(mPrefService, times(2)).load(startsWith(prefKey), anyString());
     }
 
-/*
-    The custom url was save previous but not loaded yet
-    Fist call loaded from Preferences one time
-    Second call fetched from HashTable
-*/
+    /*
+        The custom url was save previous but not loaded yet
+        Fist call loaded from Preferences one time
+        Second call fetched from HashTable
+    */
     public void testGetIBEndPoint2Times() throws Exception {
         String token = "token";
         String customUrl = "http://foo.com/blah_blah";
@@ -57,9 +57,9 @@ public class IBConfigTest extends TestCase {
     }
 
     /*
-    The custom url was not set previous
-    Will return DEFAULT_URL_BULK each time we request getIBEndPointBulk
-*/
+        The custom url was not set previous
+        Will return DEFAULT_URL_BULK each time we request getIBEndPointBulk
+    */
     public void testGetIBEndPointBulk() throws Exception {
         String token = "token";
         String prefKey = String.format("%s_%s", IBConfig.KEY_IB_END_POINT_BULK, token);
@@ -68,14 +68,13 @@ public class IBConfigTest extends TestCase {
         assertEquals(mIBConfig.getIBEndPointBulk(token), IBConfig.DEFAULT_BULK_URL);
         assertEquals(mIBConfig.getIBEndPointBulk(token), IBConfig.DEFAULT_BULK_URL);
         verify(mPrefService, times(2)).load(startsWith(prefKey), anyString());
-
     }
 
-/*
-    The custom url was save previous but not loaded yet
-    Fist call loaded from Preferences one time
-    Second call fetched from HashTable
-*/
+    /*
+        The custom url was save previous but not loaded yet
+        Fist call loaded from Preferences one time
+        Second call fetched from HashTable
+    */
     public void testGetEndPointBulk2Times() throws Exception {
         String token = "token";
         String customUrl = "http://foo.com/blah_blah";
@@ -85,5 +84,24 @@ public class IBConfigTest extends TestCase {
         assertEquals(mIBConfig.getIBEndPointBulk(token), customUrl);
         assertEquals(mIBConfig.getIBEndPointBulk(token), customUrl);
         verify(mPrefService, times(1)).load(startsWith(prefKey), anyString());
+    }
+
+
+    /* Will return DEFAULT_URL */
+    public void testNotValidUrlWasSavedEndPoint() throws Exception {
+        String token = "token";
+        String customUrl = "blabla.com";
+        String prefKey = String.format("%s_%s", IBConfig.KEY_IB_END_POINT, token);
+        when(mPrefService.load(startsWith(prefKey), anyString())).thenReturn(customUrl);
+        assertEquals(mIBConfig.getIBEndPoint(token), IBConfig.DEFAULT_URL);
+    }
+
+    /* Will return DEFAULT_BULK_URL */
+    public void testNotValidUrlWasSavedEndPointBulk() throws Exception {
+        String token = "token";
+        String customUrl = "blabla.com";
+        String prefKey = String.format("%s_%s", IBConfig.KEY_IB_END_POINT_BULK, token);
+        when(mPrefService.load(startsWith(prefKey), anyString())).thenReturn(customUrl);
+        assertEquals(mIBConfig.getIBEndPoint(token), IBConfig.DEFAULT_BULK_URL);
     }
 }
