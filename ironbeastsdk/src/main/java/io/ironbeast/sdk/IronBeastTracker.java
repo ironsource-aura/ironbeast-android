@@ -70,7 +70,7 @@ public class IronBeastTracker {
     }
 
     public void setIBEndPoint(String url) throws MalformedURLException {
-        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
+        if (Utils.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
     }
 
     public void setIBEndPointBulk(String url) throws MalformedURLException {
