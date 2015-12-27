@@ -3,7 +3,7 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-class IBPrefService implements SharePrefService {
+class IBPrefService {
 
     public IBPrefService(Context context) {
         mContext = context;
@@ -18,21 +18,31 @@ class IBPrefService implements SharePrefService {
         return sInstance;
     }
 
-    @Override
-    public String load(String key, String defaultValue) {
+    public String load(String key, String defVal) {
         SharedPreferences pr = mContext.getSharedPreferences(Consts.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (null != pr) {
-            return pr.getString(key, defaultValue);
+            return pr.getString(key, defVal);
         }
-        return defaultValue;
+        return defVal;
     }
 
-    @Override
-    public void save(String key, String value) {
+    public int load(String key, int defVal) {
+        return Integer.parseInt(load(key, String.valueOf(defVal)));
+    }
+
+    public boolean load(String key, boolean defVal) {
+        return Boolean.parseBoolean(load(key, String.valueOf(defVal)));
+    }
+
+    public String load(String key) {
+        return load(key, "");
+    }
+
+    public <T> void save(String key, T value) {
         SharedPreferences pr = mContext.getSharedPreferences(Consts.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (null != pr) {
             SharedPreferences.Editor editor = pr.edit();
-            editor.putString(key, value);
+            editor.putString(key, value.toString());
             editor.apply();
         }
     }

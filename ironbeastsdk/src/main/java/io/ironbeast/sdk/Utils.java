@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.webkit.URLUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -80,15 +81,5 @@ class Utils {
             return info.getTypeName();
         }
         return "unknown";
-    }
-
-    public static boolean isValidUrl(String url) {
-        boolean isValidUrl = false;
-        try {
-            new URL(url);
-            isValidUrl = true;
-        } catch (MalformedURLException e) {
-        }
-        return isValidUrl;
     }
 }

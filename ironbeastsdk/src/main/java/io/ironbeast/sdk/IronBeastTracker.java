@@ -69,11 +69,11 @@ public class IronBeastTracker {
         return new ReportIntent(context, event);
     }
 
-    public void setIBEndPoint(String url) throws MalformedURLException {
-        if (Utils.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
+    public void setIBEndPoint(String url) {
+        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
     }
 
-    public void setIBEndPointBulk(String url) throws MalformedURLException {
+    public void setIBEndPointBulk(String url) {
         if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
     }
 

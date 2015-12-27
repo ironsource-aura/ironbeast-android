@@ -20,13 +20,11 @@ import static org.junit.Assert.*;
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
 public class DbIntegrationTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @Before public void setUp() throws Exception {
         mAdapter = new DbAdapter(RuntimeEnvironment.application);
     }
 
-    @Test
-    public void addEvent() {
+    @Test public void addEvent() {
         assertEquals(mAdapter.getTables().size(), 0);
         assertEquals(mAdapter.addEvent(mTable, DATA), 1);
         List<Table> tables = mAdapter.getTables();
@@ -35,8 +33,7 @@ public class DbIntegrationTest {
         assertEquals(tables.get(0).token, mTable.token);
     }
 
-    @Test
-    public void getEvents() {
+    @Test public void getEvents() {
         String[] events = new String[]{"foo", "bar", "baz"};
         for (String event: events) mAdapter.addEvent(mTable, event);
         Batch batch = mAdapter.getEvents(mTable, Integer.MAX_VALUE);
@@ -46,8 +43,7 @@ public class DbIntegrationTest {
         }
     }
 
-    @Test
-    public void deleteEvents() {
+    @Test public void deleteEvents() {
         Batch batch;
         int n = 10;
         for (int i = 1; i <= n; i++) mAdapter.addEvent(mTable, DATA);
@@ -59,8 +55,7 @@ public class DbIntegrationTest {
         assertEquals(batch.events.size(), n/2);
     }
 
-    @Test
-    public void deleteTable() {
+    @Test public void deleteTable() {
         Table table1 = new Table("ibsdk", "token");
         mAdapter.addEvent(mTable, DATA);
         assertEquals(mAdapter.getTables().size(), 1);
@@ -78,8 +73,7 @@ public class DbIntegrationTest {
         assertEquals(mAdapter.getTables().size(), 0);
     }
 
-    @Test
-    public void count() {
+    @Test public void count() {
         Table table1 = new Table("ibsdk", "token");
         int n = 100;
         for (int i = 0; i < n; i++) {
@@ -91,8 +85,7 @@ public class DbIntegrationTest {
         assertEquals(mAdapter.count(null), n + n/2);
     }
 
-    @Test
-    public void vacuum() {
+    @Test public void vacuum() {
         int n = 80;
         for (int i = 0; i < n; i++) mAdapter.addEvent(mTable, DATA);
         assertEquals(mAdapter.count(mTable), n);
