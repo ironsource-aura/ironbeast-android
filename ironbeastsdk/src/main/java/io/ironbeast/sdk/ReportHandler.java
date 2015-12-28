@@ -156,7 +156,7 @@ public class ReportHandler {
                 } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                     Logger.log(TAG, "Connectivity error, try again or later", Logger.SDK_DEBUG);
                 } catch (IOException e) {
-                    Logger.log(TAG, "Service IronBeast is unavailable right now", Logger.SDK_ERROR);
+                    Logger.log(TAG, "Service IronBeast is unavailable: " + e, Logger.SDK_ERROR);
                 }
             }
         }
