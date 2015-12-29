@@ -40,6 +40,30 @@ public class IronBeastTest {
     }
 
     @Test
+    public void sendNowStringEvent() {
+        for (int i = 0; i < 10; i++) {
+            mTracker.send("table", "hello world", IronBeastTracker.SEND.NOW);
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("hello world");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+    }
+
+    @Test
+    public void sendPostponeStringEvent() {
+        for (int i = 0; i < 10; i++) {
+            mTracker.send("table", "hello world", IronBeastTracker.SEND.POSTPONE);
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("hello world");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
+    }
+
+    @Test
     public void trackStringEvent() {
         for (int i = 0; i < 10; i++) {
             mTracker.track("table", "hello world");
