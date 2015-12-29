@@ -5,7 +5,6 @@ import android.webkit.URLUtil;
 
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 public class IronBeastTracker {
@@ -14,6 +13,32 @@ public class IronBeastTracker {
         mContext = context;
         mToken = token;
         mConfig = IBConfig.getInstance(context);
+    }
+
+    /**
+     * Send an event that already stringify send data mechanism is controlled by SEND property.
+     *
+     * @param table IronBeast destination.
+     * @param data String, containing the data to send.
+     * @param send Send option {@link SEND#NOW} {@link SEND#POSTPONE}
+     * @see SEND#NOW
+     * @see SEND#POSTPONE
+     *
+     */
+    public void send(String table, String data, SEND send) {
+        if (send == SEND.NOW) {
+            post(table, data);
+        } else if (send == SEND.POSTPONE) {
+            track(table, data);
+        }
+    }
+
+    public void send(String table, Map<String, ?> data, SEND send) {
+        if (send == SEND.NOW) {
+            post(table, data);
+        } else if (send == SEND.POSTPONE) {
+            track(table, data);
+        }
     }
 
     /**
@@ -60,6 +85,9 @@ public class IronBeastTracker {
         post(table, new JSONObject(data));
     }
 
+    /**
+     * Flush immediately all reports
+     */
     public void flush() {
         openReport(mContext, SdkEvent.FLUSH_QUEUE)
                 .send();
@@ -69,12 +97,34 @@ public class IronBeastTracker {
         return new ReportIntent(context, event);
     }
 
+    /**
+     * Set custom endpoint to send reports
+     *
+     * @param url Custom publisher destination url.
+     */
     public void setIBEndPoint(String url) {
         if (URLUtil.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
     }
 
+    /**
+     * Set custom endpoint to send bulk reports
+     *
+     * @param url Custom publisher destination url.
+     */
     public void setIBEndPointBulk(String url) {
         if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
+    }
+
+    /**
+     * SEND options: for use with {@link #send}, if function called with {@link SEND#NOW} param,
+     * the report will send immediately. if function called with {@link SEND#POSTPONE} param,
+     * the report will postponed.
+     *
+     * @see #send
+     */
+    public enum SEND {
+        NOW,
+        POSTPONE
     }
 
     private String mToken;
