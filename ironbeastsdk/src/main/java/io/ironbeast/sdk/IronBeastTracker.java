@@ -16,7 +16,7 @@ public class IronBeastTracker {
     }
 
     /**
-     * Send an event that already stringify send data mechanism is controlled by SEND property.
+     * Track an event that already stringify send data mechanism is controlled by SEND property.
      *
      * @param table IronBeast destination.
      * @param data String, containing the data to send.
@@ -25,7 +25,7 @@ public class IronBeastTracker {
      * @see SEND#POSTPONE
      *
      */
-    public void send(String table, String data, SEND send) {
+    public void track(String table, String data, SEND send) {
         if (send == SEND.NOW) {
             post(table, data);
         } else if (send == SEND.POSTPONE) {
@@ -33,7 +33,7 @@ public class IronBeastTracker {
         }
     }
 
-    public void send(String table, Map<String, ?> data, SEND send) {
+    public void track(String table, Map<String, ?> data, SEND send) {
         if (send == SEND.NOW) {
             post(table, data);
         } else if (send == SEND.POSTPONE) {
@@ -116,11 +116,11 @@ public class IronBeastTracker {
     }
 
     /**
-     * SEND options: for use with {@link #send}, if function called with {@link SEND#NOW} param,
+     * SEND options: for use with {@link #track}, if function called with {@link SEND#NOW} param,
      * the report will send immediately. if function called with {@link SEND#POSTPONE} param,
      * the report will postponed.
      *
-     * @see #send
+     * @see #track
      */
     public enum SEND {
         NOW,
