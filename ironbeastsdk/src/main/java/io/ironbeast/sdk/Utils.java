@@ -73,13 +73,23 @@ class Utils {
         am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
     }
 
-    public static String getConnectedNetworkType(Context context) {
+    private static NetworkInfo getNetworkInfo(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
+        return cm.getActiveNetworkInfo();
+    }
 
-        if (info != null && info.isConnected()) {
-            return info.getTypeName();
-        }
-        return "unknown";
+    public static String getConnectedNetworkType(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() ? info.getTypeName() : "unknown";
+    }
+
+    /**
+     * Check if there is any connectivity to a Wifi network
+     * @param context
+     * @return
+     */
+    public static boolean isConnectedWifi(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
     }
 }

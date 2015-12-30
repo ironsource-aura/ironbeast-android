@@ -14,6 +14,7 @@ import static io.ironbeast.sdk.TestsUtils.newReport;
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.*;
 
+import io.ironbeast.sdk.ReportHandler.HandleStatus;
 import io.ironbeast.sdk.RemoteService.Response;
 import io.ironbeast.sdk.StorageService.Batch;
 import io.ironbeast.sdk.StorageService.Table;
@@ -33,7 +34,6 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
         verify(mStorage, times(1)).addEvent(mTable, DATA);
-        verify(mPoster, never()).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
     }
 
@@ -51,7 +51,7 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         when(mConfig.getIBEndPoint(anyString())).thenReturn(url);
         when(mConfig.getNumOfRetries()).thenReturn(1);
-        assertTrue(mHandler.handleReport(intent));
+        assertTrue(mHandler.handleReport(intent) == ReportHandler.HandleStatus.HANDLED);
         verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
@@ -70,7 +70,7 @@ public class ReportHandlerTest {
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        assertTrue(mHandler.handleReport(intent));
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
@@ -84,8 +84,8 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
         when(mConfig.getNumOfRetries()).thenReturn(10);
-        assertFalse(mHandler.handleReport(intent));
-        verify(mPoster, times(10)).isOnline(mContext);
+        assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
+        verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, never()).post(anyString(), anyString());
         verify(mStorage, times(1)).addEvent(mTable, DATA);
     }
@@ -94,14 +94,13 @@ public class ReportHandlerTest {
     // When handler get a flush-event and there's no items in the queue.
     // Should do nothing and return true.
     public void flushNothing() {
+        when(mPoster.isOnline(mContext)).thenReturn(true);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-        assertTrue(mHandler.handleReport(intent));
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
-        verify(mPoster, never()).isOnline(mContext);
     }
 
     @Test
-    // TODO: Add byte-limit test
     // When handler get a flush-event, it should ask for the all tables with `getTables`,
     // and then call `getEvents` for each of them with `maximumBulkSize`.
     // If everything goes well, it should drain the table, and then delete it.
@@ -141,7 +140,7 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(true);
         // All success
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok);
-        assertTrue(mHandler.handleReport(intent));
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(2)).getEvents(mTable, mConfig.getBulkSize());
         verify(mStorage, times(1)).deleteEvents(mTable, "2");
         verify(mStorage, times(1)).deleteEvents(mTable, "3");
@@ -159,7 +158,8 @@ public class ReportHandlerTest {
     // Should do-nothing, and return true
     public void flushNoItems() throws Exception {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-        assertTrue(mHandler.handleReport(intent));
+        when(mPoster.isOnline(mContext)).thenReturn(true);
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
         verify(mStorage, never()).getEvents(any(Table.class), anyInt());
     }
@@ -178,18 +178,20 @@ public class ReportHandlerTest {
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
         }});
+        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(fail);
-        assertFalse(mHandler.handleReport(intent));
+        assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
         verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
         verify(mStorage, never()).deleteEvents(mTable, "2");
         verify(mStorage, never()).deleteTable(mTable);
     }
 
     @Test
-    // When tracking an event(record) to some table and the count numbder
+    // When tracking an event(record) to some table and the count number
     // is greater or equal to bulk-size, should flush the queue.
     public void trackCauseFlush() {
         mConfig.setBulkSize(2);
+        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mStorage.addEvent(mTable, DATA)).thenReturn(2);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
@@ -238,7 +240,7 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        assertTrue(mHandler.handleReport(intent));
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         JSONObject report = new JSONObject(reportMap);
         String token = reportMap.get(ReportIntent.TOKEN);
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),

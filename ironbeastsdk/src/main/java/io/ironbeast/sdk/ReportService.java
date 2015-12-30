@@ -2,7 +2,6 @@ package io.ironbeast.sdk;
 
 import android.app.IntentService;
 import android.content.Intent;
-import static java.lang.String.format;
 
 public class ReportService extends IntentService {
 
@@ -20,9 +19,10 @@ public class ReportService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
-            boolean success = mHandler.handleReport(intent);
-            if (SdkEvent.ENQUEUE == event || !success) setAlarm();
+            if (mHandler.handleReport(intent) == ReportHandler.HandleStatus.RETRY) {
+                // Write the setAlarm mechanism
+//                setAlarm();
+            }
         } catch (Throwable th) {
             Logger.log(TAG, "onHandleIntent error: " + th, Logger.SDK_ERROR);
         }

@@ -20,8 +20,9 @@ public class BaseMainActivity extends Activity {
         setContentView(R.layout.activity_main_v2);
 
         ironBeast = IronBeast.getInstance(this);
-        ironBeast.enableErrorReporting(true);
+        ironBeast.enableErrorReporting();
         ironBeast.setBulkSize(2);
+        ironBeast.disableFlushOnRoaming();
     }
 
     public void sendReport(View v) {

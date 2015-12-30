@@ -80,8 +80,4 @@ public class IronBeastTracker {
     private String mToken;
     private Context mContext;
     private IBConfig mConfig;
-
-    public String getIBEndPoint() {
-        return mConfig.getIBEndPoint(mToken);
-    }
 }

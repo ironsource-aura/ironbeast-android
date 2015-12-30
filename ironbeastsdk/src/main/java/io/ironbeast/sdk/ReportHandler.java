@@ -12,6 +12,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.Math.ceil;
@@ -22,6 +23,7 @@ public class ReportHandler {
         mContext = context;
         mConfig = getConfig(context);
         mStorage = getStorage(context);
+        mPoster = getPoster();
     }
 
     /**
@@ -30,10 +32,12 @@ public class ReportHandler {
      * @param intent
      * @return result of the handleReport if success true or failed false
      */
-    public synchronized boolean handleReport(Intent intent) {
-        boolean success = true;
+    public synchronized HandleStatus handleReport(Intent intent) {
+        HandleStatus status = HandleStatus.HANDLED;
+        boolean isOnline = mPoster.isOnline(mContext) &&
+                (!mConfig.isRoamingFlushDisabled() ||  Utils.isConnectedWifi(mContext));
         try {
-            if (null == intent.getExtras()) return success;
+            if (null == intent.getExtras()) return status;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
             Bundle bundle = intent.getExtras();
             JSONObject dataObject = new JSONObject();
@@ -49,26 +53,34 @@ public class ReportHandler {
             List<Table> tablesToFlush = new ArrayList<>();
             switch (event) {
                 case SdkEvent.FLUSH_QUEUE:
-                    tablesToFlush = mStorage.getTables();
-                    break;
+                    if (isOnline) {
+                        tablesToFlush = mStorage.getTables();
+                        break;
+                    }
+                    return HandleStatus.RETRY;
                 case SdkEvent.POST_SYNC:
-                    String message = createMessage(dataObject, false);
-                    SEND_RESULT res = send(message, mConfig.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN)));
-                    if (success = (res != SEND_RESULT.FAILED_RESEND_LATER)) break;
+                    if (isOnline) {
+                        String message = createMessage(dataObject, false);
+                        String url = mConfig.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN));
+                        if (SendStatus.RETRY != send(message, url)) break;
+                    }
                 case SdkEvent.ENQUEUE:
                     Table table = new Table(dataObject.getString(ReportIntent.TABLE),
                             dataObject.getString(ReportIntent.TOKEN));
-                    if (mConfig.getBulkSize() <= mStorage.addEvent(table, dataObject.getString(ReportIntent.DATA))) {
+                    int nRows = mStorage.addEvent(table, dataObject.getString(ReportIntent.DATA));
+                    if (isOnline && mConfig.getBulkSize() <= nRows) {
                         tablesToFlush.add(table);
+                    } else {
+                        return HandleStatus.RETRY;
                     }
             }
-            // If there's something to flush, it'll no be empty.
+            // If there's something to flush, it'll not be empty.
             for (Table table: tablesToFlush) flush(table);
         } catch (Exception e) {
-            success = false;
+            status = HandleStatus.RETRY;
             Logger.log(TAG, e.getMessage(), Logger.SDK_DEBUG);
         }
-        return success;
+        return status;
     }
 
     /**
@@ -96,8 +108,8 @@ public class ReportHandler {
             event.put(ReportIntent.TABLE, table.name);
             event.put(ReportIntent.TOKEN, table.token);
             event.put(ReportIntent.DATA, batch.events.toString());
-            SEND_RESULT res = send(createMessage(event, true), mConfig.getIBEndPointBulk(table.token));
-            if (res == SEND_RESULT.FAILED_RESEND_LATER) {
+            SendStatus res = send(createMessage(event, true), mConfig.getIBEndPointBulk(table.token));
+            if (res == SendStatus.RETRY) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }
             if (mStorage.deleteEvents(table, batch.lastId) < bulkSize || mStorage.count(table) == 0) {
@@ -134,33 +146,27 @@ public class ReportHandler {
     /**
      * @param data - Stringified JSON. used as a request body.
      * @param url  - IronBeast url endpoint.
-     * @return SEND_RESULT ENUM that indicate what to do later on.
+     * @return sendStatus ENUM that indicate what to do later on.
      */
-    protected SEND_RESULT send(String data, String url) {
-        SEND_RESULT sendResult = SEND_RESULT.FAILED_RESEND_LATER;
+    protected SendStatus send(String data, String url) {
         int nRetry = mConfig.getNumOfRetries();
-        RemoteService poster = getPoster();
         while (nRetry-- > 0) {
-            if (poster.isOnline(mContext)) {
-                try {
-                    RemoteService.Response response = poster.post(data, url);
-                    if (response.code == HttpURLConnection.HTTP_OK) {
-                        sendResult = SEND_RESULT.SUCCESS;
-                        break;
-                    }
-                    if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
-                            response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                        sendResult = SEND_RESULT.FAILED_DELETE;
-                        break;
-                    }
-                } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
-                    Logger.log(TAG, "Connectivity error, try again or later", Logger.SDK_DEBUG);
-                } catch (IOException e) {
-                    Logger.log(TAG, "Service IronBeast is unavailable: " + e, Logger.SDK_ERROR);
+            try {
+                RemoteService.Response response = mPoster.post(data, url);
+                if (response.code == HttpURLConnection.HTTP_OK) {
+                    return SendStatus.SUCCESS;
                 }
+                if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
+                        response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    return SendStatus.DELETE;
+                }
+            } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
+                Logger.log(TAG, "Connectivity error, try again or later", Logger.SDK_DEBUG);
+            } catch (IOException e) {
+                Logger.log(TAG, "Service IronBeast is unavailable: " + e, Logger.SDK_ERROR);
             }
         }
-        return sendResult;
+        return SendStatus.RETRY;
     }
 
     /**
@@ -174,12 +180,12 @@ public class ReportHandler {
     }
     protected IBConfig getConfig(Context context) { return IBConfig.getInstance(context); }
 
-    enum SEND_RESULT {
-        SUCCESS, FAILED_DELETE, FAILED_RESEND_LATER
-    }
+    enum SendStatus { SUCCESS, DELETE, RETRY }
+    enum HandleStatus { HANDLED, RETRY }
 
     private static final String TAG = "ReportHandler";
     private StorageService mStorage;
+    private RemoteService mPoster;
     private IBConfig mConfig;
     private Context mContext;
 }

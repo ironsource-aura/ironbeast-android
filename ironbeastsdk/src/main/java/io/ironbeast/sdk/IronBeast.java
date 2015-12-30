@@ -57,13 +57,14 @@ public class IronBeast {
     }
 
     /**
-     * function enable to report errors from SDK
-     *
-     * @param enable - enable/disable error reports
+     * Enable the SDK error-tracker.
      */
-    public void enableErrorReporting(boolean enable) {
-        mConfig.enableErrorReporting(enable);
-    }
+    public void enableErrorReporting() { mConfig.enableErrorReporting(); }
+
+    /**
+     * Force the SDK to send reports only when the device is connected via WiFi.
+     */
+    public void disableFlushOnRoaming() { mConfig.disableFlushOnRoaming(); }
 
     public void setLogType(IBConfig.LOG_TYPE logType) {
         Logger.logLevel  = logType;
@@ -86,7 +87,6 @@ public class IronBeast {
     public void setMaximumRequestLimit(long bytes) {
         mConfig.setMaximumRequestLimit(bytes);
     }
-
 
     /**
      * function set report flush intervals
@@ -114,7 +114,7 @@ public class IronBeast {
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
         } catch (Exception e) {
-           // Ignore this situation
+           // Ignore this situationg
         }
     }
 
