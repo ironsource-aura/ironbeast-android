@@ -4,19 +4,12 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.webkit.URLUtil;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -65,11 +58,11 @@ class Utils {
         }
     }
 
-    public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long delay) {
+    public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long time) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         am.cancel(intent); // cancel previous one
         //will fire log than device not sleep
-        am.set(AlarmManager.RTC, delay, intent);
+        am.set(AlarmManager.RTC, time, intent);
     }
 }

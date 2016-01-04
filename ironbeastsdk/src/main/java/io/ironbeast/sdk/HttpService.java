@@ -3,12 +3,14 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
@@ -27,6 +29,7 @@ public class HttpService implements RemoteService {
 
     /**
      * Detect whether there's an Internet connection available.
+     *
      * @return boolean
      */
     public boolean isOnline(Context context) {
@@ -42,6 +45,7 @@ public class HttpService implements RemoteService {
 
     /**
      * Check if there is any connectivity to a Wifi network
+     *
      * @param context
      * @return
      */
@@ -52,6 +56,7 @@ public class HttpService implements RemoteService {
 
     /**
      * Return a human-readable name describe the type of the network.
+     *
      * @param context
      * @return
      */
@@ -67,6 +72,7 @@ public class HttpService implements RemoteService {
 
     /**
      * Post String-data to the given url.
+     *
      * @return RemoteService.Response that has code and body.
      */
     public Response post(final String data, final String url) throws IOException {
@@ -91,7 +97,7 @@ public class HttpService implements RemoteService {
             response.code = connection.getResponseCode();
             in.close();
             in = null;
-        } catch(final IOException e) {
+        } catch (final IOException e) {
             if (connection != null &&
                     (response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
                 Logger.log(TAG, "Failed post to IB. StatusCode: " + response.code, Logger.SDK_DEBUG);
