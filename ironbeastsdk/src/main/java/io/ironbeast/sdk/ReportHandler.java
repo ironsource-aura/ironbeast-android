@@ -48,7 +48,7 @@ public class ReportHandler {
                     dataObject.put(key, value);
                 }
             } catch (Exception e) {
-                Logger.log(TAG, "Failed extracting the data from Intent", Logger.SDK_DEBUG);
+                Logger.log(TAG, "Failed extracting the data from Intent", Logger.SDK_ERROR);
             }
             List<Table> tablesToFlush = new ArrayList<>();
             switch (event) {
@@ -161,7 +161,7 @@ public class ReportHandler {
                     return SendStatus.DELETE;
                 }
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
-                Logger.log(TAG, "Connectivity error, try again or later", Logger.SDK_DEBUG);
+                Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
             } catch (IOException e) {
                 Logger.log(TAG, "Service IronBeast is unavailable: " + e, Logger.SDK_ERROR);
             }

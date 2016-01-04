@@ -43,10 +43,7 @@ public class HttpService implements RemoteService {
     }
 
     /**
-     * Post String-data to the given url
-     * If you want to use machine 'localhost'(for personal testing), you should use: `10.0.2.2`
-     * to get host loopback interface.
-     * That's because Android emulator runs inside a Virtual Machine(QEMU)
+     * Post String-data to the given url.
      * @return RemoteService.Response that has code and body.
      */
     public Response post(final String data, final String url) throws IOException {
@@ -74,7 +71,7 @@ public class HttpService implements RemoteService {
         } catch(final IOException e) {
             if (connection != null &&
                     (response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
-                Logger.log(TAG, "Service IB unavailable:" + e, Logger.SDK_DEBUG);
+                Logger.log(TAG, "Failed post to IB. StatusCode: " + response.code, Logger.SDK_DEBUG);
             } else {
                 throw e;
             }

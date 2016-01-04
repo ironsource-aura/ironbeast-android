@@ -21,16 +21,15 @@ public class BaseMainActivity extends Activity {
 
         ironBeast = IronBeast.getInstance(this);
         ironBeast.enableErrorReporting();
-        ironBeast.setBulkSize(2);
-        ironBeast.disableFlushOnRoaming();
+        ironBeast.setBulkSize(1);
     }
 
     public void sendReport(View v) {
         // IronBeast logic
         int id = v.getId();
-        IronBeastTracker tracker = ironBeast.newTracker("myToken");
-        tracker.setIBEndPointBulk("http://10.0.2.2:3000/");
+        IronBeastTracker tracker = ironBeast.newTracker("vKuQ...vNx");
         tracker.setIBEndPoint("http://10.0.2.2:3000/");
+        tracker.setIBEndPointBulk("http://10.0.2.2:3000/");
 
         JSONObject params = new JSONObject();
         switch (id) {

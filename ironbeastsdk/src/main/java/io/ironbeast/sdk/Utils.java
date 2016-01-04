@@ -70,7 +70,7 @@ class Utils {
         PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         am.cancel(intent); // cancel previous one
         //will fire log than device not sleep
-        am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, intent);
+        am.set(AlarmManager.RTC, delay, intent);
     }
 
     private static NetworkInfo getNetworkInfo(Context context) {

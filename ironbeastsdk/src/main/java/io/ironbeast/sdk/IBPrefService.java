@@ -26,12 +26,16 @@ class IBPrefService {
         return defVal;
     }
 
+    public boolean load(String key, boolean defVal) {
+        return Boolean.parseBoolean(load(key, String.valueOf(defVal)));
+    }
+
     public int load(String key, int defVal) {
         return Integer.parseInt(load(key, String.valueOf(defVal)));
     }
 
-    public boolean load(String key, boolean defVal) {
-        return Boolean.parseBoolean(load(key, String.valueOf(defVal)));
+    public long load(String key, long defVal) {
+        return Long.parseLong(load(key, String.valueOf(defVal)));
     }
 
     public String load(String key) {
