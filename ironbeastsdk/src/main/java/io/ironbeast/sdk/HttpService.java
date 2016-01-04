@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
- * An HTTP utility class for internal use in this library.
+ * An Network utility class for internal use in this library.
  */
 public class HttpService implements RemoteService {
 
@@ -32,14 +32,37 @@ public class HttpService implements RemoteService {
     public boolean isOnline(Context context) {
         boolean isOnline;
         try {
-            final ConnectivityManager cm =
-                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            final NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            final NetworkInfo netInfo = getNetworkInfo(context);
             isOnline = netInfo != null && netInfo.isConnected();
         } catch (final SecurityException e) {
             isOnline = true;
         }
         return isOnline;
+    }
+
+    /**
+     * Check if there is any connectivity to a Wifi network
+     * @param context
+     * @return
+     */
+    public boolean isConnectedWifi(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    /**
+     * Return a human-readable name describe the type of the network.
+     * @param context
+     * @return
+     */
+    public String getConnectedNetworkType(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() ? info.getTypeName() : "unknown";
+    }
+
+    private NetworkInfo getNetworkInfo(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo();
     }
 
     /**

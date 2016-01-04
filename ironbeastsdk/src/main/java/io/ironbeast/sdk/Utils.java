@@ -72,24 +72,4 @@ class Utils {
         //will fire log than device not sleep
         am.set(AlarmManager.RTC, delay, intent);
     }
-
-    private static NetworkInfo getNetworkInfo(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo();
-    }
-
-    public static String getConnectedNetworkType(Context context) {
-        NetworkInfo info = getNetworkInfo(context);
-        return info != null && info.isConnected() ? info.getTypeName() : "unknown";
-    }
-
-    /**
-     * Check if there is any connectivity to a Wifi network
-     * @param context
-     * @return
-     */
-    public static boolean isConnectedWifi(Context context) {
-        NetworkInfo info = getNetworkInfo(context);
-        return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
-    }
 }

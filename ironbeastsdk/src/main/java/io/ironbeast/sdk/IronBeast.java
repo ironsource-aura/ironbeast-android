@@ -109,7 +109,7 @@ public class IronBeast {
             report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
-            report.put("connection", Utils.getConnectedNetworkType(mContext));
+            report.put("connection", HttpService.getInstance().getConnectedNetworkType(mContext));
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);

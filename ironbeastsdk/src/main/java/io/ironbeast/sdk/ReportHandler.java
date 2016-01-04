@@ -34,7 +34,7 @@ public class ReportHandler {
     public synchronized HandleStatus handleReport(Intent intent) {
         HandleStatus status = HandleStatus.HANDLED;
         boolean isOnline = mPoster.isOnline(mContext) &&
-                (!mConfig.isRoamingFlushDisabled() ||  Utils.isConnectedWifi(mContext));
+                (!mConfig.isRoamingFlushDisabled() ||  mPoster.isConnectedWifi(mContext));
         try {
             if (null == intent.getExtras()) return status;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
