@@ -24,6 +24,10 @@ class BackOff {
     }
 
 
+    /**
+     * Returns the next milliseconds and advances the counter.
+     * @return
+     */
     synchronized long next() {
         long nextTick, curr = currentTimeMillis();
         long lastTick = mSharedPref.load(KEY_LAST_TICK, curr);
@@ -35,6 +39,11 @@ class BackOff {
         return nextTick;
     }
 
+    /**
+     * Get milliseconds number based on the given n.
+     * @param n
+     * @return
+     */
     private long getMills(int n) {
         if (n <= INITIAL_RETRY_VALUE) {
             return mConfig.getFlushInterval();
@@ -42,6 +51,10 @@ class BackOff {
         return TimeUnit.MINUTES.toMillis((int) Math.pow(2, n));
     }
 
+    /**
+     * Reset number of retries to INITIAL_RETRY_VALUE, and
+     * save current state in sharedPreferences.
+     */
     void reset() {
         mRetry = INITIAL_RETRY_VALUE;
         mSharedPref.save(KEY_RETRY_COUNT, mRetry);
