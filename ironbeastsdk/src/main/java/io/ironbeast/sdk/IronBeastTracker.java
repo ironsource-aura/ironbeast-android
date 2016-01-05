@@ -16,75 +16,71 @@ public class IronBeastTracker {
     }
 
     /**
-     * Track an event that already stringify send data mechanism is controlled by SEND property.
+     * Track an event that already stringify send data mechanism is controlled by sendNow parameter.
      *
-     * @param table IronBeast destination.
-     * @param data String, containing the data to send.
-     * @param send Send option {@link SEND#NOW} {@link SEND#POSTPONE}
-     * @see SEND#NOW
-     * @see SEND#POSTPONE
-     *
+     * @param table   IronBeast destination.
+     * @param data    String, containing the data to send.
+     * @param sendNow flag if true report will send immediately else will postponed
      */
-    public void track(String table, String data, SEND send) {
-        if (send == SEND.NOW) {
-            post(table, data);
-        } else if (send == SEND.POSTPONE) {
-            track(table, data);
-        }
-    }
-
-    public void track(String table, Map<String, ?> data, SEND send) {
-        if (send == SEND.NOW) {
-            post(table, data);
-        } else if (send == SEND.POSTPONE) {
-            track(table, data);
-        }
+    public void track(String table, String data, boolean sendNow) {
+        openReport(mContext, sendNow ? SdkEvent.ENQUEUE : SdkEvent.POST_SYNC)
+                .setTable(table)
+                .setToken(mToken)
+                .setData(data)
+                .send();
     }
 
     /**
-     * Track an event that already stringified send data postponed.
+     * Track an event, send data mechanism is controlled by sendNow parameter.
      *
-     * @param table - IronBeast destination.
-     * @param data - String, containing the data to track.
+     * @param table   IronBeast destination.
+     * @param data    Map, containing the data to send.
+     * @param sendNow Send flag if true report will send immediately else will postponed
+     */
+    public void track(String table, Map<String, ?> data, boolean sendNow) {
+        track(table, new JSONObject(data), sendNow);
+    }
+
+    /**
+     * Track an event, send data mechanism is controlled by sendNow parameter.
+     *
+     * @param table   IronBeast destination.
+     * @param data    JSONObject, containing the data to send.
+     * @param sendNow Send flag if true report will send immediately else will postponed
+     */
+    public void track(String table, JSONObject data, boolean sendNow) {
+        track(table, data.toString(), sendNow);
+    }
+
+    /**
+     * Track an event that already stringify send data postponed.
+     *
+     * @param table   IronBeast destination.
+     * @param data    String, containing the data to send.
      */
     public void track(String table, String data) {
-        openReport(mContext, SdkEvent.ENQUEUE)
-                .setTable(table)
-                .setToken(mToken)
-                .setData(data)
-                .send();
-    }
-
-    public void track(String table, Map<String, ?> data) {
-        track(table, new JSONObject(data));
-    }
-
-    public void track(String table, JSONObject data) {
-        track(table, data.toString());
+        track(table, data, false);
     }
 
     /**
-     * Post (send immediately) and event that already stringified.
+     * Track an event, send data postponed.
      *
-     * @param table - IronBeast destination table.
-     * @param data - String, containing the data to post.
+     * @param table   IronBeast destination.
+     * @param data    Map, containing the data to send.
      */
-    public void post(String table, String data) {
-        openReport(mContext, SdkEvent.POST_SYNC)
-                .setTable(table)
-                .setToken(mToken)
-                .setData(data)
-                .send();
+    public void track(String table, Map<String, ?> data) {
+        track(table, new JSONObject(data), false);
     }
 
-    public void post(String table, JSONObject data) {
-        post(table, data.toString());
+    /**
+     * Track an event, send data postponed.
+     *
+     * @param table   IronBeast destination.
+     * @param data    JSONObject, containing the data to send.
+     */
+    public void track(String table, JSONObject data) {
+        track(table, data.toString(), false);
     }
-
-    public void post(String table, Map<String, ?> data) {
-        post(table, new JSONObject(data));
-    }
-
     /**
      * Flush immediately all reports
      */
@@ -115,23 +111,7 @@ public class IronBeastTracker {
         if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
     }
 
-    /**
-     * SEND options: for use with {@link #track}, if function called with {@link SEND#NOW} param,
-     * the report will send immediately. if function called with {@link SEND#POSTPONE} param,
-     * the report will postponed.
-     *
-     * @see #track
-     */
-    public enum SEND {
-        NOW,
-        POSTPONE
-    }
-
     private String mToken;
     private Context mContext;
     private IBConfig mConfig;
-
-    public String getIBEndPoint() {
-        return mConfig.getIBEndPoint(mToken);
-    }
 }
