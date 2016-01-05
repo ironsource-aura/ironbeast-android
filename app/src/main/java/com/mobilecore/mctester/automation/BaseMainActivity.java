@@ -22,7 +22,10 @@ public class BaseMainActivity extends Activity {
         ironBeast = IronBeast.getInstance(this);
         ironBeast.enableErrorReporting();
         ironBeast.setBulkSize(1);
+        ironBeast.setAllowedNetworkTypes(IronBeast.NETWORK_MOBILE | IronBeast.NETWORK_WIFI);
+        ironBeast.setAllowedOverRoaming(true);
     }
+
 
     public void sendReport(View v) {
         // IronBeast logic

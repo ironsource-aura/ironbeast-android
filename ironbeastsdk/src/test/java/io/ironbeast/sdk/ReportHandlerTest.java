@@ -23,8 +23,12 @@ import io.ironbeast.sdk.StorageService.Table;
 public class ReportHandlerTest {
 
     @Before
-    public void clearMocks() {
+    public void startClear() {
+        // reset mocks
         reset(mStorage, mPoster, mConfig);
+        // add default configuration
+        when(mConfig.getAllowedNetworkTypes()).thenReturn(-1);
+        when(mPoster.getNetworkIBType(mContext)).thenReturn(-1);
     }
 
     @Test

@@ -33,8 +33,7 @@ public class ReportHandler {
      */
     public synchronized HandleStatus handleReport(Intent intent) {
         HandleStatus status = HandleStatus.HANDLED;
-        boolean isOnline = mPoster.isOnline(mContext) &&
-                (!mConfig.isRoamingFlushDisabled() ||  mPoster.isConnectedWifi(mContext));
+        boolean isOnline = mPoster.isOnline(mContext) && canUseNetwork();
         try {
             if (null == intent.getExtras()) return status;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
@@ -166,6 +165,17 @@ public class ReportHandler {
             }
         }
         return SendStatus.RETRY;
+    }
+
+    /**
+     * Test if the handler can use the network.
+     * @return
+     */
+    private boolean canUseNetwork() {
+        if ((mConfig.getAllowedNetworkTypes() & mPoster.getNetworkIBType(mContext)) == 0) {
+            return false;
+        }
+        return mConfig.isAllowedOverRoaming() || !mPoster.isDataRoamingEnabled(mContext);
     }
 
     /**
