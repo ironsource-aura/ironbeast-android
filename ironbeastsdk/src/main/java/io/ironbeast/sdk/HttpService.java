@@ -3,16 +3,18 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
- * An HTTP utility class for internal use in this library.
+ * An Network utility class for internal use in this library.
  */
 public class HttpService implements RemoteService {
 
@@ -27,14 +29,13 @@ public class HttpService implements RemoteService {
 
     /**
      * Detect whether there's an Internet connection available.
+     *
      * @return boolean
      */
     public boolean isOnline(Context context) {
         boolean isOnline;
         try {
-            final ConnectivityManager cm =
-                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            final NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            final NetworkInfo netInfo = getNetworkInfo(context);
             isOnline = netInfo != null && netInfo.isConnected();
         } catch (final SecurityException e) {
             isOnline = true;
@@ -43,10 +44,35 @@ public class HttpService implements RemoteService {
     }
 
     /**
-     * Post String-data to the given url
-     * If you want to use machine 'localhost'(for personal testing), you should use: `10.0.2.2`
-     * to get host loopback interface.
-     * That's because Android emulator runs inside a Virtual Machine(QEMU)
+     * Check if there is any connectivity to a Wifi network
+     *
+     * @param context
+     * @return
+     */
+    public boolean isConnectedWifi(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    /**
+     * Return a human-readable name describe the type of the network.
+     *
+     * @param context
+     * @return
+     */
+    public String getConnectedNetworkType(Context context) {
+        NetworkInfo info = getNetworkInfo(context);
+        return info != null && info.isConnected() ? info.getTypeName() : "unknown";
+    }
+
+    private NetworkInfo getNetworkInfo(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo();
+    }
+
+    /**
+     * Post String-data to the given url.
+     *
      * @return RemoteService.Response that has code and body.
      */
     public Response post(final String data, final String url) throws IOException {
@@ -71,10 +97,10 @@ public class HttpService implements RemoteService {
             response.code = connection.getResponseCode();
             in.close();
             in = null;
-        } catch(final IOException e) {
+        } catch (final IOException e) {
             if (connection != null &&
                     (response.code = connection.getResponseCode()) >= HTTP_BAD_REQUEST) {
-                Logger.log(TAG, "Service IB unavailable:" + e, Logger.SDK_DEBUG);
+                Logger.log(TAG, "Failed post to IB. StatusCode: " + response.code, Logger.SDK_DEBUG);
             } else {
                 throw e;
             }

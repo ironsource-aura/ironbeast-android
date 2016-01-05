@@ -2,40 +2,43 @@ package io.ironbeast.sdk;
 
 import android.app.IntentService;
 import android.content.Intent;
-import static java.lang.String.format;
+
 
 public class ReportService extends IntentService {
 
     public ReportService() {
-        super("ReportService");
+        super(TAG);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mConfig = IBConfig.getInstance(this.getApplicationContext());
         mHandler = new ReportHandler(this.getApplicationContext());
+        mBackOff = BackOff.getInstance(this.getApplicationContext());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
-            boolean success = mHandler.handleReport(intent);
-            if (SdkEvent.ENQUEUE == event || !success) setAlarm();
+            if (mHandler.handleReport(intent) == ReportHandler.HandleStatus.RETRY &&
+                    mBackOff.hasNext()) {
+                setAlarm(mBackOff.next());
+            } else {
+                mBackOff.reset();
+            }
         } catch (Throwable th) {
-            Logger.log(TAG, "onHandleIntent error: " + th, Logger.SDK_ERROR);
+            Logger.log(TAG, "failed to handle intent: " + th, Logger.SDK_ERROR);
         }
 
     }
 
-    protected void setAlarm() {
+    protected void setAlarm(long mills) {
         Logger.log(TAG, "Setting alarm", Logger.SDK_DEBUG);
         ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
-        Utils.scheduleSendReportsAction(this, reportIntent, mConfig.getFlushInterval());
+        Utils.scheduleSendReportsAction(this, reportIntent, mills);
     }
 
-    final private String TAG = "ReportService";
-    private IBConfig mConfig;
+    final static private String TAG = "ReportService";
     private ReportHandler mHandler;
+    private BackOff mBackOff;
 }

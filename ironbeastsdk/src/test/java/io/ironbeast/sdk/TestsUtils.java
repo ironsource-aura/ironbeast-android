@@ -46,6 +46,12 @@ public class TestsUtils {
         public boolean isOnline(Context context) { return true; }
 
         @Override
+        public boolean isConnectedWifi(Context context) { return false; }
+
+        @Override
+        public String getConnectedNetworkType(Context context) { return null; }
+
+        @Override
         public Response post(String data, String url) throws IOException {
             Response res = new Response();
             if (mCode == 200) {

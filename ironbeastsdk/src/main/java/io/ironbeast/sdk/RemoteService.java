@@ -5,6 +5,8 @@ import java.io.IOException;
 
 public interface RemoteService {
     boolean isOnline(Context context);
+    boolean isConnectedWifi(Context context);
+    String getConnectedNetworkType(Context context);
     Response post(final String data, final String url) throws IOException;
 
     /**
