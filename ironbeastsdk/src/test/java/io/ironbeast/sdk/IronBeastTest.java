@@ -48,7 +48,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("hello world");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
+        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("hello world");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("hello world");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
+        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("hello world");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class IronBeastTest {
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test

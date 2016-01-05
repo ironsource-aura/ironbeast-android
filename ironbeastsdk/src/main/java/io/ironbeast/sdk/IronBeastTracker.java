@@ -23,7 +23,7 @@ public class IronBeastTracker {
      * @param sendNow flag if true report will send immediately else will postponed
      */
     public void track(String table, String data, boolean sendNow) {
-        openReport(mContext, sendNow ? SdkEvent.ENQUEUE : SdkEvent.POST_SYNC)
+        openReport(mContext, sendNow ? SdkEvent.POST_SYNC : SdkEvent.ENQUEUE)
                 .setTable(table)
                 .setToken(mToken)
                 .setData(data)
