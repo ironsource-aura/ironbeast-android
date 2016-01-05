@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 class BackOff {
 
     BackOff(Context context) {
-        mConfig = IBConfig.getInstance(context);
+        mConfig = getConfig(context);
         mSharedPref = getPrefService(context);
         mRetry = mSharedPref.load(KEY_RETRY_COUNT, INITIAL_RETRY_VALUE);
     }
@@ -66,13 +66,15 @@ class BackOff {
     }
 
     /**
-     * Used to allow mocking.
+     * For testing purpose. to allow mocking this behavior.
      */
+    protected long currentTimeMillis() { return System.currentTimeMillis(); }
     protected IBPrefService getPrefService(Context context) {
         return IBPrefService.getInstance(context);
     }
-
-    protected long currentTimeMillis() { return System.currentTimeMillis(); }
+    protected IBConfig getConfig(Context context) {
+        return IBConfig.getInstance(context);
+    }
 
     private int mRetry;
     private IBConfig mConfig;

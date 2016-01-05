@@ -17,15 +17,23 @@ import static junit.framework.Assert.*;
 public class BackOffTest {
 
     @Before public void clearMocks() {
-        reset(mSharedPref);
+        reset(mSharedPref, mConfig);
     }
 
     @Test public void testHasNext() {
         assertEquals(mBackOff.hasNext(), true);
     }
 
+    @Test public void testFirstValue() {
+        mBackOff.reset();
+        int n = 99;
+        when(mConfig.getFlushInterval()).thenReturn(n);
+        assertEquals(mBackOff.next(), n);
+    }
+
     @Test public void testNext() {
         mBackOff.reset();
+        when(mConfig.getFlushInterval()).thenReturn(10000);
         when(mSharedPref.load(anyString(), anyLong())).thenReturn(0L);
         long t1 = mBackOff.next();
         mCurrentMills = t1;
@@ -50,10 +58,13 @@ public class BackOffTest {
 
     private long mCurrentMills = 0L;
     final Context mContext = mock(MockContext.class);
+    final IBConfig mConfig = mock(IBConfig.class);
     final IBPrefService mSharedPref = mock(IBPrefService.class);
     BackOff mBackOff = new BackOff(mContext) {
         @Override
         protected IBPrefService getPrefService(Context context) { return mSharedPref; }
+        @Override
+        protected IBConfig getConfig(Context context) { return mConfig; }
         @Override
         protected long currentTimeMillis() { return mCurrentMills; }
     };
