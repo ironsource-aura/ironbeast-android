@@ -116,7 +116,7 @@ public class IronBeast {
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
             sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report, false);
         } catch (Exception e) {
-           // Ignore this situationg
+           // Ignore this situation
         }
     }
 
