@@ -37,6 +37,11 @@ public class TestsUtils {
             return this;
         }
 
+        @Override
+        public Intent getIntent() {
+            return null;
+        }
+
         public int mType;
     }
 

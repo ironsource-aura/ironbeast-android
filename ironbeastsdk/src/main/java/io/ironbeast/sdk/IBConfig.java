@@ -200,7 +200,7 @@ class IBConfig {
      */
     public void setAllowedNetworkTypes(int flags) {
         mAllowedNetworkTypes = flags;
-        mIBPrefService.save(KEY_ALLOWED_NETWORK_TYPES, mAllowedOverRoaming);
+        mIBPrefService.save(KEY_ALLOWED_NETWORK_TYPES, mAllowedNetworkTypes);
     }
 
     protected int getAllowedNetworkTypes() {

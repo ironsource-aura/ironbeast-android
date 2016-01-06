@@ -1,4 +1,4 @@
-package com.mobilecore.mctester.automation;
+package io.ironbeast.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -21,7 +21,7 @@ public class BaseMainActivity extends Activity {
 
         ironBeast = IronBeast.getInstance(this);
         ironBeast.enableErrorReporting();
-        ironBeast.setBulkSize(1);
+        ironBeast.setBulkSize(2);
         ironBeast.setAllowedNetworkTypes(IronBeast.NETWORK_MOBILE | IronBeast.NETWORK_WIFI);
         ironBeast.setAllowedOverRoaming(true);
     }
@@ -53,7 +53,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("ibtest", params);
+                tracker.track("ibtest", params, true);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();

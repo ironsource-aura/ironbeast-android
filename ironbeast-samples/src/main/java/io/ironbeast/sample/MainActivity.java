@@ -1,4 +1,4 @@
-package com.mobilecore.mctester.automation;
+package io.ironbeast.sample;
 
 import android.os.Bundle;
 

@@ -31,11 +31,19 @@ class IBPrefService {
     }
 
     public int load(String key, int defVal) {
-        return Integer.parseInt(load(key, String.valueOf(defVal)));
+        try {
+            return Integer.parseInt(load(key, String.valueOf(defVal)));
+        } catch (NumberFormatException e) {
+            return defVal;
+        }
     }
 
     public long load(String key, long defVal) {
-        return Long.parseLong(load(key, String.valueOf(defVal)));
+        try {
+            return Long.parseLong(load(key, String.valueOf(defVal)));
+        } catch (NumberFormatException e) {
+            return defVal;
+        }
     }
 
     public String load(String key) {

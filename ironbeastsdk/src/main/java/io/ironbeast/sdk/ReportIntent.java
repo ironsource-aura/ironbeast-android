@@ -3,32 +3,35 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.content.Intent;
 
-public class ReportIntent extends Intent implements Report {
+class ReportIntent implements Report {
 
-    public ReportIntent(Context context, int sdkEvent) {
-        super(context, ReportService.class);
-        mCtx = context;
-        putExtra(EXTRA_SDK_EVENT, sdkEvent);
+    ReportIntent(Context context, int sdkEvent) {
+        mContext = context;
+        mIntent = new Intent(context, ReportService.class);
+        mIntent.putExtra(EXTRA_SDK_EVENT, sdkEvent);
     }
 
-    public void send() { mCtx.startService(this); }
+    public void send() { mContext.startService(mIntent); }
 
     public ReportIntent setToken(String token) {
-        putExtra(TOKEN, token);
+        mIntent.putExtra(TOKEN, token);
         return this;
     }
 
     public ReportIntent setTable(String table) {
-        putExtra(TABLE, table);
+        mIntent.putExtra(TABLE, table);
         return this;
     }
 
     public ReportIntent setData(String value) {
-        putExtra(DATA, value);
+        mIntent.putExtra(DATA, value);
         return this;
     }
 
-    private Context mCtx;
+    public Intent getIntent() { return mIntent; }
+
+    private Context mContext;
+    private Intent mIntent;
 
     public static final String TABLE = "table";
     public static final String TOKEN = "token";

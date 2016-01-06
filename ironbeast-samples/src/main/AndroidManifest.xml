@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mobilecore.mctester.automation"
+    package="io.ironbeast.sample"
     android:versionCode="1">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,7 +19,7 @@
             android:name="io.ironbeast.sdk.ReportService" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="io.ironbeast.sample.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/simple_app_name">
             <intent-filter>

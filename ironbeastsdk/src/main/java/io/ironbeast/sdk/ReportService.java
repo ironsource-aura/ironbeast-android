@@ -34,8 +34,8 @@ public class ReportService extends IntentService {
 
     protected void setAlarm(long mills) {
         Logger.log(TAG, "Setting alarm", Logger.SDK_DEBUG);
-        ReportIntent reportIntent = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
-        Utils.scheduleSendReportsAction(this, reportIntent, mills);
+        ReportIntent report = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
+        Utils.scheduleSendReportsAction(this, report.getIntent(), mills);
     }
 
     final static private String TAG = "ReportService";

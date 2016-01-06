@@ -1,3 +1,3 @@
-include ':ironbeast_tester'
+include ':ironbeast-samples'
 include ':ironbeastsdk'
-project(':ironbeast_tester').projectDir = new File('app')
+project(':ironbeast-samples').projectDir = new File('ironbeast-samples')
