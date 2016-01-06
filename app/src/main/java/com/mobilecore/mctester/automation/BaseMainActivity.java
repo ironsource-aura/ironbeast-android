@@ -50,7 +50,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.post("ibtest", params);
+                tracker.track("ibtest", params);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();

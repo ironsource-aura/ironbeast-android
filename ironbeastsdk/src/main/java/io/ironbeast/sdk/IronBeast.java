@@ -112,7 +112,7 @@ public class IronBeast {
             report.put("connection", HttpService.getInstance().getConnectedNetworkType(mContext));
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
-            sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report);
+            sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report, false);
         } catch (Exception e) {
            // Ignore this situationg
         }

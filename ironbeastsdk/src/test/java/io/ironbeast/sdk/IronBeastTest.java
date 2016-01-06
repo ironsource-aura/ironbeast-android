@@ -40,6 +40,30 @@ public class IronBeastTest {
     }
 
     @Test
+    public void sendNowStringEvent() {
+        for (int i = 0; i < 10; i++) {
+            mTracker.track("table", "hello world", true);
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("hello world");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+    }
+
+    @Test
+    public void sendPostponeStringEvent() {
+        for (int i = 0; i < 10; i++) {
+            mTracker.track("table", "hello world");
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("hello world");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
+    }
+
+    @Test
     public void trackStringEvent() {
         for (int i = 0; i < 10; i++) {
             mTracker.track("table", "hello world");
@@ -70,6 +94,32 @@ public class IronBeastTest {
         Map<String, String> event = new HashMap<>();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
+            mTracker.track("table", event, true);
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+    }
+
+    @Test
+    public void postStringEvent() {
+        for (int i = 0; i < 10; i++) {
+            mTracker.track("table", "hello world");
+        }
+        verify(mSpyReport, times(10)).setToken(mToken);
+        verify(mSpyReport, times(10)).setTable("table");
+        verify(mSpyReport, times(10)).setData("hello world");
+        verify(mSpyReport, times(10)).send();
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
+    }
+
+    @Test
+    public void postJSONEvent() throws JSONException {
+        JSONObject event = new JSONObject();
+        event.put("hello", "world");
+        for (int i = 0; i < 10; i++) {
             mTracker.track("table", event);
         }
         verify(mSpyReport, times(10)).setToken(mToken);
@@ -80,43 +130,17 @@ public class IronBeastTest {
     }
 
     @Test
-    public void postStringEvent() {
-        for (int i = 0; i < 10; i++) {
-            mTracker.post("table", "hello world");
-        }
-        verify(mSpyReport, times(10)).setToken(mToken);
-        verify(mSpyReport, times(10)).setTable("table");
-        verify(mSpyReport, times(10)).setData("hello world");
-        verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
-    }
-
-    @Test
-    public void postJSONEvent() throws JSONException {
-        JSONObject event = new JSONObject();
-        event.put("hello", "world");
-        for (int i = 0; i < 10; i++) {
-            mTracker.post("table", event);
-        }
-        verify(mSpyReport, times(10)).setToken(mToken);
-        verify(mSpyReport, times(10)).setTable("table");
-        verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
-        verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
-    }
-
-    @Test
     public void postMapEvent() throws JSONException {
         Map<String, String> event = new HashMap<>();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
-            mTracker.post("table", event);
+            mTracker.track("table", event);
         }
         verify(mSpyReport, times(10)).setToken(mToken);
         verify(mSpyReport, times(10)).setTable("table");
         verify(mSpyReport, times(10)).setData("{\"hello\":\"world\"}");
         verify(mSpyReport, times(10)).send();
-        assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
+        assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
     @Test
