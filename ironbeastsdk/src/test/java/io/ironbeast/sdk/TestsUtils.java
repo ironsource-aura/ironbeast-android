@@ -46,10 +46,17 @@ public class TestsUtils {
         public boolean isOnline(Context context) { return true; }
 
         @Override
-        public boolean isConnectedWifi(Context context) { return false; }
+        public boolean isDataRoamingEnabled(Context context) {
+            return false;
+        }
 
         @Override
         public String getConnectedNetworkType(Context context) { return null; }
+
+        @Override
+        public int getNetworkIBType(Context context) {
+            return -1;
+        }
 
         @Override
         public Response post(String data, String url) throws IOException {

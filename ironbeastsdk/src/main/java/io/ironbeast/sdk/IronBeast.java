@@ -62,9 +62,11 @@ public class IronBeast {
     public void enableErrorReporting() { mConfig.enableErrorReporting(); }
 
     /**
-     * Force the SDK to send reports only when the device is connected via WiFi.
+     * Set whether the SDK can keep sending over a roaming connection.
      */
-    public void disableFlushOnRoaming() { mConfig.disableFlushOnRoaming(); }
+    public void setAllowedOverRoaming(boolean allowed) { mConfig.setAllowedOverRoaming(allowed); }
+
+    public void setAllowedNetworkTypes(int flags) { mConfig.setAllowedNetworkTypes(flags); }
 
     public void setLogType(IBConfig.LOG_TYPE logType) {
         Logger.logLevel  = logType;
@@ -125,4 +127,6 @@ public class IronBeast {
     private static IronBeast sInstance;
     final static Object sInstanceLockObject = new Object();
     private static final String TAG = "IronBeast";
+    public static final int NETWORK_MOBILE = 1 << 0;
+    public static final int NETWORK_WIFI = 1 << 1;
 }

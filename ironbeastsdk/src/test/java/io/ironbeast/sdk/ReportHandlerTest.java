@@ -23,8 +23,14 @@ import io.ironbeast.sdk.StorageService.Table;
 public class ReportHandlerTest {
 
     @Before
-    public void clearMocks() {
+    public void startClear() {
+        // reset mocks
         reset(mStorage, mPoster, mConfig);
+        // add default configuration
+        when(mConfig.getNumOfRetries()).thenReturn(1);
+        when(mConfig.getAllowedNetworkTypes()).thenReturn(-1);
+        when(mPoster.getNetworkIBType(mContext)).thenReturn(-1);
+        when(mPoster.isOnline(mContext)).thenReturn(true);
     }
 
     @Test
@@ -43,14 +49,9 @@ public class ReportHandlerTest {
     // persistence data storage, and returns true
     public void postSuccess() throws Exception {
         String url = "http://host.com/post";
-        when(mPoster.isOnline(mContext)).thenReturn(true);
-        when(mPoster.post(any(String.class), any(String.class))).thenReturn(new Response() {{
-            code = 200;
-            body = "OK";
-        }});
+        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         when(mConfig.getIBEndPoint(anyString())).thenReturn(url);
-        when(mConfig.getNumOfRetries()).thenReturn(1);
         assertTrue(mHandler.handleReport(intent) == ReportHandler.HandleStatus.HANDLED);
         verify(mPoster, times(1)).isOnline(mContext);
         verify(mPoster, times(1)).post(anyString(), eq(url));
@@ -64,7 +65,6 @@ public class ReportHandlerTest {
         String url = "http://host.com";
         when(mConfig.getNumOfRetries()).thenReturn(10);
         when(mConfig.getIBEndPoint(TOKEN)).thenReturn(url);
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(new Response() {{
             code = 401;
             body = "Unauthorized";
@@ -91,10 +91,47 @@ public class ReportHandlerTest {
     }
 
     @Test
+    // When handler get a post-event(or flush), and the device is on ROAMING_MODE.
+    // It should try to send only if its has a permission to it.
+    public void postOnRoaming() throws Exception {
+        Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
+        when(mConfig.isAllowedOverRoaming()).thenReturn(false, false, true);
+        when(mPoster.isDataRoamingEnabled(mContext)).thenReturn(false, true, true);
+        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
+        assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
+        assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
+        verify(mPoster, times(2)).post(anyString(), anyString());
+    }
+
+    @Test
+    // When handler get a post-event(or flush), should test if the
+    // network type allowing it to make a network transaction before trying to make it.
+    public void isNetworkTypeAllowed() throws Exception {
+        Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
+        int WIFI = IronBeast.NETWORK_WIFI, MOBILE = IronBeast.NETWORK_MOBILE;
+        // List of scenarios, each member contains:
+        // configResult, networkTypeResult and the expected behavior.
+        List<TestScenario> scenarios = new ArrayList<>();
+        scenarios.add(new TestScenario(~0, MOBILE, HandleStatus.HANDLED));
+        scenarios.add(new TestScenario(WIFI | MOBILE, MOBILE, HandleStatus.HANDLED));
+        scenarios.add(new TestScenario(WIFI | MOBILE, WIFI, HandleStatus.HANDLED));
+        scenarios.add(new TestScenario(WIFI, WIFI, HandleStatus.HANDLED));
+        scenarios.add(new TestScenario(MOBILE, MOBILE, HandleStatus.HANDLED));
+        scenarios.add(new TestScenario(WIFI, MOBILE, HandleStatus.RETRY));
+        scenarios.add(new TestScenario(MOBILE, WIFI, HandleStatus.RETRY));
+        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
+        for (TestScenario test: scenarios) {
+            when(mConfig.getAllowedNetworkTypes()).thenReturn(test.configStatus);
+            when(mPoster.getNetworkIBType(mContext)).thenReturn(test.networkStatus);
+            assertEquals(mHandler.handleReport(intent), test.expected);
+        }
+    }
+
+    @Test
     // When handler get a flush-event and there's no items in the queue.
     // Should do nothing and return true.
     public void flushNothing() {
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
@@ -107,7 +144,6 @@ public class ReportHandlerTest {
     public void flushSuccess() throws Exception {
         // Config this situation
         when(mConfig.getBulkSize()).thenReturn(2);
-        when(mConfig.getNumOfRetries()).thenReturn(1);
         when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024));
         // Another table to test
         final Table mTable1 = new Table("a8m", "a8m_token") {
@@ -136,8 +172,6 @@ public class ReportHandlerTest {
         when(mStorage.deleteEvents(mTable1, "4")).thenReturn(1);
         when(mStorage.count(mTable)).thenReturn(1);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-        // We're connected
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         // All success
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
@@ -158,7 +192,6 @@ public class ReportHandlerTest {
     // Should do-nothing, and return true
     public void flushNoItems() throws Exception {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
         verify(mStorage, never()).getEvents(any(Table.class), anyInt());
@@ -178,7 +211,6 @@ public class ReportHandlerTest {
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
         }});
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(fail);
         assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
         verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
@@ -191,7 +223,6 @@ public class ReportHandlerTest {
     // is greater or equal to bulk-size, should flush the queue.
     public void trackCauseFlush() {
         mConfig.setBulkSize(2);
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mStorage.addEvent(mTable, DATA)).thenReturn(2);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
@@ -208,7 +239,6 @@ public class ReportHandlerTest {
     public void maxRequestLimit() throws Exception {
         when(mConfig.getBulkSize()).thenReturn(2);
         when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024 * 1024 + 1));
-        when(mConfig.getNumOfRetries()).thenReturn(1);
         final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
@@ -223,7 +253,6 @@ public class ReportHandlerTest {
         }}));
         when(mStorage.deleteEvents(eq(mTable), anyString())).thenReturn(1);
         when(mStorage.count(mTable)).thenReturn(1, 0);
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         mHandler.handleReport(intent);
@@ -236,8 +265,6 @@ public class ReportHandlerTest {
     // Test data format
     // Should omit the "token" field and add "auth"
     public void dataFormat() throws Exception {
-        when(mConfig.getNumOfRetries()).thenReturn(1);
-        when(mPoster.isOnline(mContext)).thenReturn(true);
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
@@ -278,4 +305,17 @@ public class ReportHandlerTest {
         @Override
         protected IBConfig getConfig(Context context) { return mConfig; }
     };
+
+    // Helper class, used inside "isNetworkAllowed" test case.
+    class TestScenario {
+        int configStatus;
+        int networkStatus;
+        HandleStatus expected;
+
+        TestScenario(int config, int network, HandleStatus exp) {
+            configStatus = config;
+            networkStatus = network;
+            expected = exp;
+        }
+    }
 }

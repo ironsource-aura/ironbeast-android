@@ -32,7 +32,8 @@ class IBConfig {
         mIBEndPoint = new HashMap<>();
         mIBEndPointBulk = new HashMap<>();
         mEnableErrorReporting = mIBPrefService.load(KEY_ENABLE_ERROR_REPORTING, false);
-        mDisableFlushOnRoaming = mIBPrefService.load(KEY_DISABLE_ROAMING_FLUSH, false);
+        mAllowedOverRoaming = mIBPrefService.load(KEY_ALLOWED_OVER_ROAMING, true);
+        mAllowedNetworkTypes = mIBPrefService.load(KEY_ALLOWED_NETWORK_TYPES, DEFAULT_ALLOWED_NETWORK_TYPES);
         mFlushInterval = mIBPrefService.load(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
         mMaximumRequestLimit = mIBPrefService.load(KEY_MAX_REQUEST_LIMIT, DEFAULT_MAX_REQUEST_LIMIT);
         mMaximumDatabaseLimit = mIBPrefService.load(KEY_MAX_DATABASE_LIMIT, DEFAUL_MAX_DATABASE_LIMIT);
@@ -177,20 +178,33 @@ class IBConfig {
     }
 
     /**
-     * Force the SDK to send reports only when the device is connected via WiFi.
-     */
-    public void disableFlushOnRoaming() {
-        mDisableFlushOnRoaming = true;
-        mIBPrefService.save(KEY_DISABLE_ROAMING_FLUSH, mDisableFlushOnRoaming);
-    }
-
-    /**
      * return if the SDK should send reports only when the device is connected via WiFi.
      *
      * @return boolean
      */
-    public boolean isRoamingFlushDisabled() {
-        return mDisableFlushOnRoaming;
+    public boolean isAllowedOverRoaming() {
+        return mAllowedOverRoaming;
+    }
+
+    /**
+     * Set whether the SDK can keep sending over a roaming connection.
+     */
+    public void setAllowedOverRoaming(boolean allowed) {
+        mAllowedOverRoaming = allowed;
+        mIBPrefService.save(KEY_ALLOWED_OVER_ROAMING, mAllowedOverRoaming);
+    }
+
+    /**
+     * Restrict the types of networks over which this SDK can keep making HTTP requests.
+     * By default, all network types are allowed
+     */
+    public void setAllowedNetworkTypes(int flags) {
+        mAllowedNetworkTypes = flags;
+        mIBPrefService.save(KEY_ALLOWED_NETWORK_TYPES, mAllowedOverRoaming);
+    }
+
+    protected int getAllowedNetworkTypes() {
+        return mAllowedNetworkTypes;
     }
 
     @Override
@@ -227,6 +241,7 @@ class IBConfig {
     protected static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
     protected static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
     protected static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
+    protected static final int DEFAULT_ALLOWED_NETWORK_TYPES = ~0;
     //SharedPreferences keys for metadata
     protected static final String KEY_BULK_SIZE = "bulk_size";
     protected static final String KEY_IB_END_POINT = "ib_end_point";
@@ -235,7 +250,8 @@ class IBConfig {
     protected static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
     protected static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
     protected static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
-    protected static final String KEY_DISABLE_ROAMING_FLUSH = "disable_roaming_flush";
+    protected static final String KEY_ALLOWED_OVER_ROAMING = "allow_roaming_flush";
+    protected static final String KEY_ALLOWED_NETWORK_TYPES = "allowed_network_types";
     // IronBeast sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
     protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
@@ -243,7 +259,8 @@ class IBConfig {
 
     IBPrefService mIBPrefService;
     private boolean mEnableErrorReporting;
-    private boolean mDisableFlushOnRoaming;
+    private boolean mAllowedOverRoaming;
+    private int mAllowedNetworkTypes;
     private int mBulkSize;
     private int mFlushInterval;
     private HashMap<String, String> mIBEndPoint;
