@@ -2,13 +2,23 @@ package io.ironbeast.sdk;
 
 import android.content.Context;
 import android.webkit.URLUtil;
-
 import org.json.JSONObject;
-
 import java.util.Map;
 
 public class IronBeastTracker {
 
+    /**
+     * This class is the main entry point into this client API.
+     * </p>
+     * You should use <code>IronBeast.newTracker(String)</code> to create
+     * an instance of this class.
+     * </p>
+     * While tracking events, IronBeastTracker will queue them to disk (using SQLite),
+     * and each period of time it upload it as a batch to IronBeast.
+     *
+     * @param context
+     * @param token
+     */
     IronBeastTracker(Context context, String token) {
         mContext = context;
         mToken = token;

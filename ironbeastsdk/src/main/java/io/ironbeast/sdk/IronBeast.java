@@ -37,8 +37,13 @@ public class IronBeast {
     }
 
     /**
-     * Use this to get a singleton instance of IronBeastTracker instead of creating one directly
-     * for yourself.
+     * Create IronBeastTracker with your API_TOKEN.
+     * Example:
+     * <code>
+     *      IronBeastTracker tracker = ironBeast.newTracker("YOUR_API_TOKEN");
+     * </code>
+     * @param token
+     * @return IronBeastTracker
      */
     public IronBeastTracker newTracker(String token) {
         if (null == token) {
