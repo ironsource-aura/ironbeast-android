@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DbAdapter implements StorageService {
+class DbAdapter implements StorageService {
 
     /**
      * Do not call directly. You should use DbAdapter.getInstance()

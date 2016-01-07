@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 
-public class ReportService extends IntentService {
+class ReportService extends IntentService {
 
     public ReportService() {
         super(TAG);

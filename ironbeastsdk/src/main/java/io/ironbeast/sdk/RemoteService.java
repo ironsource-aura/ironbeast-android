@@ -3,7 +3,7 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import java.io.IOException;
 
-public interface RemoteService {
+interface RemoteService {
     boolean isOnline(Context context);
     boolean isDataRoamingEnabled(Context context);
     String getConnectedNetworkType(Context context);

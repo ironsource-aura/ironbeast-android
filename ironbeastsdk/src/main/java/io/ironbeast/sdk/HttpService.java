@@ -16,7 +16,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 /**
  * An Network utility class for internal use in this library.
  */
-public class HttpService implements RemoteService {
+class HttpService implements RemoteService {
 
     public static HttpService getInstance() {
         synchronized (sInstanceLock) {

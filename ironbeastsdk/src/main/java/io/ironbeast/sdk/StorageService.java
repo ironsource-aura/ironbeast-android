@@ -2,7 +2,7 @@ package io.ironbeast.sdk;
 
 import java.util.List;
 
-public interface StorageService {
+interface StorageService {
     List<Table> getTables();
     void deleteTable(Table table);
     int count(Table table);

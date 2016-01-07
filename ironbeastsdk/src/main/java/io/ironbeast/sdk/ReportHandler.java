@@ -16,7 +16,7 @@ import java.util.List;
 
 import static java.lang.Math.ceil;
 
-public class ReportHandler {
+class ReportHandler {
 
     public ReportHandler(Context context) {
         mContext = context;
