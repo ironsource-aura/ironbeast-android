@@ -1,10 +1,13 @@
 package io.ironbeast.sdk;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 
 
-class ReportService extends IntentService {
+public class ReportService extends IntentService {
 
     public ReportService() {
         super(TAG);
@@ -13,8 +16,10 @@ class ReportService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        mHandler = new ReportHandler(this.getApplicationContext());
-        mBackOff = BackOff.getInstance(this.getApplicationContext());
+        Context context = this.getApplicationContext();
+        mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mHandler = new ReportHandler(context);
+        mBackOff = BackOff.getInstance(context);
     }
 
     @Override
@@ -32,13 +37,17 @@ class ReportService extends IntentService {
 
     }
 
-    protected void setAlarm(long mills) {
+    protected void setAlarm(long triggerMills) {
         Logger.log(TAG, "Setting alarm", Logger.SDK_DEBUG);
         ReportIntent report = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
-        Utils.scheduleSendReportsAction(this, report.getIntent(), mills);
+        PendingIntent intent = PendingIntent.getService(this, 0, report.getIntent(),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager.cancel(intent);
+        mAlarmManager.set(AlarmManager.RTC, triggerMills, intent);
     }
 
     final static private String TAG = "ReportService";
+    private AlarmManager mAlarmManager;
     private ReportHandler mHandler;
     private BackOff mBackOff;
 }

@@ -23,7 +23,6 @@ class BackOff {
         return sInstance;
     }
 
-
     /**
      * Returns the next milliseconds and advances the counter.
      * @return

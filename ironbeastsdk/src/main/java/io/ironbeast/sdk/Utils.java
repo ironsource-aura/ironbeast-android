@@ -1,9 +1,5 @@
 package io.ironbeast.sdk;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,13 +52,5 @@ class Utils {
         } catch(NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
             return "";
         }
-    }
-
-    public static void scheduleSendReportsAction(Context context, Intent scheduleIntent, long time) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent intent = PendingIntent.getService(context, 0, scheduleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        am.cancel(intent); // cancel previous one
-        //will fire log than device not sleep
-        am.set(AlarmManager.RTC, time, intent);
     }
 }
