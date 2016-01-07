@@ -2,9 +2,10 @@
 
 - [Installation](#installation)
 - [Getting Started](#getting-started)
+- [Documentation](#documentation)
 
 #### Installation
-Currentlly, there is 1 way to integrate.  
+Currently, there is one way to integrate.
 soon, it will be available on jcenter and Github as well.  
 
 **1.** Add the SDK [jar](http://link-to-jar) into `libs` directory.
@@ -53,6 +54,17 @@ import io.ironbeast.sdk.IronBeastTracker;
     }
 ```
 
-Make sure you that have replaced `"YOUR_API_TOKEN"` with your IronBeast api token,  
+Make sure you have replaced `"YOUR_API_TOKEN"` with your IronBeast api token,  
 and `"TABLE_TO_TRACK_INTO"` to the desired destination (e.g: "cluster.schema.table")
+
+
+
+#### Documentation - TODO
+- track string, map and json.
+- flush (control interval size, bulk and byte size, flush manually, etc..)
+- how to track events immediately ?
+- set whether the SDK can keep sending over a roaming connection.
+- restrict the types of networks over which this SDK can keep making HTTP requests.
+- enabling IronBeast error tracker.
+- set custom endpoint.
 
