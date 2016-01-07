@@ -8,7 +8,8 @@
 Currently, there is one way to integrate.
 soon, it will be available on jcenter and Github as well.  
 
-**1.** Add the SDK [jar](http://link-to-jar) into `libs` directory.
+**1.** Add the SDK [jar](https://drive.google.com/a/ironsrc.com/file/d/0BzvglFf2CT9kaXM5bkJHd0RycHc/view?ts=568e6879)
+into `libs` directory.
 
 **2.** Add the following line to `AndroidManifest.xml`
 
@@ -54,7 +55,7 @@ import io.ironbeast.sdk.IronBeastTracker;
     }
 ```
 
-Make sure you have replaced `"YOUR_API_TOKEN"` with your IronBeast api token,  
+Make sure you have replaced `"YOUR_API_TOKEN"` with your IronBeast api token,
 and `"TABLE_TO_TRACK_INTO"` to the desired destination (e.g: "cluster.schema.table")
 
 
