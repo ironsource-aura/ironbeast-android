@@ -8,12 +8,12 @@
 Currently, there is one way to integrate.
 soon, it will be available on jcenter and Github as well.  
 
-**1.** Add the SDK [jar](https://drive.google.com/a/ironsrc.com/file/d/0BzvglFf2CT9kaXM5bkJHd0RycHc/view?ts=568e6879)
+**1.** Add the SDK [jar](https://drive.google.com/folderview?id=0BzvglFf2CT9kY0FzZ1J1SzZoelk&usp=sharing)
 into `libs` directory.
 
 **2.** Add the following line to `AndroidManifest.xml`
 
-```
+```xml
 <service android:name="io.ironbeast.sdk.ReportService" />
 ```
 
@@ -28,7 +28,7 @@ dependencies {
 #### Getting Started
 Add IronBeast to your main activity. for example:
 
-```
+```java
 ...
 import io.ironbeast.sdk.IronBeast;
 import io.ironbeast.sdk.IronBeastTracker;
