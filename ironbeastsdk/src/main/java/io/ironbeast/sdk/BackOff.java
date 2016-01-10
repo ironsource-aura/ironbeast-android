@@ -1,6 +1,7 @@
 package io.ironbeast.sdk;
 
 import android.content.Context;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,7 +48,7 @@ class BackOff {
         if (n <= INITIAL_RETRY_VALUE) {
             return mConfig.getFlushInterval();
         }
-        return TimeUnit.MINUTES.toMillis((int) Math.pow(2, n));
+        return (long) (new Random().nextDouble() * TimeUnit.MINUTES.toMillis((int) Math.pow(2, n) - 1));
     }
 
     /**
@@ -80,8 +81,8 @@ class BackOff {
     private IBPrefService mSharedPref;
     private final String KEY_LAST_TICK = "retry_last_tick";
     private final String KEY_RETRY_COUNT = "retry_count";
-    protected final int MAX_RETRY_COUNT = 7;
-    protected final int INITIAL_RETRY_VALUE = -1;
+    protected final int MAX_RETRY_COUNT = 8;
+    protected final int INITIAL_RETRY_VALUE = 0;
 
     private static BackOff sInstance;
     private static final Object sInstanceLock = new Object();

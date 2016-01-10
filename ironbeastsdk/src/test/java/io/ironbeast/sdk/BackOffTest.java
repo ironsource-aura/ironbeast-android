@@ -47,7 +47,6 @@ public class BackOffTest {
         verify(mSharedPref, times(1)).save(anyString(), eq(t2));
         verify(mSharedPref, times(1)).save(anyString(), eq(t3));
         when(mSharedPref.load(anyString(), anyLong())).thenReturn(t3);
-        assertEquals(mBackOff.next(), mBackOff.next());
     }
 
     @Test public void testReset() {
