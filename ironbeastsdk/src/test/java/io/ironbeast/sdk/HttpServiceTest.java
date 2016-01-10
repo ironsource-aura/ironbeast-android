@@ -20,9 +20,8 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class HttpServiceTest {
 
-    @Test
     // Test isOnline behavior
-    public void isOnlineTest() throws Exception {
+    @Test public void isOnlineTest() throws Exception {
         final ConnectivityManager connectivityManager = mock(ConnectivityManager.class);
         final NetworkInfo networkInfo = mock(NetworkInfo.class);
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
@@ -38,9 +37,8 @@ public class HttpServiceTest {
         assertTrue(mPoster.isOnline(mContext));
     }
 
-    @Test
     // Test post behavior
-    public void postTest() throws Exception {
+    @Test public void postTest() throws Exception {
         DataOutputStream outMock = mock(DataOutputStream.class);
         InputStream inMock = mock(InputStream.class);
         when(mMockConn.getOutputStream()).thenReturn(outMock);

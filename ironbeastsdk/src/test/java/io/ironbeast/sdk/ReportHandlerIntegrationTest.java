@@ -23,13 +23,11 @@ import java.util.Map;
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
 public class ReportHandlerIntegrationTest {
 
-    @Before
-    public void reset() {
+    @Before public void reset() {
         mPoster.mBackedMock.clear();
     }
 
-    @Test
-    public void testPostSuccess() throws Exception {
+    @Test public void testPostSuccess() throws Exception {
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event1));
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event2));
         assertEquals(mPoster.get(TABLE1), new JSONArray("[{" +
@@ -46,8 +44,7 @@ public class ReportHandlerIntegrationTest {
                 .toString());
     }
 
-    @Test
-    public void testPostFailed() {
+    @Test public void testPostFailed() {
         mPoster.setNext(503);
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event1));
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event2));
@@ -55,8 +52,7 @@ public class ReportHandlerIntegrationTest {
         assertEquals(mAdapter.getTables().size(), 2);
     }
 
-    @Test
-    public void testTrackEvent() {
+    @Test public void testTrackEvent() {
         mConfig.setBulkSize(Integer.MAX_VALUE);
         for (int i = 1; i <= 10; i++) {
             mHandler.handleReport(newReport(SdkEvent.ENQUEUE, event1));
@@ -65,8 +61,7 @@ public class ReportHandlerIntegrationTest {
         assertEquals(mAdapter.getTables().size(), 1);
     }
 
-    @Test
-    public void testTrackTriggerFlush() throws Exception {
+    @Test public void testTrackTriggerFlush() throws Exception {
         mConfig.setBulkSize(2);
         for (int i = 1; i <= 10; i++) {
             final Map<String, String> event = new HashMap<>(event1);
@@ -103,8 +98,7 @@ public class ReportHandlerIntegrationTest {
                 "}]").toString());
     }
 
-    @Test
-    public void testFlush() {
+    @Test public void testFlush() {
         mConfig.setBulkSize(5);
         for (int i = 1; i <= 10; i++) {
             final Map<String, String> event = new HashMap<>(event1);

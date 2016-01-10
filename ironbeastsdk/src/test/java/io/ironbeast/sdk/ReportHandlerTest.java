@@ -22,8 +22,7 @@ import io.ironbeast.sdk.StorageService.Table;
 @RunWith(MockitoJUnitRunner.class)
 public class ReportHandlerTest {
 
-    @Before
-    public void startClear() {
+    @Before public void startClear() {
         // reset mocks
         reset(mStorage, mPoster, mConfig);
         // add default configuration
@@ -33,9 +32,8 @@ public class ReportHandlerTest {
         when(mPoster.isOnline(mContext)).thenReturn(true);
     }
 
-    @Test
     // When you tracking an event.
-    public void trackOnly() throws Exception {
+    @Test public void trackOnly() throws Exception {
         mConfig.setBulkSize(Integer.MAX_VALUE);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
@@ -43,11 +41,10 @@ public class ReportHandlerTest {
         verify(mPoster, never()).post(anyString(), anyString());
     }
 
-    @Test
     // When handler get a post-event and everything goes well(connection available, and IronBeast responds OK).
     // Should call "isOnline()" and "post()" (with the given event), NOT add the event to the
     // persistence data storage, and returns true
-    public void postSuccess() throws Exception {
+    @Test public void postSuccess() throws Exception {
         String url = "http://host.com/post";
         when(mPoster.post(anyString(), anyString())).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
@@ -58,10 +55,9 @@ public class ReportHandlerTest {
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
-    @Test
     // When handler get a post-event and we get an authentication error(40X) from Poster
     // Should discard the event, NOT add it to thr storage and returns true.
-    public void postAuthFailed() throws Exception {
+    @Test public void postAuthFailed() throws Exception {
         String url = "http://host.com";
         when(mConfig.getNumOfRetries()).thenReturn(10);
         when(mConfig.getIBEndPoint(TOKEN)).thenReturn(url);
@@ -76,10 +72,9 @@ public class ReportHandlerTest {
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
-    @Test
     // When handler get a post-event(or flush), but the device not connected to internet.
     // Should try to post "n" times, add it to storage if it's failed, and returns false.
-    public void postWithoutNetwork() throws Exception {
+    @Test public void postWithoutNetwork() throws Exception {
         when(mPoster.isOnline(mContext)).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
@@ -90,10 +85,9 @@ public class ReportHandlerTest {
         verify(mStorage, times(1)).addEvent(mTable, DATA);
     }
 
-    @Test
     // When handler get a post-event(or flush), and the device is on ROAMING_MODE.
     // It should try to send only if its has a permission to it.
-    public void postOnRoaming() throws Exception {
+    @Test public void postOnRoaming() throws Exception {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         when(mConfig.isAllowedOverRoaming()).thenReturn(false, false, true);
         when(mPoster.isDataRoamingEnabled(mContext)).thenReturn(false, true, true);
@@ -104,10 +98,9 @@ public class ReportHandlerTest {
         verify(mPoster, times(2)).post(anyString(), anyString());
     }
 
-    @Test
     // When handler get a post-event(or flush), should test if the
     // network type allowing it to make a network transaction before trying to make it.
-    public void isNetworkTypeAllowed() throws Exception {
+    @Test public void isNetworkTypeAllowed() throws Exception {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         int WIFI = IronBeast.NETWORK_WIFI, MOBILE = IronBeast.NETWORK_MOBILE;
         // List of scenarios, each member contains:
@@ -128,20 +121,18 @@ public class ReportHandlerTest {
         }
     }
 
-    @Test
     // When handler get a flush-event and there's no items in the queue.
     // Should do nothing and return true.
-    public void flushNothing() {
+    @Test public void flushNothing() {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
     }
 
-    @Test
     // When handler get a flush-event, it should ask for the all tables with `getTables`,
     // and then call `getEvents` for each of them with `maximumBulkSize`.
     // If everything goes well, it should drain the table, and then delete it.
-    public void flushSuccess() throws Exception {
+    @Test public void flushSuccess() throws Exception {
         // Config this situation
         when(mConfig.getBulkSize()).thenReturn(2);
         when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024));
@@ -187,20 +178,18 @@ public class ReportHandlerTest {
         verify(mStorage, times(1)).deleteTable(mTable1);
     }
 
-    @Test
     // When handler get a flush-event, and there's no tables to drain(i.e: no event)
     // Should do-nothing, and return true
-    public void flushNoItems() throws Exception {
+    @Test public void flushNoItems() throws Exception {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(1)).getTables();
         verify(mStorage, never()).getEvents(any(Table.class), anyInt());
     }
 
-    @Test
     // When handler try to flush a batch, and it encounter an error(e.g: connectivity)
     // should stop-flushing, and return false
-    public void flushFailed() throws Exception {
+    @Test public void flushFailed() throws Exception {
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         // Batch result
         when(mStorage.getEvents(mTable, mConfig.getBulkSize()))
@@ -218,10 +207,9 @@ public class ReportHandlerTest {
         verify(mStorage, never()).deleteTable(mTable);
     }
 
-    @Test
     // When tracking an event(record) to some table and the count number
     // is greater or equal to bulk-size, should flush the queue.
-    public void trackCauseFlush() {
+    @Test public void trackCauseFlush() {
         mConfig.setBulkSize(2);
         when(mStorage.addEvent(mTable, DATA)).thenReturn(2);
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
@@ -230,13 +218,12 @@ public class ReportHandlerTest {
         verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
     }
 
-    @Test
     // ByteSize limits logic
     // The scenario goes like this:
     // Ask for events with limit of 2 and the batch is too large.
     // handler decrease the bulkSize(limit) and ask for limit of 1.
     // in this situation it doesn't have another choice except sending this batch(of length 1).
-    public void maxRequestLimit() throws Exception {
+    @Test public void maxRequestLimit() throws Exception {
         when(mConfig.getBulkSize()).thenReturn(2);
         when(mConfig.getMaximumRequestLimit()).thenReturn((long) (1024 * 1024 + 1));
         final String chunk = new String(new char[1024 * 1024]).replace('\0', 'b');
@@ -261,10 +248,9 @@ public class ReportHandlerTest {
         verify(mStorage, times(1)).deleteTable(mTable);
     }
 
-    @Test
     // Test data format
     // Should omit the "token" field and add "auth"
-    public void dataFormat() throws Exception {
+    @Test public void dataFormat() throws Exception {
         when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);

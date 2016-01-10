@@ -22,13 +22,11 @@ import static junit.framework.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class IronBeastTest {
 
-    @Before
-    public void Reset() {
+    @Before public void Reset() {
         reset(mSpyReport);
     }
 
-    @Test
-    public void testGetInstance() {
+    @Test public void testGetInstance() {
         MockContext context = mock(MockContext.class);
         IronBeast ironBeast = IronBeast.getInstance(context);
 
@@ -39,8 +37,7 @@ public class IronBeastTest {
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
 
-    @Test
-    public void trackStringEvent() {
+    @Test public void trackStringEvent() {
         for (int i = 0; i < 10; i++) {
             mTracker.track("table", "hello world");
         }
@@ -51,8 +48,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
-    @Test
-    public void trackJSONEvent() throws JSONException {
+    @Test public void trackJSONEvent() throws JSONException {
         JSONObject event = new JSONObject();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
@@ -65,8 +61,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
-    @Test
-    public void trackMapEvent() throws JSONException {
+    @Test public void trackMapEvent() throws JSONException {
         Map<String, String> event = new HashMap<>();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
@@ -79,8 +74,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.ENQUEUE);
     }
 
-    @Test
-    public void postStringEvent() {
+    @Test public void postStringEvent() {
         for (int i = 0; i < 10; i++) {
             mTracker.track("table", "hello world", true);
         }
@@ -91,8 +85,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
     }
 
-    @Test
-    public void postJSONEvent() throws JSONException {
+    @Test public void postJSONEvent() throws JSONException {
         JSONObject event = new JSONObject();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
@@ -105,8 +98,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
     }
 
-    @Test
-    public void postMapEvent() throws JSONException {
+    @Test public void postMapEvent() throws JSONException {
         Map<String, String> event = new HashMap<>();
         event.put("hello", "world");
         for (int i = 0; i < 10; i++) {
@@ -119,8 +111,7 @@ public class IronBeastTest {
         assertEquals(mSpyReport.mType, SdkEvent.POST_SYNC);
     }
 
-    @Test
-    public void flushEvents() {
+    @Test public void flushEvents() {
         mTracker.flush();
         verify(mSpyReport, times(1)).send();
         assertEquals(mSpyReport.mType, SdkEvent.FLUSH_QUEUE);

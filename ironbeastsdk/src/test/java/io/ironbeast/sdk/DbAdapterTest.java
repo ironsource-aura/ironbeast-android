@@ -25,15 +25,13 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DbAdapterTest {
 
-    @Before
-    public void clearMocks() {
+    @Before public void clearMocks() {
         reset(mHandler);
     }
 
-    @Test
     // If everything goes well, it should return the number if rows
     // and make sure it close the db connection and the cursor too.
-    public void countSuccess() {
+    @Test public void countSuccess() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -44,9 +42,8 @@ public class DbAdapterTest {
         verify(db, times(1)).close();
     }
 
-    @Test
     // When Adapter encounter SQLiteException it'll return 0 and discard the database
-    public void countFailed() {
+    @Test public void countFailed() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenThrow(new SQLiteException());
         when(mHandler.getReadableDatabase()).thenReturn(db);
@@ -55,8 +52,7 @@ public class DbAdapterTest {
         verify(mHandler, times(1)).delete();
     }
 
-    @Test
-    public void getTables() {
+    @Test public void getTables() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -75,16 +71,14 @@ public class DbAdapterTest {
         verify(mHandler, times(1)).close();
     }
 
-    @Test
-    public void deleteTable() {
+    @Test public void deleteTable() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(mHandler.getWritableDatabase()).thenReturn(db);
         mAdapter.deleteTable(mTable);
         verify(db, times(1)).delete(eq(DbAdapter.TABLES_TABLE), anyString(), any(String[].class));
     }
 
-    @Test
-    public void getEvents() {
+    @Test public void getEvents() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -99,18 +93,16 @@ public class DbAdapterTest {
         assertEquals(batch.lastId, "2");
     }
 
-    @Test
-    public void deleteEvents() {
+    @Test public void deleteEvents() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(mHandler.getWritableDatabase()).thenReturn(db);
         mAdapter.deleteEvents(mTable, "100");
         verify(db, times(1)).delete(eq(DbAdapter.REPORTS_TABLE), anyString(), any(String[].class));
     }
 
-    @Test
     // Should addEvent to REPORTS_TABLE and return the number of rows
     // related to the given `Table`
-    public void addEvent1() {
+    @Test public void addEvent1() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getInt(0)).thenReturn(29);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
@@ -121,9 +113,8 @@ public class DbAdapterTest {
                 any(ContentValues.class));
     }
 
-    @Test
     // When `addEvent()` trigger table creation
-    public void addEvent2() {
+    @Test public void addEvent2() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getInt(0)).thenReturn(1);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
