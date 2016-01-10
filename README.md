@@ -34,7 +34,7 @@ import io.ironbeast.sdk.IronBeast;
 import io.ironbeast.sdk.IronBeastTracker;
 ...
 ...
-@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         ...
         // Configure IronBeast
@@ -47,7 +47,7 @@ import io.ironbeast.sdk.IronBeastTracker;
             JSONObject events = new JSONObject();
             events.put("action", "click on ...");
             events.put("user_id", user.id);
-            tracker.track("TABLE_TO_TRACK_INTO", event);
+            tracker.track("DESTINATION_NAME", event);
         } catch (JSONException e) {
             ...
         }
@@ -56,7 +56,7 @@ import io.ironbeast.sdk.IronBeastTracker;
 ```
 
 Make sure you have replaced `"YOUR_API_TOKEN"` with your IronBeast api token,
-and `"TABLE_TO_TRACK_INTO"` to the desired destination (e.g: "cluster.schema.table")
+and `"DESTINATION_NAME"` to the desired destination (e.g: "cluster.schema.table")
 
 
 
