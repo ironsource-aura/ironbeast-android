@@ -18,24 +18,7 @@ import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HttpServiceTest {
-
-    // Test isOnline behavior
-    @Test public void isOnlineTest() throws Exception {
-        final ConnectivityManager connectivityManager = mock(ConnectivityManager.class);
-        final NetworkInfo networkInfo = mock(NetworkInfo.class);
-        when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
-        when(mContext.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
-        // #1
-        when(networkInfo.isConnected()).thenReturn(true);
-        assertTrue(mPoster.isOnline(mContext));
-        // #2
-        when(networkInfo.isConnected()).thenReturn(false);
-        assertFalse(mPoster.isOnline(mContext));
-        // #3
-        when(networkInfo.isConnected()).thenThrow(new SecurityException());
-        assertTrue(mPoster.isOnline(mContext));
-    }
+public class HttpClientTest {
 
     // Test post behavior
     @Test public void postTest() throws Exception {
@@ -46,14 +29,14 @@ public class HttpServiceTest {
         when(inMock.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
         // #1
         when(mMockConn.getResponseCode()).thenReturn(200);
-        assertEquals(mPoster.post("foo", "localhost").code, 200);
+        assertEquals(mClient.post("foo", "localhost").code, 200);
         // #2
         when(mMockConn.getResponseCode()).thenReturn(500);
-        assertEquals(mPoster.post("bar", "localhost").code, 500);
+        assertEquals(mClient.post("bar", "localhost").code, 500);
         // #3
         when(mMockConn.getResponseCode()).thenReturn(501);
         when(mMockConn.getInputStream()).thenThrow(new IOException());
-        assertEquals(mPoster.post("bar", "localhost").code, 501);
+        assertEquals(mClient.post("bar", "localhost").code, 501);
         // Connection settings assertions
         verify(mMockConn, times(3)).setRequestMethod("POST");
         // Close streams and disconnect
@@ -63,9 +46,8 @@ public class HttpServiceTest {
     }
 
     // Mocking
-    final Context mContext = mock(MockContext.class);
     final HttpURLConnection mMockConn = mock(HttpURLConnection.class);
-    final HttpService mPoster = new HttpService() {
+    final HttpClient mClient = new HttpClient() {
         @Override
         protected HttpURLConnection createConnection(String url) throws IOException {
             return mMockConn;

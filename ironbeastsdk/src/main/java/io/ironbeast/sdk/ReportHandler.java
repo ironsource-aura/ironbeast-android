@@ -1,7 +1,6 @@
 package io.ironbeast.sdk;
 
 import io.ironbeast.sdk.StorageService.*;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,10 +18,10 @@ import static java.lang.Math.ceil;
 class ReportHandler {
 
     public ReportHandler(Context context) {
-        mContext = context;
+        mClient = getClient();
         mConfig = getConfig(context);
         mStorage = getStorage(context);
-        mPoster = getPoster();
+        mNetworkManager = getNetManager(context);
     }
 
     /**
@@ -33,7 +32,7 @@ class ReportHandler {
      */
     public synchronized HandleStatus handleReport(Intent intent) {
         HandleStatus status = HandleStatus.HANDLED;
-        boolean isOnline = mPoster.isOnline(mContext) && canUseNetwork();
+        boolean isOnline = mNetworkManager.isOnline() && canUseNetwork();
         try {
             if (null == intent.getExtras()) return status;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
@@ -150,7 +149,7 @@ class ReportHandler {
         int nRetry = mConfig.getNumOfRetries();
         while (nRetry-- > 0) {
             try {
-                RemoteService.Response response = mPoster.post(data, url);
+                RemoteService.Response response = mClient.post(data, url);
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     return SendStatus.SUCCESS;
                 }
@@ -172,29 +171,26 @@ class ReportHandler {
      * @return
      */
     private boolean canUseNetwork() {
-        if ((mConfig.getAllowedNetworkTypes() & mPoster.getNetworkIBType(mContext)) == 0) {
+        if ((mConfig.getAllowedNetworkTypes() & mNetworkManager.getNetworkIBType()) == 0) {
             return false;
         }
-        return mConfig.isAllowedOverRoaming() || !mPoster.isDataRoamingEnabled(mContext);
+        return mConfig.isAllowedOverRoaming() || !mNetworkManager.isDataRoamingEnabled();
     }
 
     /**
      * For testing purpose. to allow mocking this behavior.
      */
-    protected RemoteService getPoster() {
-        return HttpService.getInstance();
-    }
-    protected StorageService getStorage(Context context) {
-        return DbAdapter.getInstance(context);
-    }
+    protected RemoteService getClient() { return HttpClient.getInstance(); }
     protected IBConfig getConfig(Context context) { return IBConfig.getInstance(context); }
+    protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
+    protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 
     enum SendStatus { SUCCESS, DELETE, RETRY }
     enum HandleStatus { HANDLED, RETRY }
 
     private static final String TAG = "ReportHandler";
+    private NetworkManager mNetworkManager;
     private StorageService mStorage;
-    private RemoteService mPoster;
+    private RemoteService mClient;
     private IBConfig mConfig;
-    private Context mContext;
 }

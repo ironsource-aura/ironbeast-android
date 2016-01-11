@@ -24,19 +24,19 @@ import java.util.Map;
 public class ReportHandlerIntegrationTest {
 
     @Before public void reset() {
-        mPoster.mBackedMock.clear();
+        mClient.mBackedMock.clear();
     }
 
     @Test public void testPostSuccess() throws Exception {
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event1));
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event2));
-        assertEquals(mPoster.get(TABLE1), new JSONArray("[{" +
+        assertEquals(mClient.get(TABLE1), new JSONArray("[{" +
                 "\"data\":\"ib-data\"," +
                 "\"table\":\"ib_test\"," +
                 "\"auth\":\"fbc254c2e706a3dc3a0b35985f220a66a2e05a25011bcbbe245671a2f54c1e8c\"" +
                 "}]")
                 .toString());
-        assertEquals(mPoster.get(TABLE2), new JSONArray("[{" +
+        assertEquals(mClient.get(TABLE2), new JSONArray("[{" +
                 "\"data\":\"ic-data\"," +
                 "\"table\":\"ic_test\"," +
                 "\"auth\":\"bfcdf43b270ba2c1b19042f87bf094fe0c1b54f0be309d5451cfe52f18957189\"" +
@@ -45,7 +45,7 @@ public class ReportHandlerIntegrationTest {
     }
 
     @Test public void testPostFailed() {
-        mPoster.setNext(503);
+        mClient.setNext(503);
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event1));
         mHandler.handleReport(newReport(SdkEvent.POST_SYNC, event2));
         assertEquals(mAdapter.count(null), 2);
@@ -70,7 +70,7 @@ public class ReportHandlerIntegrationTest {
         }
         assertEquals(mAdapter.count(null), 0);
         assertEquals(mAdapter.getTables().size(), 0);
-        assertEquals(mPoster.get(TABLE1), new JSONArray("[{" +
+        assertEquals(mClient.get(TABLE1), new JSONArray("[{" +
                 "\"data\":\"[1, 2]\"," +
                 "\"table\":\"ib_test\"," +
                 "\"bulk\":true," +
@@ -109,8 +109,8 @@ public class ReportHandlerIntegrationTest {
         }
         assertEquals(mAdapter.count(null), 0);
         assertEquals(mAdapter.getTables().size(), 0);
-        assertEquals(mPoster.mBackedMock.get(TABLE1).size(), 2);
-        assertEquals(mPoster.mBackedMock.get(TABLE2).size(), 2);
+        assertEquals(mClient.mBackedMock.get(TABLE1).size(), 2);
+        assertEquals(mClient.mBackedMock.get(TABLE2).size(), 2);
     }
 
     // Events to test
@@ -127,14 +127,14 @@ public class ReportHandlerIntegrationTest {
         put(ReportIntent.TABLE, TABLE2);
     }};
     // MockBackend
-    final TestsUtils.MockPoster mPoster = new TestsUtils.MockPoster();
+    final TestsUtils.MockPoster mClient = new TestsUtils.MockPoster();
     final IBConfig mConfig = IBConfig.getInstance(RuntimeEnvironment.application);
     final StorageService mAdapter = new DbAdapter(RuntimeEnvironment.application);
     final ReportHandler mHandler = new ReportHandler(RuntimeEnvironment.application) {
         @Override
         protected StorageService getStorage(Context context) { return mAdapter; }
         @Override
-        protected RemoteService getPoster() { return mPoster; }
+        protected RemoteService getClient() { return mClient; }
     };
 
 }

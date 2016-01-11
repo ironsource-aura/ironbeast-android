@@ -24,12 +24,12 @@ public class ReportHandlerTest {
 
     @Before public void startClear() {
         // reset mocks
-        reset(mStorage, mPoster, mConfig);
+        reset(mStorage, mClient, mConfig);
         // add default configuration
         when(mConfig.getNumOfRetries()).thenReturn(1);
         when(mConfig.getAllowedNetworkTypes()).thenReturn(-1);
-        when(mPoster.getNetworkIBType(mContext)).thenReturn(-1);
-        when(mPoster.isOnline(mContext)).thenReturn(true);
+        when(mNetManager.getNetworkIBType()).thenReturn(-1);
+        when(mNetManager.isOnline()).thenReturn(true);
     }
 
     // When you tracking an event.
@@ -38,7 +38,7 @@ public class ReportHandlerTest {
         Intent intent = newReport(SdkEvent.ENQUEUE, reportMap);
         mHandler.handleReport(intent);
         verify(mStorage, times(1)).addEvent(mTable, DATA);
-        verify(mPoster, never()).post(anyString(), anyString());
+        verify(mClient, never()).post(anyString(), anyString());
     }
 
     // When handler get a post-event and everything goes well(connection available, and IronBeast responds OK).
@@ -46,12 +46,12 @@ public class ReportHandlerTest {
     // persistence data storage, and returns true
     @Test public void postSuccess() throws Exception {
         String url = "http://host.com/post";
-        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
+        when(mClient.post(anyString(), anyString())).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         when(mConfig.getIBEndPoint(anyString())).thenReturn(url);
         assertTrue(mHandler.handleReport(intent) == ReportHandler.HandleStatus.HANDLED);
-        verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(url));
+        verify(mNetManager, times(1)).isOnline();
+        verify(mClient, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
@@ -61,27 +61,27 @@ public class ReportHandlerTest {
         String url = "http://host.com";
         when(mConfig.getNumOfRetries()).thenReturn(10);
         when(mConfig.getIBEndPoint(TOKEN)).thenReturn(url);
-        when(mPoster.post(anyString(), anyString())).thenReturn(new Response() {{
+        when(mClient.post(anyString(), anyString())).thenReturn(new Response() {{
             code = 401;
             body = "Unauthorized";
         }});
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
-        verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, times(1)).post(anyString(), eq(url));
+        verify(mNetManager, times(1)).isOnline();
+        verify(mClient, times(1)).post(anyString(), eq(url));
         verify(mStorage, never()).addEvent(mTable, DATA);
     }
 
     // When handler get a post-event(or flush), but the device not connected to internet.
     // Should try to post "n" times, add it to storage if it's failed, and returns false.
     @Test public void postWithoutNetwork() throws Exception {
-        when(mPoster.isOnline(mContext)).thenReturn(false);
+        when(mNetManager.isOnline()).thenReturn(false);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         // no idle time, but should try it out 10 times
         when(mConfig.getNumOfRetries()).thenReturn(10);
         assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
-        verify(mPoster, times(1)).isOnline(mContext);
-        verify(mPoster, never()).post(anyString(), anyString());
+        verify(mNetManager, times(1)).isOnline();
+        verify(mClient, never()).post(anyString(), anyString());
         verify(mStorage, times(1)).addEvent(mTable, DATA);
     }
 
@@ -90,12 +90,12 @@ public class ReportHandlerTest {
     @Test public void postOnRoaming() throws Exception {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         when(mConfig.isAllowedOverRoaming()).thenReturn(false, false, true);
-        when(mPoster.isDataRoamingEnabled(mContext)).thenReturn(false, true, true);
-        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
+        when(mNetManager.isDataRoamingEnabled()).thenReturn(false, true, true);
+        when(mClient.post(anyString(), anyString())).thenReturn(ok);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
-        verify(mPoster, times(2)).post(anyString(), anyString());
+        verify(mClient, times(2)).post(anyString(), anyString());
     }
 
     // When handler get a post-event(or flush), should test if the
@@ -113,10 +113,10 @@ public class ReportHandlerTest {
         scenarios.add(new TestScenario(MOBILE, MOBILE, HandleStatus.HANDLED));
         scenarios.add(new TestScenario(WIFI, MOBILE, HandleStatus.RETRY));
         scenarios.add(new TestScenario(MOBILE, WIFI, HandleStatus.RETRY));
-        when(mPoster.post(anyString(), anyString())).thenReturn(ok);
+        when(mClient.post(anyString(), anyString())).thenReturn(ok);
         for (TestScenario test: scenarios) {
             when(mConfig.getAllowedNetworkTypes()).thenReturn(test.configStatus);
-            when(mPoster.getNetworkIBType(mContext)).thenReturn(test.networkStatus);
+            when(mNetManager.getNetworkIBType()).thenReturn(test.networkStatus);
             assertEquals(mHandler.handleReport(intent), test.expected);
         }
     }
@@ -164,7 +164,7 @@ public class ReportHandlerTest {
         when(mStorage.count(mTable)).thenReturn(1);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         // All success
-        when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok, ok);
+        when(mClient.post(anyString(), anyString())).thenReturn(ok, ok, ok);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         verify(mStorage, times(2)).getEvents(mTable, mConfig.getBulkSize());
         verify(mStorage, times(1)).deleteEvents(mTable, "2");
@@ -200,7 +200,7 @@ public class ReportHandlerTest {
         when(mStorage.getTables()).thenReturn(new ArrayList<Table>() {{
             add(mTable);
         }});
-        when(mPoster.post(anyString(), anyString())).thenReturn(fail);
+        when(mClient.post(anyString(), anyString())).thenReturn(fail);
         assertEquals(mHandler.handleReport(intent), HandleStatus.RETRY);
         verify(mStorage, times(1)).getEvents(mTable, mConfig.getBulkSize());
         verify(mStorage, never()).deleteEvents(mTable, "2");
@@ -240,7 +240,7 @@ public class ReportHandlerTest {
         }}));
         when(mStorage.deleteEvents(eq(mTable), anyString())).thenReturn(1);
         when(mStorage.count(mTable)).thenReturn(1, 0);
-        when(mPoster.post(anyString(), anyString())).thenReturn(ok, ok);
+        when(mClient.post(anyString(), anyString())).thenReturn(ok, ok);
         Intent intent = newReport(SdkEvent.FLUSH_QUEUE, new HashMap<String, String>());
         mHandler.handleReport(intent);
         verify(mStorage, times(2)).getEvents(mTable, 2);
@@ -251,14 +251,14 @@ public class ReportHandlerTest {
     // Test data format
     // Should omit the "token" field and add "auth"
     @Test public void dataFormat() throws Exception {
-        when(mPoster.post(any(String.class), any(String.class))).thenReturn(ok);
+        when(mClient.post(any(String.class), any(String.class))).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
         assertEquals(mHandler.handleReport(intent), HandleStatus.HANDLED);
         JSONObject report = new JSONObject(reportMap);
         String token = reportMap.get(ReportIntent.TOKEN);
         report.put(ReportIntent.AUTH, Utils.auth(report.getString(ReportIntent.DATA),
                 report.getString(ReportIntent.TOKEN))).remove(ReportIntent.TOKEN);
-        verify(mPoster, times(1)).post(eq(report.toString()), anyString());
+        verify(mClient, times(1)).post(eq(report.toString()), anyString());
     }
 
     // Constant report arguments for testing
@@ -280,16 +280,19 @@ public class ReportHandlerTest {
     final Response fail = new RemoteService.Response() {{ code = 503; body = "Service Unavailable"; }};
     // Mocking
     final Context mContext = mock(MockContext.class);
+    final NetworkManager mNetManager = mock(NetworkManager.class);
     final StorageService mStorage = mock(DbAdapter.class);
-    final RemoteService mPoster = mock(HttpService.class);
+    final RemoteService mClient = mock(HttpClient.class);
     final IBConfig mConfig = mock(IBConfig.class);
     final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
-        protected RemoteService getPoster() { return mPoster; }
+        protected RemoteService getClient() { return mClient; }
+        @Override
+        protected IBConfig getConfig(Context context) { return mConfig; }
         @Override
         protected StorageService getStorage(Context context) { return mStorage; }
         @Override
-        protected IBConfig getConfig(Context context) { return mConfig; }
+        protected NetworkManager getNetManager(Context context) { return mNetManager; }
     };
 
     // Helper class, used inside "isNetworkAllowed" test case.

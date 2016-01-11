@@ -1,8 +1,5 @@
 package io.ironbeast.sdk;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,78 +10,17 @@ import java.nio.charset.Charset;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
- * An Network and connectivity utility class for internal use in this library.
+ * HttpClient is the default implementations to RemoteService.
  */
-class HttpService implements RemoteService {
+public class HttpClient implements RemoteService {
 
-    public static HttpService getInstance() {
+    public static HttpClient getInstance() {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
-                sInstance = new HttpService();
+                sInstance = new HttpClient();
             }
         }
         return sInstance;
-    }
-
-    /**
-     * Detect whether there's an Internet connection available.
-     *
-     * @return boolean
-     */
-    public boolean isOnline(Context context) {
-        boolean isOnline;
-        try {
-            final NetworkInfo netInfo = getNetworkInfo(context);
-            isOnline = netInfo != null && netInfo.isConnected();
-        } catch (final SecurityException e) {
-            isOnline = true;
-        }
-        return isOnline;
-    }
-
-    /**
-     * Return a human-readable name describe the type of the network.
-     *
-     * @param context
-     * @return
-     */
-    public String getConnectedNetworkType(Context context) {
-        NetworkInfo info = getNetworkInfo(context);
-        return info != null && info.isConnected() ? info.getTypeName() : "unknown";
-    }
-
-    /**
-     * Indicates whether the device is currently roaming on this network.
-     * @param context
-     * @return
-     */
-    public boolean isDataRoamingEnabled(Context context) {
-        NetworkInfo info = getNetworkInfo(context);
-        return info != null && info.isRoaming();
-    }
-
-    /**
-     * Get IronBeast network type based on the returned conectivity
-     * network type.
-     * @param context
-     * @return
-     */
-    public int getNetworkIBType(Context context) {
-        NetworkInfo info = getNetworkInfo(context);
-        int networkType = info != null ? info.getType() : 0;
-        switch (networkType) {
-            case ConnectivityManager.TYPE_MOBILE:
-                return IronBeast.NETWORK_MOBILE;
-            case ConnectivityManager.TYPE_WIFI:
-                return IronBeast.NETWORK_WIFI;
-            default:
-                return 0;
-        }
-    }
-
-    private NetworkInfo getNetworkInfo(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo();
     }
 
     /**
@@ -138,7 +74,7 @@ class HttpService implements RemoteService {
         return connection;
     }
 
-    private static HttpService sInstance;
+    private static HttpClient sInstance;
     private static final Object sInstanceLock = new Object();
     private static final String TAG = "HttpService";
     private static final int DEFAULT_READ_TIMEOUT_MILLIS = 15 * 1000; // 15s
