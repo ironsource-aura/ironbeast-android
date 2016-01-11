@@ -68,11 +68,25 @@ public class IronBeast {
 
     /**
      * Set whether the SDK can keep sending over a roaming connection.
+     * @param allowed
      */
-    public void setAllowedOverRoaming(boolean allowed) { mConfig.setAllowedOverRoaming(allowed); }
+    public void setAllowedOverRoaming(boolean allowed) {
+        mConfig.setAllowedOverRoaming(allowed);
+    }
 
-    public void setAllowedNetworkTypes(int flags) { mConfig.setAllowedNetworkTypes(flags); }
+    /**
+     * Restrict the types of networks over which this SDK can keep making HTTP requests.
+     * By default, all network types are allowed
+     * @param flags
+     */
+    public void setAllowedNetworkTypes(int flags) {
+        mConfig.setAllowedNetworkTypes(flags);
+    }
 
+    /**
+     * Set the SDK log level.
+     * @param logType
+     */
     public void setLogType(IBConfig.LOG_TYPE logType) {
         Logger.logLevel  = logType;
     }
@@ -104,6 +118,10 @@ public class IronBeast {
         mConfig.setFlushInterval(seconds);
     }
 
+    /**
+     * Track all SDK-errors/crashes when error-tracker enabled.
+     * @param str
+     */
     protected void trackError(String str) {
         String token = IBConfig.IRONBEAST_TRACKER_TOKEN;
         if (!sAvailableTrackers.containsKey(token) && mConfig.isErrorReportingEnabled()) {

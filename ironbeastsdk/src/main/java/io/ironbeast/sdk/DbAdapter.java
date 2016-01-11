@@ -1,18 +1,14 @@
 package io.ironbeast.sdk;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import static java.lang.Math.*;
-
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 class DbAdapter implements StorageService {
 
@@ -69,9 +65,6 @@ class DbAdapter implements StorageService {
             }
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to insert event to 'records' table", Logger.SDK_DEBUG);
-            // Our assumption is that in general, the exception indicates some failure that is
-            // "probably not recoverable". Better to bomb it and get back on track,
-            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             if (null != c) c.close();
@@ -101,9 +94,6 @@ class DbAdapter implements StorageService {
             n = c.getInt(0);
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to count records in table: " + table.name, Logger.SDK_DEBUG);
-            // Our assumption is that in general, the exception indicates some failure that is
-            // "probably not recoverable". Better to bomb it and get back on track,
-            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             if (null != c) c.close();
@@ -187,9 +177,6 @@ class DbAdapter implements StorageService {
                     new String[]{table.name, lastId});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to clean up events from table: " + table.name, Logger.SDK_DEBUG);
-            // Our assumption is that in general, the exception indicates some failure that is
-            // "probably not recoverable". Better to bomb it and get back on track,
-            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             mDb.close();
@@ -207,9 +194,6 @@ class DbAdapter implements StorageService {
             db.delete(TABLES_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to delete table:" + table.name, Logger.SDK_DEBUG);
-            // Our assumption is that in general, the exception indicates some failure that is
-            // "probably not recoverable". Better to bomb it and get back on track,
-            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             mDb.close();
@@ -235,9 +219,6 @@ class DbAdapter implements StorageService {
             db.execSQL("VACUUM");
         } catch (SQLiteException e) {
             Logger.log(TAG, "Failed to shrink and vacuum db:" + e, Logger.SDK_DEBUG);
-            // Our assumption is that in general, the exception indicates some failure that is
-            // "probably not recoverable". Better to bomb it and get back on track,
-            // than to leave it filling up the disk.
             mDb.delete();
         } finally {
             mDb.close();
@@ -318,7 +299,7 @@ class DbAdapter implements StorageService {
          */
         public boolean belowDatabaseLimit() {
             if (mDatabaseFile.exists()) {
-                long limit = max(mDatabaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
+                long limit = Math.max(mDatabaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
                 return limit >= mDatabaseFile.length();
             }
             return true;

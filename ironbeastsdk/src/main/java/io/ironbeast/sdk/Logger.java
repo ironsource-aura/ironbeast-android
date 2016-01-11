@@ -3,10 +3,10 @@ package io.ironbeast.sdk;
 import android.util.Log;
 
 class Logger {
-    public static final int NORMAL = 3;
-    public static final int SDK_DEBUG = 55;
-    public static final int SDK_ERROR = 2;
     protected static final int PRE_INIT = 1;
+    public static final int SDK_ERROR = 2;
+    public static final int NORMAL = 3;
+    public static final int SDK_DEBUG = 4;
     private static final boolean mIsSuperDevMode = BuildConfig.IS_SUPER_DEV_MODE;
     private static final String LOG_TAG = Logger.class.getSimpleName();
 

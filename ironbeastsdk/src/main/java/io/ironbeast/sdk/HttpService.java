@@ -3,7 +3,6 @@ package io.ironbeast.sdk;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +13,7 @@ import java.nio.charset.Charset;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
- * An Network utility class for internal use in this library.
+ * An Network and connectivity utility class for internal use in this library.
  */
 class HttpService implements RemoteService {
 
@@ -103,13 +102,11 @@ class HttpService implements RemoteService {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
-            // Output
             out = new DataOutputStream(connection.getOutputStream());
             out.write(data.getBytes("UTF-8"));
             out.flush();
             out.close();
             out = null;
-            // Input
             in = connection.getInputStream();
             response.body = new String(Utils.slurp(in), Charset.forName("UTF-8"));
             response.code = connection.getResponseCode();
