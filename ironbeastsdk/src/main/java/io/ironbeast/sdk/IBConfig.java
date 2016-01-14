@@ -65,7 +65,7 @@ class IBConfig {
      * @param url   custom tracker URL
      */
     protected void setIBEndPoint(String token, String url) {
-        mIBEndPointBulk.put(token, url);
+        mIBEndPoint.put(token, url);
         mIBPrefService.save(String.format("%s_%s", KEY_IB_END_POINT, token), url);
     }
 
