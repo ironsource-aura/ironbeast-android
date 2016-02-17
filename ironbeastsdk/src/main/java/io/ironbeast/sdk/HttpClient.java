@@ -44,7 +44,7 @@ public class HttpClient implements RemoteService {
             out.close();
             out = null;
             in = connection.getInputStream();
-            response.body = new String(Utils.slurp(in), Charset.forName("UTF-8"));
+            response.body = new String(Utils.getBytes(in), Charset.forName("UTF-8"));
             response.code = connection.getResponseCode();
             in.close();
             in = null;

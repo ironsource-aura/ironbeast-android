@@ -13,16 +13,16 @@ class Utils {
 
     /**
      * helper function that extract a buffer from the given inputStream
-     * @param inputStream
+     * @param in
      * @return
      * @throws IOException
      */
-    public static byte[] slurp(final InputStream inputStream) throws IOException {
+    public static byte[] getBytes(final InputStream in) throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
+        int bytesRead;
         byte[] data = new byte[8192];
-        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
+        while ((bytesRead = in.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, bytesRead);
         }
         buffer.flush();
         return buffer.toByteArray();

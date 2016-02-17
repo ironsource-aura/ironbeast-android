@@ -19,6 +19,7 @@ public class BaseMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
 
+        // Create and config IronBeast instance
         ironBeast = IronBeast.getInstance(this);
         ironBeast.enableErrorReporting();
         ironBeast.setBulkSize(2);
@@ -26,13 +27,11 @@ public class BaseMainActivity extends Activity {
         ironBeast.setAllowedOverRoaming(true);
     }
 
-
     public void sendReport(View v) {
-        // IronBeast logic
         int id = v.getId();
-        IronBeastTracker tracker = ironBeast.newTracker("vKuQ...vNx");
-        tracker.setIBEndPoint("http://10.0.2.2:3000/");
-        tracker.setIBEndPointBulk("http://10.0.2.2:3000/");
+        String url = "http://10.2.2:3000";
+        IronBeastTracker tracker = ironBeast.newTracker("YOUR_API_TOKEN");
+        tracker.setIBEndPoint(url);
 
         JSONObject params = new JSONObject();
         switch (id) {
@@ -43,8 +42,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("ibtest", params);
-                tracker.track("mobile", params);
+                tracker.track("a8m.table", params);
                 break;
             case R.id.btnPostReport:
                 try {
@@ -53,7 +51,8 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("ibtest", params, true);
+                // Will send this event immediately
+                tracker.track("a8m.table", params, true);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();
@@ -63,7 +62,6 @@ public class BaseMainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
