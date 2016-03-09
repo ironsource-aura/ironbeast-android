@@ -112,10 +112,10 @@ public class IronBeast {
     /**
      * function set report flush intervals
      *
-     * @param seconds - time for flush
+     * @param ms - time for flush in milliseconds
      */
-    public void setFlushInterval(int seconds) {
-        mConfig.setFlushInterval(seconds);
+    public void setFlushInterval(int ms) {
+        mConfig.setFlushInterval(ms);
     }
 
     /**

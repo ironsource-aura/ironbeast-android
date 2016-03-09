@@ -127,8 +127,8 @@ class IBConfig {
         return mFlushInterval;
     }
 
-    void setFlushInterval(int seconds) {
-        mFlushInterval = seconds;
+    void setFlushInterval(int ms) {
+        mFlushInterval = ms;
         mIBPrefService.save(KEY_FLUSH_INTERVAL, mFlushInterval);
     }
 
