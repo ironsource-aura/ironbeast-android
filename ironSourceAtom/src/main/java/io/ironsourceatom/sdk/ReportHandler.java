@@ -17,6 +17,16 @@ import static java.lang.Math.ceil;
 
 class ReportHandler {
 
+
+    enum SendStatus { SUCCESS, DELETE, RETRY }
+    enum HandleStatus { HANDLED, RETRY }
+
+    private static final String TAG = "ReportHandler";
+    private NetworkManager mNetworkManager;
+    private StorageService mStorage;
+    private RemoteService mClient;
+    private IBConfig mConfig;
+
     public ReportHandler(Context context) {
         mClient = getClient();
         mConfig = getConfig(context);
@@ -185,12 +195,4 @@ class ReportHandler {
     protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
     protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 
-    enum SendStatus { SUCCESS, DELETE, RETRY }
-    enum HandleStatus { HANDLED, RETRY }
-
-    private static final String TAG = "ReportHandler";
-    private NetworkManager mNetworkManager;
-    private StorageService mStorage;
-    private RemoteService mClient;
-    private IBConfig mConfig;
 }

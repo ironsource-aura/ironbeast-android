@@ -14,6 +14,9 @@ import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     IronSourceAtom ironsourceatom;
+    private static final String STREAM="foremploy_analytics.public.atom_demo_events";
+    private static final String URL="http://track.atom-data.io/";
+    private static final String AUTH="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +32,7 @@ public class BaseMainActivity extends Activity {
 
     public void sendReport(View v) {
         int id = v.getId();
-        String url = "http://10.2.2:3000";
+        String url = "http://foremploy_analytics.public.atom_demo_events";
         IronSourceAtomTracker tracker = ironsourceatom.newTracker("YOUR_API_TOKEN");
         tracker.setIBEndPoint(url);
 

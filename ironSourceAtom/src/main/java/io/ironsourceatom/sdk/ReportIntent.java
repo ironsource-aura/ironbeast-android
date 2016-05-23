@@ -5,6 +5,17 @@ import android.content.Intent;
 
 class ReportIntent implements Report {
 
+    private Context mContext;
+    private Intent mIntent;
+
+    public static final String TABLE = "table";
+    public static final String TOKEN = "token";
+    public static final String BULK = "bulk";
+    public static final String DATA = "data";
+    public static final String AUTH = "auth";
+    protected static final String EXTRA_SDK_EVENT = "sdk_event";
+
+
     ReportIntent(Context context, int sdkEvent) {
         mContext = context;
         mIntent = new Intent(context, ReportService.class);
@@ -30,13 +41,4 @@ class ReportIntent implements Report {
 
     public Intent getIntent() { return mIntent; }
 
-    private Context mContext;
-    private Intent mIntent;
-
-    public static final String TABLE = "table";
-    public static final String TOKEN = "token";
-    public static final String BULK = "bulk";
-    public static final String DATA = "data";
-    public static final String AUTH = "auth";
-    protected static final String EXTRA_SDK_EVENT = "sdk_event";
 }
