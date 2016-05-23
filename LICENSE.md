@@ -1,4 +1,4 @@
-IronBeast SDK Copyright (c) 2016 IronSource Ltd.
+ironsourceatom SDK Copyright (c) 2016 IronSource Ltd.
 
 The MIT License (MIT)
 

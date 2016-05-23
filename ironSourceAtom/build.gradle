@@ -1,0 +1,125 @@
+apply plugin: 'com.android.library'
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+    }
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 10
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+        project.version = versionName
+        project.archivesBaseName = "ironsourceatomSDK"
+    }
+    buildTypes {
+        def BOOLEAN = "boolean"
+        def TRUE = "true"
+        def FALSE = "false"
+        def STRING = "String"
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'mobileCore.pro'
+            buildConfigField(STRING, "DEFAULT_URL", '"http://sdk.ironsourceatom.io"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://sdk.ironsourceatom.io/bulk"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
+        }
+        debug {
+            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+        }
+        debugGoogleEmulator {
+            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+        }
+
+        debugGenyMotionEmulator {
+            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.3.2:3000"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.3.2:3000"')
+            buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+        }
+
+    }
+    //release type by default so for test we need to set debug
+    defaultPublishConfig "debug"
+    // important shit for sdk module use
+    // If you wanted to change the default published variant while using flavors, you would write:
+    //defaultPublishConfig "devRelease"
+    //Publishing of all variants are not enabled by default. To enable them:
+    //publishNonDefault true
+
+    sourceSets {
+        main {
+            java.srcDirs = ["src/main/java"]
+        }
+        test {
+            resources {
+                srcDir "test"
+            }
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    // Configure tests
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+dependencies {
+    // Unit testing dependencies
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile('org.robolectric:robolectric:3.0-rc2') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    // JSONObject should be available in tests too
+    testCompile 'org.json:json:20090211'
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+task clearJar(type: Delete) {
+    delete "../output/${archivesBaseName}${version}_release.jar"
+    delete "../output/${archivesBaseName}${version}_debug.jar"
+}
+
+task makeReleaseJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('../output/')
+    include('classes.jar')
+    rename ('classes.jar', "${archivesBaseName}_v${version}_release.jar")
+}
+task makeDebugJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('../output/')
+    include('classes.jar')
+    rename ('classes.jar', "${archivesBaseName}_v${version}_debug.jar")
+}
+
+assembleRelease.dependsOn(clearJar, makeReleaseJar)
+assembleDebug.dependsOn(clearJar, makeDebugJar)

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IronSourceAtomTester</string>
+    <string name="simple_app_name">IronSourceAtom Tester</string>
+    <string name="service_app_name">Service ISATester</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

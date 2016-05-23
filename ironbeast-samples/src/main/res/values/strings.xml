@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">IronBeastTester</string>
-    <string name="simple_app_name">IronBeast Tester</string>
-    <string name="service_app_name">Service IBTester</string>
-    <string name="action_settings">Settings</string>
-
-</resources>
