@@ -9,11 +9,11 @@ import android.view.View;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.ironsourceatom.sdk.IronSourceAtom;
+import io.ironsourceatom.sdk.TrackIronSourceAtom;
 import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
-    IronSourceAtom ironsourceatom;
+    TrackIronSourceAtom ironsourceatom;
     private static final String STREAM="foremploy_analytics.public.atom_demo_events";
     private static final String URL="http://track.atom-data.io/";
     private static final String AUTH="";

@@ -67,9 +67,9 @@ public class NetworkManager {
         int networkType = info != null ? info.getType() : 0;
         switch (networkType) {
             case ConnectivityManager.TYPE_MOBILE:
-                return IronSourceAtom.NETWORK_MOBILE;
+                return TrackIronSourceAtom.NETWORK_MOBILE;
             case ConnectivityManager.TYPE_WIFI:
-                return IronSourceAtom.NETWORK_WIFI;
+                return TrackIronSourceAtom.NETWORK_WIFI;
             default:
                 return 0;
         }
