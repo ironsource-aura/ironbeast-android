@@ -5,14 +5,15 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:weightSum="1">
 
     <Button
         android:id="@+id/btnTrackReport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sendReport"
-        android:text="Track report (Send it later)" />
+        android:text="Send Event by POST" />
 
     <Button
         android:id="@+id/btnPostReport"
@@ -20,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Post report (Send it immediately)" />
+        android:text="Send Event by Get" />
 
     <Button
         android:id="@+id/btnFlushReports"
@@ -28,6 +29,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Flush all reports (Send it now)" />
+        android:text="Send Bulk Event by Post" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@android:dimen/app_icon_size"
+        android:gravity="center" />
 
 </LinearLayout>

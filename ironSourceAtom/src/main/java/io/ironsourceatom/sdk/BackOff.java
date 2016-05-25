@@ -9,6 +9,18 @@ import java.util.concurrent.TimeUnit;
  */
 class BackOff {
 
+
+    private int mRetry;
+    private IBConfig mConfig;
+    private IBPrefService mSharedPref;
+    private final String KEY_LAST_TICK = "retry_last_tick";
+    private final String KEY_RETRY_COUNT = "retry_count";
+    protected final int MAX_RETRY_COUNT = 8;
+    protected final int INITIAL_RETRY_VALUE = 0;
+
+    private static BackOff sInstance;
+    private static final Object sInstanceLock = new Object();
+
     BackOff(Context context) {
         mConfig = getConfig(context);
         mSharedPref = getPrefService(context);
@@ -76,14 +88,4 @@ class BackOff {
         return IBConfig.getInstance(context);
     }
 
-    private int mRetry;
-    private IBConfig mConfig;
-    private IBPrefService mSharedPref;
-    private final String KEY_LAST_TICK = "retry_last_tick";
-    private final String KEY_RETRY_COUNT = "retry_count";
-    protected final int MAX_RETRY_COUNT = 8;
-    protected final int INITIAL_RETRY_VALUE = 0;
-
-    private static BackOff sInstance;
-    private static final Object sInstanceLock = new Object();
 }

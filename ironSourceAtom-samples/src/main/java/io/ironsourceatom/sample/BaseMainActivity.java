@@ -6,16 +6,25 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.ironsourceatom.sdk.HttpMethod;
+import io.ironsourceatom.sdk.IronSourceAtomCall;
+import io.ironsourceatom.sdk.IResponse;
+import io.ironsourceatom.sdk.IronSourceAtom;
 import io.ironsourceatom.sdk.TrackIronSourceAtom;
-import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     TrackIronSourceAtom ironsourceatom;
     private static final String STREAM="foremploy_analytics.public.atom_demo_events";
-    private static final String URL="http://track.atom-data.io/";
+    private static final String ENDPOINT="http://track.atom-data.io/";
     private static final String AUTH="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,33 +41,67 @@ public class BaseMainActivity extends Activity {
 
     public void sendReport(View v) {
         int id = v.getId();
-        String url = "http://foremploy_analytics.public.atom_demo_events";
-        IronSourceAtomTracker tracker = ironsourceatom.newTracker("YOUR_API_TOKEN");
-        tracker.setIBEndPoint(url);
+        IronSourceAtom atom = new IronSourceAtom(ENDPOINT);
+
 
         JSONObject params = new JSONObject();
         switch (id) {
             case R.id.btnTrackReport:
                 try {
-                    params.put("action", "track");
+                    params.put("message", "trackPOST");
                     params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("a8m.table", params);
+                try {
+                    atom.sendEvent(STREAM, params.toString(), new IronSourceAtomCall() {
+                        @Override
+                        public void call(IResponse response) {
+                            Log.d("Result", "Code"+response.getCode());
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btnPostReport:
                 try {
-                    params.put("action", "post");
+                    params.put("message", "trackGET");
                     params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                // Will send this event immediately
-                tracker.track("a8m.table", params, true);
+                try {
+                    atom.sendEvent(STREAM, params.toString(), HttpMethod.GET, new IronSourceAtomCall() {
+                        @Override
+                        public void call(IResponse response) {
+                            Log.d("Result", "Code"+response.getCode());
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btnFlushReports:
-                tracker.flush();
+                try {
+                    Gson gson= new Gson();
+                    List<ExampleData> bulkList= new ArrayList<>();
+                    ExampleData data1=new ExampleData(1, "first message");
+                    ExampleData data2=new ExampleData(2, "second message");
+                    ExampleData data3=new ExampleData(3, "third message");
+                    bulkList.add(data1);
+                    bulkList.add(data2);
+                    bulkList.add(data3);
+                    System.out.println(gson.toJson(bulkList).toString());
+                    atom.sendEvents(STREAM, gson.toJson(bulkList).toString(), new IronSourceAtomCall() {
+                        @Override
+                        public void call(IResponse response) {
+                            Log.d("Result", "Code"+response.getCode());
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }

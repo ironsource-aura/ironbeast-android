@@ -9,6 +9,12 @@ import android.content.Intent;
 
 public class ReportService extends IntentService {
 
+
+    final static private String TAG = "ReportService";
+    private AlarmManager mAlarmManager;
+    private ReportHandler mHandler;
+    private BackOff mBackOff;
+
     public ReportService() {
         super(TAG);
     }
@@ -46,8 +52,4 @@ public class ReportService extends IntentService {
         mAlarmManager.set(AlarmManager.RTC, triggerMills, intent);
     }
 
-    final static private String TAG = "ReportService";
-    private AlarmManager mAlarmManager;
-    private ReportHandler mHandler;
-    private BackOff mBackOff;
 }

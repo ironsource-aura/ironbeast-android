@@ -12,6 +12,21 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 class DbAdapter implements StorageService {
 
+
+    private static final Object sInstanceLock = new Object();
+    private static DbAdapter sInstance;
+    private final DatabaseHandler mDb;
+    private static final int DATABASE_VERSION = 4;
+    private static final String DATABASE_NAME = "ironsourceatom";
+    private static final String TAG = "DbAdapter";
+    public static final String KEY_DATA = "data";
+    public static final String KEY_TOKEN = "token";
+    public static final String KEY_TABLE = "table_name";
+    public static final String KEY_CREATED_AT = "created_at";
+    public static final String TABLES_TABLE = "tables";
+    public static final String REPORTS_TABLE = "reports";
+
+
     /**
      * Do not call directly. You should use DbAdapter.getInstance()
      */
@@ -231,24 +246,16 @@ class DbAdapter implements StorageService {
     protected boolean belowDatabaseLimit() { return mDb.belowDatabaseLimit(); }
     protected DatabaseHandler getSQLHandler(Context context) { return new DatabaseHandler(context); }
 
-    private static final Object sInstanceLock = new Object();
-    private static DbAdapter sInstance;
-    private final DatabaseHandler mDb;
-    private static final int DATABASE_VERSION = 4;
-    private static final String DATABASE_NAME = "ironsourceatom";
-    private static final String TAG = "DbAdapter";
-    public static final String KEY_DATA = "data";
-    public static final String KEY_TOKEN = "token";
-    public static final String KEY_TABLE = "table_name";
-    public static final String KEY_CREATED_AT = "created_at";
-    public static final String TABLES_TABLE = "tables";
-    public static final String REPORTS_TABLE = "reports";
 
     /**
      * Private subclass that take care of opening(or creating), upgrading
      * or deleting the database.
      */
     protected static class DatabaseHandler extends SQLiteOpenHelper {
+
+        private final File mDatabaseFile;
+        private final IBConfig mConfig;
+
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mDatabaseFile = context.getDatabasePath(DATABASE_NAME);
@@ -305,7 +312,5 @@ class DbAdapter implements StorageService {
             return true;
         }
 
-        private final File mDatabaseFile;
-        private final IBConfig mConfig;
     }
 }

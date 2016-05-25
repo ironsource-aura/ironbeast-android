@@ -159,7 +159,7 @@ class ReportHandler {
         int nRetry = mConfig.getNumOfRetries();
         while (nRetry-- > 0) {
             try {
-                RemoteService.Response response = mClient.post(data, url);
+                Response response = mClient.post(data, url);
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     return SendStatus.SUCCESS;
                 }
