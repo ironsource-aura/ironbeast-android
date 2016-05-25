@@ -2,9 +2,11 @@ package io.ironsourceatom.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 
@@ -26,10 +28,14 @@ public class BaseMainActivity extends Activity {
     private static final String STREAM="foremploy_analytics.public.atom_demo_events";
     private static final String ENDPOINT="http://track.atom-data.io/";
     private static final String AUTH="";
+    private TextView txtView;
+    private Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
+        txtView = (TextView) findViewById(R.id.textView);
+        handler= new Handler();
 
         // Create and config ironsourceatom instance
         ironsourceatom = ironsourceatom.getInstance(this);
@@ -44,7 +50,7 @@ public class BaseMainActivity extends Activity {
         IronSourceAtom atom = new IronSourceAtom(ENDPOINT);
 
 
-        JSONObject params = new JSONObject();
+        final JSONObject params = new JSONObject();
         switch (id) {
             case R.id.btnTrackReport:
                 try {
@@ -56,7 +62,13 @@ public class BaseMainActivity extends Activity {
                 try {
                     atom.sendEvent(STREAM, params.toString(), new IronSourceAtomCall() {
                         @Override
-                        public void call(IResponse response) {
+                        public void call(final IResponse response) {
+
+                            handler.post(new Runnable(){
+                                public void run() {
+                                    txtView.setText(params.toString()+" "+response.getBody());
+                                }
+                            });
                             Log.d("Result", "Code"+response.getCode());
                         }
                     });
@@ -74,7 +86,13 @@ public class BaseMainActivity extends Activity {
                 try {
                     atom.sendEvent(STREAM, params.toString(), HttpMethod.GET, new IronSourceAtomCall() {
                         @Override
-                        public void call(IResponse response) {
+                        public void call(final IResponse response) {
+
+                            handler.post(new Runnable(){
+                                public void run() {
+                                    txtView.setText(params.toString()+" "+response.getBody());
+                                }
+                            });
                             Log.d("Result", "Code"+response.getCode());
                         }
                     });
@@ -84,8 +102,8 @@ public class BaseMainActivity extends Activity {
                 break;
             case R.id.btnFlushReports:
                 try {
-                    Gson gson= new Gson();
-                    List<ExampleData> bulkList= new ArrayList<>();
+                    final Gson gson= new Gson();
+                    final List<ExampleData> bulkList= new ArrayList<>();
                     ExampleData data1=new ExampleData(1, "first message");
                     ExampleData data2=new ExampleData(2, "second message");
                     ExampleData data3=new ExampleData(3, "third message");
@@ -95,7 +113,13 @@ public class BaseMainActivity extends Activity {
                     System.out.println(gson.toJson(bulkList).toString());
                     atom.sendEvents(STREAM, gson.toJson(bulkList).toString(), new IronSourceAtomCall() {
                         @Override
-                        public void call(IResponse response) {
+                        public void call(final IResponse response) {
+
+                            handler.post(new Runnable(){
+                                public void run() {
+                                    txtView.setText(gson.toJson(bulkList).toString()+" "+response.getBody());
+                                }
+                            });
                             Log.d("Result", "Code"+response.getCode());
                         }
                     });

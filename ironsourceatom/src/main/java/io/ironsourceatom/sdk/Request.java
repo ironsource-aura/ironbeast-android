@@ -1,5 +1,6 @@
 package io.ironsourceatom.sdk;
 
+import android.provider.Telephony;
 import android.util.Base64;
 import android.util.Log;
 
@@ -85,6 +86,7 @@ class Request implements IRequest, Runnable{
             response.setCode(connection.getResponseCode());
             in = connection.getInputStream();
             response.setBody(new String(Utils.getBytes(in), Charset.forName("UTF-8")));
+            Thread.sleep(10000);
             in.close();
             in = null;
         } catch (IOException e) {
@@ -93,6 +95,8 @@ class Request implements IRequest, Runnable{
             } else {
                 throw e;
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
             if (null != connection) connection.disconnect();
             if (null != out) out.close();
