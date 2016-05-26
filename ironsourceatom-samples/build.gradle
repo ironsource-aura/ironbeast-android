@@ -1,0 +1,25 @@
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion 22
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "io.ironsourceatom.sdk.tester"
+        minSdkVersion 10
+        targetSdkVersion 22
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile project(':ironsourceatomsdk')
+    //while we are using flavor we can specific which lib version to use
+    //compile project(path: ':mobilecoresdk', configuartion: 'devRelease')
+    compile 'com.android.support:support-v4:22.1.1'
+}
