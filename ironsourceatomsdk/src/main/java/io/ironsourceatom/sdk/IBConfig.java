@@ -11,6 +11,43 @@ import io.ironsourceatom.sdk.BuildConfig;
 
 class IBConfig {
 
+    private static final String TAG = IBConfig.class.getSimpleName();
+    private static final Object sInstanceLock = new Object();
+    protected static final String DEFAULT_URL = BuildConfig.DEFAULT_URL;
+    protected static final String DEFAULT_BULK_URL = BuildConfig.DEFAULT_BULK_URL;
+    protected static final int KILOBYTE = 1024;
+    protected static final int DEFAULT_BULK_SIZE = 4;
+    protected static final int DEFAULT_NUM_OF_RETRIES = 2;
+    protected static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
+    protected static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
+    protected static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
+    protected static final int DEFAULT_ALLOWED_NETWORK_TYPES = ~0;
+    //SharedPreferences keys for metadata
+    protected static final String KEY_BULK_SIZE = "bulk_size";
+    protected static final String KEY_IB_END_POINT = "ib_end_point";
+    protected static final String KEY_FLUSH_INTERVAL = "flush_interval";
+    protected static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
+    protected static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
+    protected static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
+    protected static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
+    protected static final String KEY_ALLOWED_OVER_ROAMING = "allow_roaming_flush";
+    protected static final String KEY_ALLOWED_NETWORK_TYPES = "allowed_network_types";
+    // IronSourceAtom sTracker configuration
+    protected static String IRONBEAST_TRACKER_TABLE = "ironsourceatom_sdk";
+    protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
+    private static IBConfig sInstance;
+
+    IBPrefService mIBPrefService;
+    private boolean mEnableErrorReporting;
+    private boolean mAllowedOverRoaming;
+    private int mAllowedNetworkTypes;
+    private int mBulkSize;
+    private int mFlushInterval;
+    private HashMap<String, String> mIBEndPoint;
+    private HashMap<String, String> mIBEndPointBulk;
+    private long mMaximumRequestLimit;
+    private long mMaximumDatabaseLimit;
+
     IBConfig(Context context) {
         loadConfig(context);
     }
@@ -233,40 +270,5 @@ class IBConfig {
         PRODUCTION, DEBUG
     }
 
-    private static final String TAG = IBConfig.class.getSimpleName();
-    private static final Object sInstanceLock = new Object();
-    protected static final String DEFAULT_URL = BuildConfig.DEFAULT_URL;
-    protected static final String DEFAULT_BULK_URL = BuildConfig.DEFAULT_BULK_URL;
-    protected static final int KILOBYTE = 1024;
-    protected static final int DEFAULT_BULK_SIZE = 4;
-    protected static final int DEFAULT_NUM_OF_RETRIES = 2;
-    protected static final int DEFAULT_FLUSH_INTERVAL = 10 * 1000;
-    protected static final int DEFAULT_MAX_REQUEST_LIMIT = KILOBYTE * KILOBYTE;
-    protected static final int DEFAUL_MAX_DATABASE_LIMIT = KILOBYTE * KILOBYTE * 10;
-    protected static final int DEFAULT_ALLOWED_NETWORK_TYPES = ~0;
-    //SharedPreferences keys for metadata
-    protected static final String KEY_BULK_SIZE = "bulk_size";
-    protected static final String KEY_IB_END_POINT = "ib_end_point";
-    protected static final String KEY_FLUSH_INTERVAL = "flush_interval";
-    protected static final String KEY_IB_END_POINT_BULK = "ib_end_point_bulk";
-    protected static final String KEY_MAX_REQUEST_LIMIT = "max_request_limit";
-    protected static final String KEY_MAX_DATABASE_LIMIT = "max_database_limit";
-    protected static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
-    protected static final String KEY_ALLOWED_OVER_ROAMING = "allow_roaming_flush";
-    protected static final String KEY_ALLOWED_NETWORK_TYPES = "allowed_network_types";
-    // IronSourceAtom sTracker configuration
-    protected static String IRONBEAST_TRACKER_TABLE = "ironsourceatom_sdk";
-    protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
-    private static IBConfig sInstance;
 
-    IBPrefService mIBPrefService;
-    private boolean mEnableErrorReporting;
-    private boolean mAllowedOverRoaming;
-    private int mAllowedNetworkTypes;
-    private int mBulkSize;
-    private int mFlushInterval;
-    private HashMap<String, String> mIBEndPoint;
-    private HashMap<String, String> mIBEndPointBulk;
-    private long mMaximumRequestLimit;
-    private long mMaximumDatabaseLimit;
 }

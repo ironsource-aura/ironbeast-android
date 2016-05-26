@@ -13,6 +13,18 @@ import java.util.Map;
 
 public class IronSourceAtom {
 
+
+
+    private IBConfig mConfig;
+    private Context mContext;
+    private final Map<String, IronSourceAtomTracker> sAvailableTrackers = new HashMap<>();
+    private final Map<String, IronSourceAtomEventSender> availableSenders = new HashMap<>();
+    private static IronSourceAtom sInstance;
+    final static Object sInstanceLockObject = new Object();
+    private static final String TAG = "IronSourceAtom";
+    public static final int NETWORK_MOBILE = 1 << 0;
+    public static final int NETWORK_WIFI = 1 << 1;
+
     /**
      * Do not call directly.
      * You should use IronSourceAtom.getInstance()
@@ -56,6 +68,22 @@ public class IronSourceAtom {
             } else {
                 ret = new IronSourceAtomTracker(sInstance.mContext, token);
                 sAvailableTrackers.put(token, ret);
+            }
+            return ret;
+        }
+    }
+
+    public IronSourceAtomEventSender newSender(String token) {
+        if (null == token) {
+            throw new IllegalArgumentException("`token` should be valid String");
+        }
+        synchronized (availableSenders) {
+            IronSourceAtomEventSender ret;
+            if (availableSenders.containsKey(token)) {
+                ret = availableSenders.get(token);
+            } else {
+                ret = new IronSourceAtomEventSender(sInstance.mContext, token);
+                availableSenders.put(token, ret);
             }
             return ret;
         }
@@ -143,13 +171,4 @@ public class IronSourceAtom {
         }
     }
 
-
-    private IBConfig mConfig;
-    private Context mContext;
-    private final Map<String, IronSourceAtomTracker> sAvailableTrackers = new HashMap<>();
-    private static IronSourceAtom sInstance;
-    final static Object sInstanceLockObject = new Object();
-    private static final String TAG = "IronSourceAtom";
-    public static final int NETWORK_MOBILE = 1 << 0;
-    public static final int NETWORK_WIFI = 1 << 1;
 }

@@ -1,10 +1,13 @@
 package io.ironsourceatom.sdk;
 
+import android.util.Base64;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -59,6 +62,36 @@ public class HttpClient implements RemoteService {
             if (null != connection) connection.disconnect();
             if (null != out) out.close();
             if (null != in) in.close();
+        }
+        return response;
+    }
+
+    @Override
+    public Response get(String data, String url) throws IOException {
+        Response response = new Response();
+        HttpURLConnection connection = null;
+        DataOutputStream out = null;
+        InputStream in = null;
+        try {
+            String querry="?data="+ URLEncoder.encode(Base64.encodeToString(data.getBytes(), Base64.URL_SAFE),"utf-8");
+            connection = createConnection(url+querry);
+            response.code=connection.getResponseCode();
+            in = connection.getInputStream();
+            response.body=new String(Utils.getBytes(in), Charset.forName("UTF-8"));
+            in.close();
+            in = null;
+        } catch (IOException e) {
+            if (connection != null && connection.getResponseCode() >= HTTP_BAD_REQUEST) {
+                Logger.log(TAG, "Failed post to IronSourceAtom. StatusCode: " + connection.getResponseCode()+ " "+ connection.getResponseMessage(), Logger.SDK_DEBUG);
+            } else {
+                throw e;
+            }
+
+        } finally {
+            if (null != connection) connection.disconnect();
+            if (null != out) out.close();
+            if (null != in) in.close();
+
         }
         return response;
     }

@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.ironsourceatom.sdk.IronSourceAtom;
+import io.ironsourceatom.sdk.IronSourceAtomEventSender;
 import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
@@ -29,9 +30,12 @@ public class BaseMainActivity extends Activity {
 
     public void sendReport(View v) {
         int id = v.getId();
-        String url = "http://10.2.2:3000";
-        IronSourceAtomTracker tracker = ironSourceAtom.newTracker("YOUR_API_TOKEN");
+        String url = "https://track.atom-data.io/";
+        IronSourceAtomTracker tracker = ironSourceAtom.newTracker("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
         tracker.setIBEndPoint(url);
+
+        IronSourceAtomEventSender sender = ironSourceAtom.newSender("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
+        sender.setEndPoint(url);
 
         JSONObject params = new JSONObject();
         switch (id) {
@@ -42,7 +46,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("a8m.table", params);
+                sender.sendEvent("foremploy_analytics.public.atomdata", params.toString());
                 break;
             case R.id.btnPostReport:
                 try {
@@ -52,7 +56,7 @@ public class BaseMainActivity extends Activity {
                     Log.d("TAG", "Failed to track your json");
                 }
                 // Will send this event immediately
-                tracker.track("a8m.table", params, true);
+                tracker.track("foremploy_analytics.public.atomdata", params, true);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();

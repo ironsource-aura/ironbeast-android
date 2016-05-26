@@ -3,7 +3,7 @@ package io.ironsourceatom.sdk;
 import android.content.Context;
 import android.content.Intent;
 
-class ReportIntent implements Report {
+class SimpleReportIntent implements Report {
 
 
     private Context mContext;
@@ -15,18 +15,12 @@ class ReportIntent implements Report {
     public static final String DATA = "data";
     public static final String AUTH = "auth";
     public static final String ENDPOINT = "endpoint";
-    protected static final String EXTRA_SDK_EVENT = "sdk_event";
     protected static final String HTTPMETHOD = "httpMethod";
 
-    ReportIntent(Context context, int sdkEvent) {
-        mContext = context;
-        mIntent = new Intent(context, ReportService.class);
-        mIntent.putExtra(EXTRA_SDK_EVENT, sdkEvent);
-    }
 
-    ReportIntent(Context context) {
+    SimpleReportIntent(Context context) {
         mContext = context;
-        mIntent = new Intent(context, ReportService.class);
+        mIntent = new Intent(context, SimpleReportService.class);
 
     }
 
@@ -34,19 +28,19 @@ class ReportIntent implements Report {
         mContext.startService(mIntent);
     }
 
-    public ReportIntent setToken(String token) {
+    public SimpleReportIntent setToken(String token) {
         mIntent.putExtra(TOKEN, token);
         return this;
     }
 
     @Override
-    public Report setEnpoint(String endpoint) {
+    public SimpleReportIntent setEnpoint(String endpoint) {
         mIntent.putExtra(ENDPOINT, endpoint);
         return this;
     }
 
     @Override
-    public Report setHttpMethod(HttpMethod httpMethod) {
+    public SimpleReportIntent setHttpMethod(HttpMethod httpMethod) {
         mIntent.putExtra(HTTPMETHOD, httpMethod.toString());
         return this;
     }
@@ -57,12 +51,12 @@ class ReportIntent implements Report {
         return this;
     }
 
-    public ReportIntent setTable(String table) {
+    public SimpleReportIntent setTable(String table) {
         mIntent.putExtra(TABLE, table);
         return this;
     }
 
-    public ReportIntent setData(String value) {
+    public SimpleReportIntent setData(String value) {
         mIntent.putExtra(DATA, value);
         return this;
     }

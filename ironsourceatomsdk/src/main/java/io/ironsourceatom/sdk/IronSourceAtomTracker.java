@@ -7,6 +7,11 @@ import java.util.Map;
 
 public class IronSourceAtomTracker {
 
+
+    private String mToken;
+    private Context mContext;
+    private IBConfig mConfig;
+
     /**
      * This class is the main entry point into this client API.
      * </p>
@@ -121,7 +126,4 @@ public class IronSourceAtomTracker {
         if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
     }
 
-    private String mToken;
-    private Context mContext;
-    private IBConfig mConfig;
 }
