@@ -24,6 +24,7 @@ public class IronSourceAtomTracker {
     private Context mContext;
     private IBConfig mConfig;
 
+
     IronSourceAtomTracker(Context context, String token) {
         mContext = context;
         mToken = token;

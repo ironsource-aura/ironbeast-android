@@ -2,6 +2,8 @@ package io.ironsourceatom.sdk;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -9,6 +11,7 @@ import java.util.concurrent.Executors;
  * Created by kirill.bokhanov on 5/24/16.
  */
 public class IronSourceAtom {
+
 
     private String endpoint;
     private String authKey;

@@ -1,8 +1,6 @@
 package io.ironsourceatom.sdk;
 
-import android.provider.Telephony;
 import android.util.Base64;
-import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
