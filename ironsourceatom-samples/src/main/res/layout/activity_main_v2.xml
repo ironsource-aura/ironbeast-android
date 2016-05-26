@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sendReport"
-        android:text="Track report (Send it later)" />
+        android:text="Send Event By HttpPost" />
 
     <Button
         android:id="@+id/btnPostReport"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Post report (Send it immediately)" />
+        android:text="Send Event By HttpGet" />
 
     <Button
         android:id="@+id/btnFlushReports"
@@ -28,6 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Flush all reports (Send it now)" />
+        android:text="Send Array of Event By HttpPost" />
 
 </LinearLayout>

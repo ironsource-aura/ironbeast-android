@@ -6,15 +6,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
 import io.ironsourceatom.sdk.IronSourceAtomEventSender;
 import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
-    IronSourceAtom ironSourceAtom;
+    private IronSourceAtom ironSourceAtom;
+    private final String STREAM="foremploy_analytics.public.atomdata";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +38,6 @@ public class BaseMainActivity extends Activity {
     public void sendReport(View v) {
         int id = v.getId();
         String url = "https://track.atom-data.io/";
-        IronSourceAtomTracker tracker = ironSourceAtom.newTracker("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
-        tracker.setIBEndPoint(url);
-
         IronSourceAtomEventSender sender = ironSourceAtom.newSender("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
         sender.setEndPoint(url);
 
@@ -46,7 +50,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                sender.sendEvent("foremploy_analytics.public.atomdata", params.toString());
+                sender.sendEvent(STREAM, params.toString());
                 break;
             case R.id.btnPostReport:
                 try {
@@ -56,10 +60,19 @@ public class BaseMainActivity extends Activity {
                     Log.d("TAG", "Failed to track your json");
                 }
                 // Will send this event immediately
-                tracker.track("foremploy_analytics.public.atomdata", params, true);
+                sender.sendEvent(STREAM, params.toString(), HttpMethod.GET);
                 break;
             case R.id.btnFlushReports:
-                tracker.flush();
+                Gson gson= new Gson();
+                List<ExampleData> bulkList= new ArrayList<>();
+                ExampleData data1=new ExampleData(1, "first message");
+                ExampleData data2=new ExampleData(2, "second message");
+                ExampleData data3=new ExampleData(3, "third message");
+                bulkList.add(data1);
+                bulkList.add(data2);
+                bulkList.add(data3);
+                System.out.println(gson.toJson(bulkList).toString());
+                sender.sendEvents(STREAM, gson.toJson(bulkList).toString());
                 break;
         }
     }

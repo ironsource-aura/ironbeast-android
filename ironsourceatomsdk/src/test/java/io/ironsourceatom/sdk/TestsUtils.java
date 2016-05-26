@@ -37,6 +37,21 @@ public class TestsUtils {
         }
 
         @Override
+        public Report setEnpoint(String endpoint) {
+            return null;
+        }
+
+        @Override
+        public Report setHttpMethod(HttpMethod httpMethod) {
+            return null;
+        }
+
+        @Override
+        public Report setBulk(boolean b) {
+            return null;
+        }
+
+        @Override
         public Intent getIntent() {
             return null;
         }
@@ -67,6 +82,11 @@ public class TestsUtils {
                 res.code = 503;
             }
             return res;
+        }
+
+        @Override
+        public Response get(String data, String url) throws IOException {
+            return null;
         }
 
         public MockPoster setNext(int code) {

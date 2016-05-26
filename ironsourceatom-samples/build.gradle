@@ -22,4 +22,5 @@ dependencies {
     //while we are using flavor we can specific which lib version to use
     //compile project(path: ':mobilecoresdk', configuartion: 'devRelease')
     compile 'com.android.support:support-v4:22.1.1'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
 }
