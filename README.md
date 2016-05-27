@@ -3,6 +3,7 @@
 [![Docs][docs-image]][docs-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Build status][travis-image]][travis-url]
+
 Atom-Android is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Android.
 
 ###Installation
@@ -71,7 +72,7 @@ You can use our [example][example-url] for sending data to Atom:
 MIT
 
 [example-url]: https://github.com/ironSource/atom-javascript/blob/master/atom-sdk/example/index.html
-[example]: https://cloud.githubusercontent.com/assets/19428452/15607154/6f48fef6-2419-11e6-9ea1-83d6529f167c.png "example"
+[example]: https://cloud.githubusercontent.com/assets/19428452/15607380/fcb8adb2-241a-11e6-8a80-219213f6cdb2.png "example"
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [license-url]: LICENSE
 [travis-image]: https://travis-ci.org/ironSource/atom-javascript.svg?branch=master
