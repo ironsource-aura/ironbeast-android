@@ -13,7 +13,7 @@ public class IronSourceAtomTracker {
     private IBConfig mConfig;
 
     /**
-     * This class is the main entry point into this client API.
+     * This class is the entry point into this client API to work with tracker.
      * </p>
      * You should use <code>IronSourceAtom.newTracker(String)</code> to create
      * an instance of this class.
@@ -22,11 +22,11 @@ public class IronSourceAtomTracker {
      * and each period of time it upload it as a batch to IronSourceAtom.
      *
      * @param context
-     * @param token
+     * @param auth
      */
-    IronSourceAtomTracker(Context context, String token) {
+    IronSourceAtomTracker(Context context, String auth) {
         mContext = context;
-        mToken = token;
+        mToken = auth;
         mConfig = IBConfig.getInstance(context);
     }
 

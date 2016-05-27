@@ -49,41 +49,50 @@ public class IronSourceAtom {
     }
 
     /**
-     * Create IronSourceAtomTracker with your API_TOKEN.
+     * Create IronSourceAtomTracker with your YOUR_AUTH_KEY.
      * Example:
      * <code>
-     *      IronSourceAtomTracker tracker = ironBeast.newTracker("YOUR_API_TOKEN");
+     *      IronSourceAtomTracker tracker = IronSourceAtom.newTracker("YOUR_AUTH_KEY");
      * </code>
-     * @param token
+     * @param auth your IronSourceAtom auth key
      * @return IronSourceAtomTracker
      */
-    public IronSourceAtomTracker newTracker(String token) {
-        if (null == token) {
-            throw new IllegalArgumentException("`token` should be valid String");
+    public IronSourceAtomTracker newTracker(String auth) {
+        if (null == auth) {
+            throw new IllegalArgumentException("`auth` should be valid String");
         }
         synchronized (sAvailableTrackers) {
             IronSourceAtomTracker ret;
-            if (sAvailableTrackers.containsKey(token)) {
-                ret = sAvailableTrackers.get(token);
+            if (sAvailableTrackers.containsKey(auth)) {
+                ret = sAvailableTrackers.get(auth);
             } else {
-                ret = new IronSourceAtomTracker(sInstance.mContext, token);
-                sAvailableTrackers.put(token, ret);
+                ret = new IronSourceAtomTracker(sInstance.mContext, auth);
+                sAvailableTrackers.put(auth, ret);
             }
             return ret;
         }
     }
 
-    public IronSourceAtomEventSender newSender(String token) {
-        if (null == token) {
-            throw new IllegalArgumentException("`token` should be valid String");
+    /**
+     * Create IronSourceAtomEventSender with your YOUR_AUTH_KEY.
+     * Example:
+     * <code>
+     *      IronSourceAtomEventSender sender = IronSourceAtom.newSender("YOUR_AUTH_KEY");
+     * </code>
+     * @param auth your IronSourceAtom auth key
+     * @return IronSourceAtomEventSender
+     */
+    public IronSourceAtomEventSender newSender(String auth) {
+        if (null == auth) {
+            throw new IllegalArgumentException("`auth` should be valid String");
         }
         synchronized (availableSenders) {
             IronSourceAtomEventSender ret;
-            if (availableSenders.containsKey(token)) {
-                ret = availableSenders.get(token);
+            if (availableSenders.containsKey(auth)) {
+                ret = availableSenders.get(auth);
             } else {
-                ret = new IronSourceAtomEventSender(sInstance.mContext, token);
-                availableSenders.put(token, ret);
+                ret = new IronSourceAtomEventSender(sInstance.mContext, auth);
+                availableSenders.put(auth, ret);
             }
             return ret;
         }
