@@ -17,7 +17,6 @@ import java.util.List;
 import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
 import io.ironsourceatom.sdk.IronSourceAtomEventSender;
-import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     private IronSourceAtom ironSourceAtom;
