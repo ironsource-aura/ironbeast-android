@@ -17,6 +17,7 @@ import java.util.List;
 import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
 import io.ironsourceatom.sdk.IronSourceAtomEventSender;
+import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     private IronSourceAtom ironSourceAtom;
@@ -40,9 +41,12 @@ public class BaseMainActivity extends Activity {
         IronSourceAtomEventSender sender = ironSourceAtom.newSender("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
         sender.setEndPoint(url);
 
+        IronSourceAtomTracker tracker = ironSourceAtom.newTracker("YOUR_API_TOKEN");
+        tracker.setISAEndPoint(url);
+
         JSONObject params = new JSONObject();
         switch (id) {
-            case R.id.btnTrackReport:
+            case R.id.putEventPost:
                 try {
                     params.put("action", "track");
                     params.put("id", "" + (int) (100 * Math.random()));
@@ -51,7 +55,7 @@ public class BaseMainActivity extends Activity {
                 }
                 sender.sendEvent(STREAM, params.toString());
                 break;
-            case R.id.btnPostReport:
+            case R.id.putEventGet:
                 try {
                     params.put("action", "post");
                     params.put("id", "" + (int) (100 * Math.random()));
@@ -61,7 +65,7 @@ public class BaseMainActivity extends Activity {
                 // Will send this event immediately
                 sender.sendEvent(STREAM, params.toString(), HttpMethod.GET);
                 break;
-            case R.id.btnFlushReports:
+            case R.id.putEventsBulk:
                 Gson gson= new Gson();
                 List<ExampleData> bulkList= new ArrayList<>();
                 ExampleData data1=new ExampleData(1, "first message");
@@ -72,6 +76,28 @@ public class BaseMainActivity extends Activity {
                 bulkList.add(data3);
                 System.out.println(gson.toJson(bulkList).toString());
                 sender.sendEvents(STREAM, gson.toJson(bulkList).toString());
+                break;
+            case R.id.btnTrackReport:
+                try {
+                    params.put("action", "track");
+                    params.put("id", "" + (int) (100 * Math.random()));
+                } catch (JSONException e) {
+                    Log.d("TAG", "Failed to track your json");
+                }
+                tracker.track("a8m.table", params);
+                break;
+            case R.id.btnPostReport:
+                try {
+                    params.put("action", "post");
+                    params.put("id", "" + (int) (100 * Math.random()));
+                } catch (JSONException e) {
+                    Log.d("TAG", "Failed to track your json");
+                }
+                // Will send this event immediately
+                tracker.track("a8m.table", params, true);
+                break;
+            case R.id.btnFlushReports:
+                tracker.flush();
                 break;
         }
     }

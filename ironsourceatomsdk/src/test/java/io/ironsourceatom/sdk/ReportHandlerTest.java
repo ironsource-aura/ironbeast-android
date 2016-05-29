@@ -283,12 +283,12 @@ public class ReportHandlerTest {
     final NetworkManager mNetManager = mock(NetworkManager.class);
     final StorageService mStorage = mock(DbAdapter.class);
     final RemoteService mClient = mock(HttpClient.class);
-    final IBConfig mConfig = mock(IBConfig.class);
+    final ISAConfig mConfig = mock(ISAConfig.class);
     final ReportHandler mHandler = new ReportHandler(mContext) {
         @Override
         protected RemoteService getClient() { return mClient; }
         @Override
-        protected IBConfig getConfig(Context context) { return mConfig; }
+        protected ISAConfig getConfig(Context context) { return mConfig; }
         @Override
         protected StorageService getStorage(Context context) { return mStorage; }
         @Override

@@ -181,7 +181,7 @@ class ReportHandler {
      * For testing purpose. to allow mocking this behavior.
      */
     protected RemoteService getClient() { return HttpClient.getInstance(); }
-    protected IBConfig getConfig(Context context) { return IBConfig.getInstance(context); }
+    protected ISAConfig getConfig(Context context) { return ISAConfig.getInstance(context); }
     protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
     protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 
@@ -192,5 +192,5 @@ class ReportHandler {
     private NetworkManager mNetworkManager;
     private StorageService mStorage;
     private RemoteService mClient;
-    private IBConfig mConfig;
+    private ISAConfig mConfig;
 }

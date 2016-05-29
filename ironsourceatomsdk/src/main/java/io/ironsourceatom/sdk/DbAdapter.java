@@ -252,7 +252,7 @@ class DbAdapter implements StorageService {
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mDatabaseFile = context.getDatabasePath(DATABASE_NAME);
-            mConfig = IBConfig.getInstance(context);
+            mConfig = ISAConfig.getInstance(context);
         }
 
         public void delete() {
@@ -306,6 +306,6 @@ class DbAdapter implements StorageService {
         }
 
         private final File mDatabaseFile;
-        private final IBConfig mConfig;
+        private final ISAConfig mConfig;
     }
 }

@@ -8,9 +8,9 @@ import java.util.Map;
 public class IronSourceAtomTracker {
 
 
-    private String mToken;
+    private String mAuth;
     private Context mContext;
-    private IBConfig mConfig;
+    private ISAConfig mConfig;
 
     /**
      * This class is the entry point into this client API to work with tracker.
@@ -26,8 +26,8 @@ public class IronSourceAtomTracker {
      */
     IronSourceAtomTracker(Context context, String auth) {
         mContext = context;
-        mToken = auth;
-        mConfig = IBConfig.getInstance(context);
+        mAuth = auth;
+        mConfig = ISAConfig.getInstance(context);
     }
 
     /**
@@ -40,7 +40,7 @@ public class IronSourceAtomTracker {
     public void track(String table, String data, boolean sendNow) {
         openReport(mContext, sendNow ? SdkEvent.POST_SYNC : SdkEvent.ENQUEUE)
                 .setTable(table)
-                .setToken(mToken)
+                .setToken(mAuth)
                 .setData(data)
                 .send();
     }
@@ -113,8 +113,8 @@ public class IronSourceAtomTracker {
      *
      * @param url Custom publisher destination url.
      */
-    public void setIBEndPoint(String url) {
-        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPoint(mToken, url);
+    public void setISAEndPoint(String url) {
+        if (URLUtil.isValidUrl(url)) mConfig.setISAEndPoint(mAuth, url);
     }
 
     /**
@@ -122,8 +122,8 @@ public class IronSourceAtomTracker {
      *
      * @param url Custom publisher destination url.
      */
-    public void setIBEndPointBulk(String url) {
-        if (URLUtil.isValidUrl(url)) mConfig.setIBEndPointBulk(mToken, url);
+    public void setISAEndPointBulk(String url) {
+        if (URLUtil.isValidUrl(url)) mConfig.setISAEndPointBulk(mAuth, url);
     }
 
 }

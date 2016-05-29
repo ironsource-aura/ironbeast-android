@@ -57,13 +57,13 @@ public class BackOffTest {
 
     private long mCurrentMills = 0L;
     final Context mContext = mock(MockContext.class);
-    final IBConfig mConfig = mock(IBConfig.class);
-    final IBPrefService mSharedPref = mock(IBPrefService.class);
+    final ISAConfig mConfig = mock(ISAConfig.class);
+    final ISAPrefService mSharedPref = mock(ISAPrefService.class);
     BackOff mBackOff = new BackOff(mContext) {
         @Override
-        protected IBPrefService getPrefService(Context context) { return mSharedPref; }
+        protected ISAPrefService getPrefService(Context context) { return mSharedPref; }
         @Override
-        protected IBConfig getConfig(Context context) { return mConfig; }
+        protected ISAConfig getConfig(Context context) { return mConfig; }
         @Override
         protected long currentTimeMillis() { return mCurrentMills; }
     };

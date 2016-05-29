@@ -12,7 +12,6 @@ import android.content.Intent;
 public class SimpleReportService extends IntentService {
 
     final static private String TAG = "SimpleReportService";
-    private AlarmManager alarmManager;
     private SimpleReportHandler handler;
 
 
@@ -24,7 +23,6 @@ public class SimpleReportService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Context context = this.getApplicationContext();
-        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         handler = new SimpleReportHandler(context);
 
     }
@@ -37,15 +35,6 @@ public class SimpleReportService extends IntentService {
             Logger.log(TAG, "failed to handle intent: " + th, Logger.SDK_ERROR);
         }
 
-    }
-
-    protected void setAlarm(long triggerMills) {
-        Logger.log(TAG, "Setting alarm", Logger.SDK_DEBUG);
-        SimpleReportIntent report = new SimpleReportIntent(this);
-        PendingIntent intent = PendingIntent.getService(this, 0, report.getIntent(),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(intent);
-        alarmManager.set(AlarmManager.RTC, triggerMills, intent);
     }
 
 

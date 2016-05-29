@@ -15,7 +15,7 @@ public class IronSourceAtom {
 
 
 
-    private IBConfig mConfig;
+    private ISAConfig mConfig;
     private Context mContext;
     private final Map<String, IronSourceAtomTracker> sAvailableTrackers = new HashMap<>();
     private final Map<String, IronSourceAtomEventSender> availableSenders = new HashMap<>();
@@ -31,7 +31,7 @@ public class IronSourceAtom {
      */
     public IronSourceAtom(Context context) {
         mContext = context;
-        mConfig = IBConfig.getInstance(context);
+        mConfig = ISAConfig.getInstance(context);
     }
 
     public static IronSourceAtom getInstance() {return  sInstance;}
@@ -124,7 +124,7 @@ public class IronSourceAtom {
      * Set the SDK log level.
      * @param logType
      */
-    public void setLogType(IBConfig.LOG_TYPE logType) {
+    public void setLogType(ISAConfig.LOG_TYPE logType) {
         Logger.logLevel  = logType;
     }
 
@@ -160,11 +160,11 @@ public class IronSourceAtom {
      * @param str
      */
     protected void trackError(String str) {
-        String token = IBConfig.IRONBEAST_TRACKER_TOKEN;
+        String token = ISAConfig.IRONBEAST_TRACKER_TOKEN;
         if (!sAvailableTrackers.containsKey(token) && mConfig.isErrorReportingEnabled()) {
             sAvailableTrackers.put(token, new IronSourceAtomTracker(mContext, token));
         }
-        IronSourceAtomTracker sdkTracker = sAvailableTrackers.get(IBConfig.IRONBEAST_TRACKER_TOKEN);
+        IronSourceAtomTracker sdkTracker = sAvailableTrackers.get(ISAConfig.IRONBEAST_TRACKER_TOKEN);
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
@@ -174,7 +174,7 @@ public class IronSourceAtom {
             report.put("connection", NetworkManager.getInstance(mContext).getConnectedNetworkType());
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
-            sdkTracker.track(IBConfig.IRONBEAST_TRACKER_TABLE, report, false);
+            sdkTracker.track(ISAConfig.IRONBEAST_TRACKER_TABLE, report, false);
         } catch (Exception e) {
             Logger.log(TAG, "Failed to track error: " + e, Logger.SDK_DEBUG);
         }

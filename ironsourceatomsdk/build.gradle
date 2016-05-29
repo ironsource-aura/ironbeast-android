@@ -21,7 +21,7 @@ android {
         versionCode 1
         versionName "1.0"
         project.version = versionName
-        project.archivesBaseName = "IronBeastSDK"
+        project.archivesBaseName = "IronSourceAtomSDK"
     }
     buildTypes {
         def BOOLEAN = "boolean"
@@ -37,19 +37,19 @@ android {
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
         }
         debug {
-            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.2.2:3000"')
-            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
         debugGoogleEmulator {
-            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.2.2:3000"')
-            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.2.2:3000"')
+            buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
 
         debugGenyMotionEmulator {
-            buildConfigField(STRING, "DEFAULT_URL", '"http://10.0.3.2:3000"')
-            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://10.0.3.2:3000"')
+            buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
+            buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
 

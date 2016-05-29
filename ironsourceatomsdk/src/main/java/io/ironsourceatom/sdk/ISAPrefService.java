@@ -3,16 +3,16 @@ package io.ironsourceatom.sdk;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-class IBPrefService {
+class ISAPrefService {
 
-    public IBPrefService(Context context) {
+    public ISAPrefService(Context context) {
         mContext = context;
     }
 
-    public static IBPrefService getInstance(Context context) {
+    public static ISAPrefService getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
-                sInstance = new IBPrefService(context);
+                sInstance = new ISAPrefService(context);
             }
         }
         return sInstance;
@@ -60,6 +60,6 @@ class IBPrefService {
     }
 
     private static final Object sInstanceLock = new Object();
-    static IBPrefService sInstance;
+    static ISAPrefService sInstance;
     Context mContext;
 }

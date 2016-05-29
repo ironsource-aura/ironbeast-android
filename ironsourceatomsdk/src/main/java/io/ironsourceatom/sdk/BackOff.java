@@ -69,16 +69,16 @@ class BackOff {
      * For testing purpose. to allow mocking this behavior.
      */
     protected long currentTimeMillis() { return System.currentTimeMillis(); }
-    protected IBPrefService getPrefService(Context context) {
-        return IBPrefService.getInstance(context);
+    protected ISAPrefService getPrefService(Context context) {
+        return ISAPrefService.getInstance(context);
     }
-    protected IBConfig getConfig(Context context) {
-        return IBConfig.getInstance(context);
+    protected ISAConfig getConfig(Context context) {
+        return ISAConfig.getInstance(context);
     }
 
     private int mRetry;
-    private IBConfig mConfig;
-    private IBPrefService mSharedPref;
+    private ISAConfig mConfig;
+    private ISAPrefService mSharedPref;
     private final String KEY_LAST_TICK = "retry_last_tick";
     private final String KEY_RETRY_COUNT = "retry_count";
     protected final int MAX_RETRY_COUNT = 8;

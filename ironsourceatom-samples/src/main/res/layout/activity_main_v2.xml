@@ -8,11 +8,33 @@
     android:paddingTop="@dimen/activity_vertical_margin">
 
     <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send one event by POST"
+        android:id="@+id/putEventPost"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send one event by GET"
+        android:id="@+id/putEventGet"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send array of events"
+        android:id="@+id/putEventsBulk"
+        android:layout_marginTop="8dp" />
+
+    <Button
         android:id="@+id/btnTrackReport"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="sendReport"
-        android:text="Send Event By HttpPost" />
+        android:text="Track report (Send it later)"
+        android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/btnPostReport"
@@ -20,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Send Event By HttpGet" />
+        android:text="Post report (Send it immediately)" />
 
     <Button
         android:id="@+id/btnFlushReports"
@@ -28,6 +50,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:onClick="sendReport"
-        android:text="Send Array of Event By HttpPost" />
+        android:text="Flush all reports (Send it now)" />
 
 </LinearLayout>

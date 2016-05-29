@@ -11,10 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Math.ceil;
 
 /**
  * Created by kirill.bokhanov on 5/26/16.
@@ -27,7 +23,7 @@ public class SimpleReportHandler {
     private static final String TAG = "SimpleReportHandler";
     private NetworkManager networkManager;
     private RemoteService client;
-    private IBConfig config;
+    private ISAConfig config;
     private String endpoint;
     private HttpMethod httpMethod;
     private boolean bulk;
@@ -137,7 +133,7 @@ public class SimpleReportHandler {
      * For testing purpose. to allow mocking this behavior.
      */
     protected RemoteService getClient() { return HttpClient.getInstance(); }
-    protected IBConfig getConfig(Context context) { return IBConfig.getInstance(context); }
+    protected ISAConfig getConfig(Context context) { return ISAConfig.getInstance(context); }
     protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
     protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 
