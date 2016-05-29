@@ -38,15 +38,18 @@ public class BaseMainActivity extends Activity {
     public void sendReport(View v) {
         int id = v.getId();
         String url = "https://track.atom-data.io/";
+
+        //Configure sender to use methods putEvent() or putEvents()
         IronSourceAtomEventSender sender = ironSourceAtom.newSender("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
         sender.setEndPoint(url);
 
+        //Configure tracker
         IronSourceAtomTracker tracker = ironSourceAtom.newTracker("YOUR_API_TOKEN");
         tracker.setISAEndPoint(url);
 
         JSONObject params = new JSONObject();
         switch (id) {
-            case R.id.putEventPost:
+            case R.id.btnPutEventPost:
                 try {
                     params.put("action", "track");
                     params.put("id", "" + (int) (100 * Math.random()));
@@ -55,7 +58,7 @@ public class BaseMainActivity extends Activity {
                 }
                 sender.sendEvent(STREAM, params.toString());
                 break;
-            case R.id.putEventGet:
+            case R.id.btnPutEventGet:
                 try {
                     params.put("action", "post");
                     params.put("id", "" + (int) (100 * Math.random()));
@@ -65,7 +68,7 @@ public class BaseMainActivity extends Activity {
                 // Will send this event immediately
                 sender.sendEvent(STREAM, params.toString(), HttpMethod.GET);
                 break;
-            case R.id.putEventsBulk:
+            case R.id.btnPutEventsBulk:
                 Gson gson= new Gson();
                 List<ExampleData> bulkList= new ArrayList<>();
                 ExampleData data1=new ExampleData(1, "first message");
@@ -84,7 +87,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("a8m.table", params);
+                tracker.track("STREAM", params);
                 break;
             case R.id.btnPostReport:
                 try {
@@ -94,7 +97,7 @@ public class BaseMainActivity extends Activity {
                     Log.d("TAG", "Failed to track your json");
                 }
                 // Will send this event immediately
-                tracker.track("a8m.table", params, true);
+                tracker.track("STREAM", params, true);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();
