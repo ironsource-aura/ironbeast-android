@@ -3,9 +3,8 @@ jdk: oraclejdk8
 sudo: false
 android:
   components:
-  - android-23
   - android-22
-  - android-21
+  - com.android.support:support-v4:22.1.1
   - build-tools-22.0.1
 cache:
   directories:
