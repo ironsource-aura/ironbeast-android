@@ -9,7 +9,7 @@ cache:
   directories:
   - "$HOME/.gradle/caches/"
 script:
-- "./gradlew build jacocoTestReport"
+- "./gradlew jacocoTestReport"
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 #deploy:
@@ -17,5 +17,3 @@ after_success:
 #  script: "./gradlew bintrayUpload"
 #  on:
 #    tags: true
-
-
