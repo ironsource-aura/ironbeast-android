@@ -4,7 +4,6 @@ sudo: false
 android:
   components:
   - android-22
-  - com.android.support:support-v4:22.1.1
   - build-tools-22.0.1
 cache:
   directories:
