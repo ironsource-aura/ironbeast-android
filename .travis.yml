@@ -3,7 +3,7 @@ jdk: oraclejdk8
 sudo: false
 android:
   components:
-  - android-21
+  - android-22
   - build-tools-21.1.1
 cache:
   directories:
