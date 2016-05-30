@@ -3,8 +3,10 @@ jdk: oraclejdk8
 sudo: false
 android:
   components:
+  - android-23
   - android-22
-  - build-tools-22.0.0
+  - android-21
+  - build-tools-23.0.0
 cache:
   directories:
   - "$HOME/.gradle/caches/"
