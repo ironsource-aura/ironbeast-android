@@ -13,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
+        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0x"
 
 
     }
@@ -65,9 +65,7 @@ android {
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
         }
-        jacoco {
-            version "0.7.1.201405082137"
-        }
+
 
     }
 
@@ -117,8 +115,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        //classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
+        classpath 'com.android.tools.build:gradle:2.1.0'
+
     }
 }
 
@@ -141,9 +139,7 @@ task makeDebugJar(type: Copy) {
     rename ('classes.jar', "${archivesBaseName}_v${version}_debug.jar")
 }
 
-jacoco {
-    toolVersion "0.7.1.201405082137"
-}
+
 
 // Define coverage source.
 // If you have rs/aidl etc... add them here.
