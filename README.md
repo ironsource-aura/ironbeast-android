@@ -4,6 +4,7 @@
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Build status][travis-image]][travis-url]
 
+
 Atom-Android is the official [ironSource.atom](http://www.ironsrc.com/data-flow-management) SDK for the Android.
 
 ###Installation
@@ -109,13 +110,12 @@ MIT
 [example]: https://cloud.githubusercontent.com/assets/19428452/15633715/2f12d29e-25bd-11e6-88bc-22649390fff5.png "example"
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [license-url]: LICENSE
-[travis-image]: https://travis-ci.org/ironSource/atom-javascript.svg?branch=master
-[travis-url]: https://travis-ci.org/ironSource/atom-javascript
-[coveralls-image]: https://coveralls.io/repos/github/ironSource/atom-javascript/badge.svg?branch=master
-[coveralls-url]: https://coveralls.io/github/ironSource/atom-javascript?branch=master
+[travis-image]: https://travis-ci.org/ironSource/ironbeast-android.svg?branch=service%2FISA-221
+[travis-url]: https://travis-ci.org/ironSource/ironbeast-android
+[coveralls-image]: https://coveralls.io/repos/github/ironSource/ironbeast-android/badge.svg?branch=service%2FISA-221
+[coveralls-url]: https://coveralls.io/github/ironSource/ironbeast-android?branch=master
 [docs-image]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-url]: https://ironsource.github.io/atom-javascript/
+[docs-url]: https://ironsource.github.io/ironbeast-android/
 [sauce-image]: https://saucelabs.com/browser-matrix/jacckson.svg?auth=433c2b373dfd86bc7d78fc8bf36dbc3b
 [sauce-url]: https://saucelabs.com/u/jacckson?auth=433c2b373dfd86bc7d78fc8bf36dbc3b
-
 
