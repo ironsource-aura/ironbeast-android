@@ -1,12 +1,17 @@
+apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
+
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2' }
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
 
     }
 }
@@ -14,6 +19,7 @@ buildscript {
 android {
     compileSdkVersion 22
     buildToolsVersion "21.1.1"
+
 
     defaultConfig {
         minSdkVersion 10
@@ -57,20 +63,7 @@ android {
         jacoco {
             version "0.7.1.201405082137"
         }
-        packagingOptions {
-            exclude 'META-INF/DEPENDENCIES.txt'
-            exclude 'META-INF/LICENSE.txt'
-            exclude 'META-INF/NOTICE.txt'
-            exclude 'META-INF/NOTICE'
-            exclude 'META-INF/LICENSE'
-            exclude 'META-INF/DEPENDENCIES'
-            exclude 'META-INF/notice.txt'
-            exclude 'META-INF/license.txt'
-            exclude 'META-INF/dependencies.txt'
-            exclude 'META-INF/LGPL2.1'
-            exclude 'META-INF/services/javax.annotation.processing.Processor'
-            exclude 'LICENSE.txt'
-        }
+
     }
 
 
@@ -154,11 +147,13 @@ def coverageSourceDirs = [
         'src/main/java',
 ]
 
+
+
 task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
     group = "Reporting"
     description = "Generate Jacoco coverage reports after running tests."
         reports {
-            xml.enabled false
+            xml.enabled true
             csv.enabled false
             html.destination "${buildDir}/reports/jacoco/html"
         }
@@ -182,6 +177,19 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
         }
     }
 }
+coveralls {
+    //sourceDirs = publishedProjects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+}
+
+tasks.coveralls {
+    group = 'Coverage reports'
+    description = 'Uploads the aggregated coverage report to Coveralls'
+
+    dependsOn jacocoTestReport
+    //onlyIf { System.env.'CI' }
+}
+
 
 
 
