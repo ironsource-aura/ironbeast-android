@@ -14,12 +14,12 @@ Currently, there is one way to integrate. soon, it will be available on jcenter 
 1. Add the SDK jar into libs directory.
 
 2. Add the following lines to AndroidManifest.xml
-```html
+```java
         <service android:name="io.ironsourceatom.sdk.ReportService" />
         <service android:name="io.ironsourceatom.sdk.SimpleReportService" />
 ```
 3. Add dependency to app/build.gradle
-```html
+```java
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
@@ -27,7 +27,7 @@ dependencies {
 ###Getting Started
 
 Add IronSourceAtom to your main activity. For example:
-```html
+```java
 ...
 import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
@@ -65,7 +65,7 @@ public class BaseMainActivity extends Activity {
 Make sure you have replaced "YOUR_AUTH_KEY with your IronSourceAtom auth key, and "YOUR_IRONSOURCEATOM_STREAM_NAME" to the desired destination (e.g: “cluster.schema.table”)
 ### Events traker usage
 You can use event tracker as shown below
-```html
+```java
 ...
 import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
