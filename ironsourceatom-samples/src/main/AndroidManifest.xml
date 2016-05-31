@@ -15,10 +15,9 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <service
-            android:name="io.ironsourceatom.sdk.ReportService" />
-        <service
-            android:name="io.ironsourceatom.sdk.SimpleReportService" />
+
+        <service android:name="io.ironsourceatom.sdk.ReportService" />
+        <service android:name="io.ironsourceatom.sdk.SimpleReportService" />
 
         <activity
             android:name="io.ironsourceatom.sample.MainActivity"

@@ -2,6 +2,9 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
 
+
+version = "1.0.0"
+
 buildscript {
     repositories {
         mavenCentral()
@@ -10,11 +13,13 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.github.dcendents:android-maven-plugin:1.2'
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
+
 
     }
 }
+
+
 
 android {
     compileSdkVersion 22
@@ -65,7 +70,6 @@ android {
         }
 
     }
-
 
 
     //release type by default so for test we need to set debug

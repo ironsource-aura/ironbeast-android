@@ -11,8 +11,8 @@ class ISAConfig {
 
     private static final String TAG = ISAConfig.class.getSimpleName();
     private static final Object sInstanceLock = new Object();
-    protected static final String DEFAULT_URL = BuildConfig.DEFAULT_URL;
-    protected static final String DEFAULT_BULK_URL = BuildConfig.DEFAULT_BULK_URL;
+    protected static final String DEFAULT_URL = "http://track.atom-data.io/bulk";
+    protected static final String DEFAULT_BULK_URL = "http://track.atom-data.io/bulk";
     protected static final int KILOBYTE = 1024;
     protected static final int DEFAULT_BULK_SIZE = 4;
     protected static final int DEFAULT_NUM_OF_RETRIES = 2;
