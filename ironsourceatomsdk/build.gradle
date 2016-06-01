@@ -1,9 +1,8 @@
 apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
+apply plugin: 'maven'
 
-
-version = "1.0.0"
 
 buildscript {
     repositories {
@@ -30,9 +29,9 @@ android {
         minSdkVersion 10
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         project.version = versionName
-        project.archivesBaseName = "IronSourceAtomSDK"
+        project.archivesBaseName = "atomandroid"
     }
 
     buildTypes {
@@ -72,11 +71,7 @@ android {
 
     //release type by default so for test we need to set debug
     defaultPublishConfig "debug"
-    // important shit for sdk module use
-    // If you wanted to change the default published variant while using flavors, you would write:
-    //defaultPublishConfig "devRelease"
-    //Publishing of all variants are not enabled by default. To enable them:
-    //publishNonDefault true
+
 
     sourceSets {
         main {
@@ -122,15 +117,16 @@ buildscript {
 
 
 task clearJar(type: Delete) {
-    delete "../output/${archivesBaseName}${version}_release.jar"
+    delete "../output/${archivesBaseName}-${version}.jar"
     delete "../output/${archivesBaseName}${version}_debug.jar"
 }
+
 
 task makeReleaseJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('../output/')
     include('classes.jar')
-    rename ('classes.jar', "${archivesBaseName}_v${version}_release.jar")
+    rename ('classes.jar', "${archivesBaseName}-${version}.jar")
 }
 task makeDebugJar(type: Copy) {
     from('build/intermediates/bundles/debug/')
@@ -191,8 +187,28 @@ tasks.coveralls {
 }
 
 
+task createPom {
+    pom {
+        project {
+            groupId 'com.ironsrc.atom'
+            artifactId 'atomandroid'
+            version "${version}"
+
+            inceptionYear '2016'
+
+            licenses {
+                license {
+                    name 'MIT'
+                    url 'http://opensource.org/licenses/MIT'
+
+                    distribution 'repo'
+                }
+            }
 
 
+        }
+    }.writeTo("../output/${version}.pom")
+}
 
 assembleRelease.dependsOn(clearJar, makeReleaseJar)
 assembleDebug.dependsOn(clearJar, makeDebugJar)
