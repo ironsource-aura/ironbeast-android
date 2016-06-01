@@ -7,7 +7,6 @@ interface Report {
     Report setTable(String table);
     Report setToken(String token);
     Report setEnpoint(String endpoint);
-    Report setHttpMethod(HttpMethod httpMethod);
     Report setBulk(boolean b);
     Intent getIntent();
     void send();

@@ -42,11 +42,6 @@ public class TestsUtils {
         }
 
         @Override
-        public Report setHttpMethod(HttpMethod httpMethod) {
-            return null;
-        }
-
-        @Override
         public Report setBulk(boolean b) {
             return null;
         }
@@ -84,10 +79,6 @@ public class TestsUtils {
             return res;
         }
 
-        @Override
-        public Response get(String data, String url) throws IOException {
-            return null;
-        }
 
         public MockPoster setNext(int code) {
             this.mCode = code;

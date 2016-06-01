@@ -13,7 +13,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 /**
- * Created by kirill.bokhanov on 5/26/16.
+ * Handle send data when putEvent or putEvent method called
  */
 public class SimpleReportHandler {
 
@@ -25,7 +25,6 @@ public class SimpleReportHandler {
     private RemoteService client;
     private ISAConfig config;
     private String endpoint;
-    private HttpMethod httpMethod;
     private boolean bulk;
 
     public SimpleReportHandler(Context context) {
@@ -44,7 +43,6 @@ public class SimpleReportHandler {
             JSONObject dataObject = new JSONObject();
             try {
                 endpoint = (String) bundle.get(ReportIntent.ENDPOINT);
-                httpMethod= HttpMethod.valueOf((String) bundle.get(ReportIntent.HTTPMETHOD));
                 if(null!=bundle.get(ReportIntent.BULK)&&!"".equals((String)bundle.get(ReportIntent.BULK))) {
                     bulk = Boolean.valueOf((String) bundle.get(ReportIntent.BULK));
                 }
@@ -57,7 +55,7 @@ public class SimpleReportHandler {
                 Logger.log(TAG, "Failed extracting the data from Intent", Logger.SDK_ERROR);
             }
             String message = createMessage(dataObject, bulk);
-            send(message, endpoint, httpMethod);
+            send(message, endpoint);
 
         } catch (Exception e) {
 
@@ -88,17 +86,13 @@ public class SimpleReportHandler {
      * @param url  - IronSourceAtom url endpoint.
      * @return sendStatus ENUM that indicate what to do later on.
      */
-    protected SendStatus send(String data, String url, HttpMethod httpMethod) {
+    protected SendStatus send(String data, String url) {
             {
             try {
                 RemoteService.Response response = new RemoteService.Response();
-                    if(httpMethod==HttpMethod.POST){
+
                         response=client.post(data, url);
 
-                    } else{
-
-                        response=client.get(data, url);
-                    }
 
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);

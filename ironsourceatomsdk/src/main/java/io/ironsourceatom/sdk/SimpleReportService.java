@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Created by kirill.bokhanov on 5/26/16.
+ * Intent service to handle simple report (for methods putEvent() and putEvents())
  */
 public class SimpleReportService extends IntentService {
 

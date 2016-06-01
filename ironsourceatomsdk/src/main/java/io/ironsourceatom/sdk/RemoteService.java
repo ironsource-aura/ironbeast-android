@@ -5,8 +5,6 @@ import java.io.IOException;
 interface RemoteService {
     Response post(final String data, final String url) throws IOException;
 
-    Response get(final String data, final String url) throws IOException;
-
     /**
      * Response-like class
      */

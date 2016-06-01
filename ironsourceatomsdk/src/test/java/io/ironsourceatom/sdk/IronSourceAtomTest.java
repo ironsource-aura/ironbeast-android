@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 import static junit.framework.Assert.*;
 
 /**
- * Basic IronBeastAPI test cases
+ * Basic IronSourceAtomAPI test cases
  */
 @RunWith(MockitoJUnitRunner.class)
 public class IronSourceAtomTest {

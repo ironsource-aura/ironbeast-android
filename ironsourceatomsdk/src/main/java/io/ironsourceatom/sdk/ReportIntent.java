@@ -46,12 +46,6 @@ class ReportIntent implements Report {
     }
 
     @Override
-    public Report setHttpMethod(HttpMethod httpMethod) {
-        mIntent.putExtra(HTTPMETHOD, httpMethod.toString());
-        return this;
-    }
-
-    @Override
     public Report setBulk(boolean b) {
         mIntent.putExtra(BULK, String.valueOf(b));
         return this;

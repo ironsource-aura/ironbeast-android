@@ -9,6 +9,10 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * Util class with heplers methods
+ */
+
 class Utils {
 
     /**

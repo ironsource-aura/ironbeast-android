@@ -17,13 +17,6 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send one event by GET"
-        android:id="@+id/btnPutEventGet"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:text="Send array of events"
         android:id="@+id/btnPutEventsBulk"
         android:layout_marginTop="8dp" />

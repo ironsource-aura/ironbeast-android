@@ -36,28 +36,13 @@ public class IronSourceAtomEventSender {
         openReport(context)
                 .setEnpoint(endpoint)
                 .setTable(streamName)
-                .setHttpMethod(HttpMethod.POST)
                 .setToken(token)
                 .setData(data)
                 .send();
 
     }
 
-    /**
-     *
-     * @param streamName
-     * @param data
-     * @param httpMethod
-     */
-    public void sendEvent(String streamName, String data, HttpMethod httpMethod){
-        openReport(context)
-                .setEnpoint(endpoint)
-                .setTable(streamName)
-                .setHttpMethod(httpMethod)
-                .setToken(token)
-                .setData(data)
-                .send();
-    }
+
 
     /**
      *
@@ -68,23 +53,11 @@ public class IronSourceAtomEventSender {
         openReport(context)
                 .setEnpoint(endpoint)
                 .setTable(streamName)
-                .setHttpMethod(HttpMethod.POST)
                 .setToken(token)
                 .setData(data)
                 .setBulk(true)
                 .send();
     }
-
-//    public void sendEvents(String streamName, String data, HttpMethod httpMethod){
-//        openReport(context)
-//                .setEnpoint(endpoint)
-//                .setTable(streamName)
-//                .setHttpMethod(httpMethod)
-//                .setToken(token)
-//                .setData(data)
-//                .send();
-//
-//    }
 
     /**
      *

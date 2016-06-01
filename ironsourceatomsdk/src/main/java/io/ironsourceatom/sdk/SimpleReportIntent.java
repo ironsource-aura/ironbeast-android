@@ -3,6 +3,10 @@ package io.ironsourceatom.sdk;
 import android.content.Context;
 import android.content.Intent;
 
+/**
+ * Implementation of Report for using with SimpleReportService
+ */
+
 class SimpleReportIntent implements Report {
 
 
@@ -15,7 +19,6 @@ class SimpleReportIntent implements Report {
     public static final String DATA = "data";
     public static final String AUTH = "auth";
     public static final String ENDPOINT = "endpoint";
-    protected static final String HTTPMETHOD = "httpMethod";
 
 
     SimpleReportIntent(Context context) {
@@ -39,11 +42,6 @@ class SimpleReportIntent implements Report {
         return this;
     }
 
-    @Override
-    public SimpleReportIntent setHttpMethod(HttpMethod httpMethod) {
-        mIntent.putExtra(HTTPMETHOD, httpMethod.toString());
-        return this;
-    }
 
     @Override
     public Report setBulk(boolean b) {

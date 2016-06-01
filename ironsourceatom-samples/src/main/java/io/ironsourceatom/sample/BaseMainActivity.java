@@ -14,7 +14,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.ironsourceatom.sdk.HttpMethod;
 import io.ironsourceatom.sdk.IronSourceAtom;
 import io.ironsourceatom.sdk.IronSourceAtomEventSender;
 import io.ironsourceatom.sdk.IronSourceAtomTracker;
@@ -58,16 +57,7 @@ public class BaseMainActivity extends Activity {
                 }
                 sender.sendEvent(STREAM, params.toString());
                 break;
-            case R.id.btnPutEventGet:
-                try {
-                    params.put("action", "post");
-                    params.put("id", "" + (int) (100 * Math.random()));
-                } catch (JSONException e) {
-                    Log.d("TAG", "Failed to track your json");
-                }
-                // Will send this event immediately
-                sender.sendEvent(STREAM, params.toString(), HttpMethod.GET);
-                break;
+
             case R.id.btnPutEventsBulk:
                 Gson gson= new Gson();
                 List<ExampleData> bulkList= new ArrayList<>();

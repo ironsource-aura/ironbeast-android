@@ -12,6 +12,9 @@ import java.net.HttpURLConnection;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
+/**
+ * Basic HttpClientTest test cases
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpClientTest {
 
