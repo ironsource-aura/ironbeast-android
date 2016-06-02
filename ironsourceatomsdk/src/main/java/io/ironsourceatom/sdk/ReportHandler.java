@@ -15,13 +15,26 @@ import java.util.List;
 
 import static java.lang.Math.ceil;
 
+/**
+ * Class responsible for tracker logic
+ */
 class ReportHandler {
 
+
+    enum SendStatus { SUCCESS, DELETE, RETRY }
+    enum HandleStatus { HANDLED, RETRY }
+
+    private static final String TAG = "ReportHandler";
+    private NetworkManager networkManager;
+    private StorageService storage;
+    private RemoteService client;
+    private IsaConfig config;
+
     public ReportHandler(Context context) {
-        mClient = getClient();
-        mConfig = getConfig(context);
-        mStorage = getStorage(context);
-        mNetworkManager = getNetManager(context);
+        client = getClient();
+        config = getConfig(context);
+        storage = getStorage(context);
+        networkManager = getNetManager(context);
     }
 
     /**
@@ -32,7 +45,7 @@ class ReportHandler {
      */
     public synchronized HandleStatus handleReport(Intent intent) {
         HandleStatus status = HandleStatus.HANDLED;
-        boolean isOnline = mNetworkManager.isOnline() && canUseNetwork();
+        boolean isOnline = networkManager.isOnline() && canUseNetwork();
         try {
             if (null == intent.getExtras()) return status;
             int event = intent.getIntExtra(ReportIntent.EXTRA_SDK_EVENT, SdkEvent.ERROR);
@@ -51,21 +64,21 @@ class ReportHandler {
             switch (event) {
                 case SdkEvent.FLUSH_QUEUE:
                     if (isOnline) {
-                        tablesToFlush = mStorage.getTables();
+                        tablesToFlush = storage.getTables();
                         break;
                     }
                     return HandleStatus.RETRY;
                 case SdkEvent.POST_SYNC:
                     if (isOnline) {
                         String message = createMessage(dataObject, false);
-                        String url = mConfig.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN));
+                        String url = config.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN));
                         if (SendStatus.RETRY != send(message, url)) break;
                     }
                 case SdkEvent.ENQUEUE:
                     Table table = new Table(dataObject.getString(ReportIntent.TABLE),
                             dataObject.getString(ReportIntent.TOKEN));
-                    int nRows = mStorage.addEvent(table, dataObject.getString(ReportIntent.DATA));
-                    if (isOnline && mConfig.getBulkSize() <= nRows) {
+                    int nRows = storage.addEvent(table, dataObject.getString(ReportIntent.DATA));
+                    if (isOnline && config.getBulkSize() <= nRows) {
                         tablesToFlush.add(table);
                     } else {
                         return HandleStatus.RETRY;
@@ -90,14 +103,14 @@ class ReportHandler {
      * @throws Exception
      */
     public void flush(Table table) throws Exception {
-        int bulkSize = mConfig.getBulkSize();
+        int bulkSize = config.getBulkSize();
         Batch batch;
         while (true) {
-            batch = mStorage.getEvents(table, bulkSize);
+            batch = storage.getEvents(table, bulkSize);
             if (batch != null && batch.events.size() > 1) {
                 int byteSize = batch.events.toString().getBytes("UTF-8").length;
-                if (byteSize <= mConfig.getMaximumRequestLimit()) break;
-                bulkSize = (int) (bulkSize / ceil(byteSize / mConfig.getMaximumRequestLimit()));
+                if (byteSize <= config.getMaximumRequestLimit()) break;
+                bulkSize = (int) (bulkSize / ceil(byteSize / config.getMaximumRequestLimit()));
             } else break;
         }
         if (batch != null) {
@@ -105,12 +118,12 @@ class ReportHandler {
             event.put(ReportIntent.TABLE, table.name);
             event.put(ReportIntent.TOKEN, table.token);
             event.put(ReportIntent.DATA, batch.events.toString());
-            SendStatus res = send(createMessage(event, true), mConfig.getIBEndPointBulk(table.token));
+            SendStatus res = send(createMessage(event, true), config.getIBEndPointBulk(table.token));
             if (res == SendStatus.RETRY) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }
-            if (mStorage.deleteEvents(table, batch.lastId) < bulkSize || mStorage.count(table) == 0) {
-                mStorage.deleteTable(table);
+            if (storage.deleteEvents(table, batch.lastId) < bulkSize || storage.count(table) == 0) {
+                storage.deleteTable(table);
             } else {
                 flush(table);
             }
@@ -146,10 +159,10 @@ class ReportHandler {
      * @return sendStatus ENUM that indicate what to do later on.
      */
     protected SendStatus send(String data, String url) {
-        int nRetry = mConfig.getNumOfRetries();
+        int nRetry = config.getNumOfRetries();
         while (nRetry-- > 0) {
             try {
-                RemoteService.Response response = mClient.post(data, url);
+                RemoteService.Response response = client.post(data, url);
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     return SendStatus.SUCCESS;
                 }
@@ -171,26 +184,18 @@ class ReportHandler {
      * @return
      */
     private boolean canUseNetwork() {
-        if ((mConfig.getAllowedNetworkTypes() & mNetworkManager.getNetworkIBType()) == 0) {
+        if ((config.getAllowedNetworkTypes() & networkManager.getNetworkIBType()) == 0) {
             return false;
         }
-        return mConfig.isAllowedOverRoaming() || !mNetworkManager.isDataRoamingEnabled();
+        return config.isAllowedOverRoaming() || !networkManager.isDataRoamingEnabled();
     }
 
     /**
      * For testing purpose. to allow mocking this behavior.
      */
     protected RemoteService getClient() { return HttpClient.getInstance(); }
-    protected ISAConfig getConfig(Context context) { return ISAConfig.getInstance(context); }
+    protected IsaConfig getConfig(Context context) { return IsaConfig.getInstance(context); }
     protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
     protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 
-    enum SendStatus { SUCCESS, DELETE, RETRY }
-    enum HandleStatus { HANDLED, RETRY }
-
-    private static final String TAG = "ReportHandler";
-    private NetworkManager mNetworkManager;
-    private StorageService mStorage;
-    private RemoteService mClient;
-    private ISAConfig mConfig;
 }

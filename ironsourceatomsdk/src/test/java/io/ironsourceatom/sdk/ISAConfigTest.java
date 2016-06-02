@@ -15,7 +15,7 @@ import static junit.framework.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
-public class ISAConfigTest {
+public class IsaConfigTest {
 
     @Before public void reset() {
         Mockito.reset(mPrefService);
@@ -24,9 +24,9 @@ public class ISAConfigTest {
     // When the custom url was not set previous, it should return the DEFAULT_URL.
     @Test public void testGetIBEndPoint() throws Exception {
         String token = "token";
-        String prefKey = String.format("%s_%s", ISAConfig.KEY_IB_END_POINT, token);
+        String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn("");
-        assertEquals(mISAConfig.getIBEndPoint(token), ISAConfig.DEFAULT_URL);
+        assertEquals(isaConfig.getIBEndPoint(token), IsaConfig.DEFAULT_URL);
         verify(mPrefService, times(1)).load(startsWith(prefKey));
     }
 
@@ -36,10 +36,10 @@ public class ISAConfigTest {
     @Test public void testGetIBEndPoint2Times() throws Exception {
         String token = "token";
         String customUrl = "http://foo.com/blah_blah";
-        String prefKey = String.format("%s_%s", ISAConfig.KEY_IB_END_POINT, token);
+        String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(mISAConfig.getIBEndPoint(token), customUrl);
-        assertEquals(mISAConfig.getIBEndPoint(token), customUrl);
+        assertEquals(isaConfig.getIBEndPoint(token), customUrl);
+        assertEquals(isaConfig.getIBEndPoint(token), customUrl);
         verify(mPrefService, times(1)).load(startsWith(prefKey));
     }
 
@@ -48,8 +48,8 @@ public class ISAConfigTest {
     @Test public void testGetIBEndPointBulk() throws Exception {
         String token = "token";
         when(mPrefService.load(anyString())).thenReturn("");
-        assertEquals(mISAConfig.getIBEndPointBulk(token), ISAConfig.DEFAULT_BULK_URL);
-        assertEquals(mISAConfig.getIBEndPointBulk(token), ISAConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
         verify(mPrefService, times(2)).load(anyString());
     }
 
@@ -59,34 +59,34 @@ public class ISAConfigTest {
     @Test public void testGetEndPointBulk2Times() throws Exception {
         String token = "token";
         String customUrl = "http://foo.com/blah_blah";
-        String prefKey = String.format("%s_%s", ISAConfig.KEY_IB_END_POINT_BULK, token);
+        String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
 
-        assertEquals(mISAConfig.getIBEndPointBulk(token), customUrl);
-        assertEquals(mISAConfig.getIBEndPointBulk(token), customUrl);
+        assertEquals(isaConfig.getIBEndPointBulk(token), customUrl);
+        assertEquals(isaConfig.getIBEndPointBulk(token), customUrl);
         verify(mPrefService, times(1)).load(anyString());
     }
 
     @Test public void testNotValidUrlWasSavedEndPoint() throws Exception {
         String token = "token";
         String customUrl = "blabla.com";
-        String prefKey = String.format("%s_%s", ISAConfig.KEY_IB_END_POINT, token);
+        String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(mISAConfig.getIBEndPoint(token), ISAConfig.DEFAULT_URL);
+        assertEquals(isaConfig.getIBEndPoint(token), IsaConfig.DEFAULT_URL);
     }
 
     @Test public void testNotValidUrlWasSavedEndPointBulk() throws Exception {
         String token = "token";
         String customUrl = "blabla.com";
-        String prefKey = String.format("%s_%s", ISAConfig.KEY_IB_END_POINT_BULK, token);
+        String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(mISAConfig.getIBEndPointBulk(token), ISAConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
     }
 
-    ISAPrefService mPrefService = mock(ISAPrefService.class);
-    public ISAConfig mISAConfig = new ISAConfig(RuntimeEnvironment.application) {
+    IsaPrefService mPrefService = mock(IsaPrefService.class);
+    public IsaConfig isaConfig = new IsaConfig(RuntimeEnvironment.application) {
         @Override
-        protected ISAPrefService getPrefService(Context context) {
+        protected IsaPrefService getPrefService(Context context) {
             return mPrefService;
         }
     };

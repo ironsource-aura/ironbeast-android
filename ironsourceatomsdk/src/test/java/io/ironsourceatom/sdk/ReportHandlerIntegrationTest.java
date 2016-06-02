@@ -127,7 +127,7 @@ public class ReportHandlerIntegrationTest {
     }};
     // MockBackend
     final TestsUtils.MockPoster mClient = new TestsUtils.MockPoster();
-    final ISAConfig mConfig = ISAConfig.getInstance(RuntimeEnvironment.application);
+    final IsaConfig mConfig = IsaConfig.getInstance(RuntimeEnvironment.application);
     final StorageService mAdapter = new DbAdapter(RuntimeEnvironment.application);
     final ReportHandler mHandler = new ReportHandler(RuntimeEnvironment.application) {
         @Override

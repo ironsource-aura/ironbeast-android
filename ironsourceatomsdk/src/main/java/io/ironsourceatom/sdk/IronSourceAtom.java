@@ -15,8 +15,8 @@ public class IronSourceAtom {
 
 
 
-    private ISAConfig mConfig;
-    private Context mContext;
+    private IsaConfig config;
+    private Context context;
     private final Map<String, IronSourceAtomTracker> sAvailableTrackers = new HashMap<>();
     private final Map<String, IronSourceAtomEventSender> availableSenders = new HashMap<>();
     private static IronSourceAtom sInstance;
@@ -30,8 +30,8 @@ public class IronSourceAtom {
      * You should use IronSourceAtom.getInstance()
      */
     public IronSourceAtom(Context context) {
-        mContext = context;
-        mConfig = ISAConfig.getInstance(context);
+        this.context = context;
+        config = IsaConfig.getInstance(context);
     }
 
     public static IronSourceAtom getInstance() {return  sInstance;}
@@ -66,7 +66,7 @@ public class IronSourceAtom {
             if (sAvailableTrackers.containsKey(auth)) {
                 ret = sAvailableTrackers.get(auth);
             } else {
-                ret = new IronSourceAtomTracker(sInstance.mContext, auth);
+                ret = new IronSourceAtomTracker(sInstance.context, auth);
                 sAvailableTrackers.put(auth, ret);
             }
             return ret;
@@ -91,7 +91,7 @@ public class IronSourceAtom {
             if (availableSenders.containsKey(auth)) {
                 ret = availableSenders.get(auth);
             } else {
-                ret = new IronSourceAtomEventSender(sInstance.mContext, auth);
+                ret = new IronSourceAtomEventSender(sInstance.context, auth);
                 availableSenders.put(auth, ret);
             }
             return ret;
@@ -101,14 +101,14 @@ public class IronSourceAtom {
     /**
      * Enable the SDK error-tracker.
      */
-    public void enableErrorReporting() { mConfig.enableErrorReporting(); }
+    public void enableErrorReporting() { config.enableErrorReporting(); }
 
     /**
      * Set whether the SDK can keep sending over a roaming connection.
      * @param allowed
      */
     public void setAllowedOverRoaming(boolean allowed) {
-        mConfig.setAllowedOverRoaming(allowed);
+        config.setAllowedOverRoaming(allowed);
     }
 
     /**
@@ -117,14 +117,14 @@ public class IronSourceAtom {
      * @param flags
      */
     public void setAllowedNetworkTypes(int flags) {
-        mConfig.setAllowedNetworkTypes(flags);
+        config.setAllowedNetworkTypes(flags);
     }
 
     /**
      * Set the SDK log level.
      * @param logType
      */
-    public void setLogType(ISAConfig.LOG_TYPE logType) {
+    public void setLogType(IsaConfig.LOG_TYPE logType) {
         Logger.logLevel  = logType;
     }
 
@@ -134,7 +134,7 @@ public class IronSourceAtom {
      * @param size - max size of report bulk (rows)
      */
     public void setBulkSize(int size) {
-        mConfig.setBulkSize(size);
+        config.setBulkSize(size);
     }
 
     /**
@@ -143,7 +143,7 @@ public class IronSourceAtom {
      * @param bytes - max size of report (file size)
      */
     public void setMaximumRequestLimit(long bytes) {
-        mConfig.setMaximumRequestLimit(bytes);
+        config.setMaximumRequestLimit(bytes);
     }
 
     /**
@@ -152,7 +152,7 @@ public class IronSourceAtom {
      * @param ms - time for flush in milliseconds
      */
     public void setFlushInterval(int ms) {
-        mConfig.setFlushInterval(ms);
+        config.setFlushInterval(ms);
     }
 
     /**
@@ -160,21 +160,21 @@ public class IronSourceAtom {
      * @param str
      */
     protected void trackError(String str) {
-        String token = ISAConfig.IRONBEAST_TRACKER_TOKEN;
-        if (!sAvailableTrackers.containsKey(token) && mConfig.isErrorReportingEnabled()) {
-            sAvailableTrackers.put(token, new IronSourceAtomTracker(mContext, token));
+        String token = IsaConfig.IRONBEAST_TRACKER_TOKEN;
+        if (!sAvailableTrackers.containsKey(token) && config.isErrorReportingEnabled()) {
+            sAvailableTrackers.put(token, new IronSourceAtomTracker(context, token));
         }
-        IronSourceAtomTracker sdkTracker = sAvailableTrackers.get(ISAConfig.IRONBEAST_TRACKER_TOKEN);
+        IronSourceAtomTracker sdkTracker = sAvailableTrackers.get(IsaConfig.IRONBEAST_TRACKER_TOKEN);
         try {
             JSONObject report = new JSONObject();
             report.put("details", str);
             report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                     .format(Calendar.getInstance().getTime()));
             report.put("sdk_version", Consts.VER);
-            report.put("connection", NetworkManager.getInstance(mContext).getConnectedNetworkType());
+            report.put("connection", NetworkManager.getInstance(context).getConnectedNetworkType());
             report.put("platform", "Android");
             report.put("os", String.valueOf(Build.VERSION.SDK_INT));
-            sdkTracker.track(ISAConfig.IRONBEAST_TRACKER_TABLE, report, false);
+            sdkTracker.track(IsaConfig.IRONBEAST_TRACKER_TABLE, report, false);
         } catch (Exception e) {
             Logger.log(TAG, "Failed to track error: " + e, Logger.SDK_DEBUG);
         }

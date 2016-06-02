@@ -12,6 +12,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 class DbAdapter implements StorageService {
 
+
+
     /**
      * Do not call directly. You should use DbAdapter.getInstance()
      */
@@ -249,15 +251,19 @@ class DbAdapter implements StorageService {
      * or deleting the database.
      */
     protected static class DatabaseHandler extends SQLiteOpenHelper {
+
+
+        private final File databaseFile;
+        private final IsaConfig mConfig;
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
-            mDatabaseFile = context.getDatabasePath(DATABASE_NAME);
-            mConfig = ISAConfig.getInstance(context);
+            databaseFile = context.getDatabasePath(DATABASE_NAME);
+            mConfig = IsaConfig.getInstance(context);
         }
 
         public void delete() {
             close();
-            mDatabaseFile.delete();
+            databaseFile.delete();
         }
 
         /**
@@ -298,14 +304,12 @@ class DbAdapter implements StorageService {
          * @return
          */
         public boolean belowDatabaseLimit() {
-            if (mDatabaseFile.exists()) {
-                long limit = Math.max(mDatabaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
-                return limit >= mDatabaseFile.length();
+            if (databaseFile.exists()) {
+                long limit = Math.max(databaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
+                return limit >= databaseFile.length();
             }
             return true;
         }
 
-        private final File mDatabaseFile;
-        private final ISAConfig mConfig;
     }
 }

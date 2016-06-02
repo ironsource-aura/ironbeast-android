@@ -9,6 +9,12 @@ import android.content.Intent;
 
 public class ReportService extends IntentService {
 
+
+    final static private String TAG = "ReportService";
+    private AlarmManager alarmManager;
+    private ReportHandler handler;
+    private BackOff backOff;
+
     public ReportService() {
         super(TAG);
     }
@@ -17,19 +23,19 @@ public class ReportService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Context context = this.getApplicationContext();
-        mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        mHandler = new ReportHandler(context);
-        mBackOff = BackOff.getInstance(context);
+        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        handler = new ReportHandler(context);
+        backOff = BackOff.getInstance(context);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            if (mHandler.handleReport(intent) == ReportHandler.HandleStatus.RETRY &&
-                    mBackOff.hasNext()) {
-                setAlarm(mBackOff.next());
+            if (handler.handleReport(intent) == ReportHandler.HandleStatus.RETRY &&
+                    backOff.hasNext()) {
+                setAlarm(backOff.next());
             } else {
-                mBackOff.reset();
+                backOff.reset();
             }
         } catch (Throwable th) {
             Logger.log(TAG, "failed to handle intent: " + th, Logger.SDK_ERROR);
@@ -42,12 +48,8 @@ public class ReportService extends IntentService {
         ReportIntent report = new ReportIntent(this, SdkEvent.FLUSH_QUEUE);
         PendingIntent intent = PendingIntent.getService(this, 0, report.getIntent(),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        mAlarmManager.cancel(intent);
-        mAlarmManager.set(AlarmManager.RTC, triggerMills, intent);
+        alarmManager.cancel(intent);
+        alarmManager.set(AlarmManager.RTC, triggerMills, intent);
     }
 
-    final static private String TAG = "ReportService";
-    private AlarmManager mAlarmManager;
-    private ReportHandler mHandler;
-    private BackOff mBackOff;
 }

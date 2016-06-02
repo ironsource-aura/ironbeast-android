@@ -23,7 +23,7 @@ public class SimpleReportHandler {
     private static final String TAG = "SimpleReportHandler";
     private NetworkManager networkManager;
     private RemoteService client;
-    private ISAConfig config;
+    private IsaConfig config;
     private String endpoint;
     private boolean bulk;
 
@@ -127,7 +127,7 @@ public class SimpleReportHandler {
      * For testing purpose. to allow mocking this behavior.
      */
     protected RemoteService getClient() { return HttpClient.getInstance(); }
-    protected ISAConfig getConfig(Context context) { return ISAConfig.getInstance(context); }
+    protected IsaConfig getConfig(Context context) { return IsaConfig.getInstance(context); }
     protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
     protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
 

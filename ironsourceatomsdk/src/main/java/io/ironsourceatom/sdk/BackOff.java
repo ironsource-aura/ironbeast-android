@@ -9,10 +9,22 @@ import java.util.concurrent.TimeUnit;
  */
 class BackOff {
 
+
+    private int retry;
+    private IsaConfig config;
+    private IsaPrefService prefService;
+    private final String KEY_LAST_TICK = "retry_last_tick";
+    private final String KEY_RETRY_COUNT = "retry_count";
+    protected final int MAX_RETRY_COUNT = 8;
+    protected final int INITIAL_RETRY_VALUE = 0;
+
+    private static BackOff sInstance;
+    private static final Object sInstanceLock = new Object();
+
     BackOff(Context context) {
-        mConfig = getConfig(context);
-        mSharedPref = getPrefService(context);
-        mRetry = mSharedPref.load(KEY_RETRY_COUNT, INITIAL_RETRY_VALUE);
+        config = getConfig(context);
+        prefService = getPrefService(context);
+        retry = prefService.load(KEY_RETRY_COUNT, INITIAL_RETRY_VALUE);
     }
 
     public static BackOff getInstance(Context context) {
@@ -30,12 +42,12 @@ class BackOff {
      */
     synchronized long next() {
         long nextTick, curr = currentTimeMillis();
-        long lastTick = mSharedPref.load(KEY_LAST_TICK, curr);
-        nextTick = curr + getMills(mRetry);
+        long lastTick = prefService.load(KEY_LAST_TICK, curr);
+        nextTick = curr + getMills(retry);
         if (curr - lastTick >= 0) {
-            mSharedPref.save(KEY_RETRY_COUNT, ++mRetry);
+            prefService.save(KEY_RETRY_COUNT, ++retry);
         }
-        mSharedPref.save(KEY_LAST_TICK, nextTick);
+        prefService.save(KEY_LAST_TICK, nextTick);
         return nextTick;
     }
 
@@ -46,7 +58,7 @@ class BackOff {
      */
     private long getMills(int n) {
         if (n <= INITIAL_RETRY_VALUE) {
-            return mConfig.getFlushInterval();
+            return config.getFlushInterval();
         }
         return (long) (new Random().nextDouble() * TimeUnit.MINUTES.toMillis((int) Math.pow(2, n) - 1));
     }
@@ -56,34 +68,24 @@ class BackOff {
      * save current state in sharedPreferences.
      */
     void reset() {
-        mRetry = INITIAL_RETRY_VALUE;
-        mSharedPref.save(KEY_RETRY_COUNT, mRetry);
-        mSharedPref.save(KEY_LAST_TICK, currentTimeMillis());
+        retry = INITIAL_RETRY_VALUE;
+        prefService.save(KEY_RETRY_COUNT, retry);
+        prefService.save(KEY_LAST_TICK, currentTimeMillis());
     }
 
     public boolean hasNext() {
-        return mRetry <= MAX_RETRY_COUNT;
+        return retry <= MAX_RETRY_COUNT;
     }
 
     /**
      * For testing purpose. to allow mocking this behavior.
      */
     protected long currentTimeMillis() { return System.currentTimeMillis(); }
-    protected ISAPrefService getPrefService(Context context) {
-        return ISAPrefService.getInstance(context);
+    protected IsaPrefService getPrefService(Context context) {
+        return IsaPrefService.getInstance(context);
     }
-    protected ISAConfig getConfig(Context context) {
-        return ISAConfig.getInstance(context);
+    protected IsaConfig getConfig(Context context) {
+        return IsaConfig.getInstance(context);
     }
 
-    private int mRetry;
-    private ISAConfig mConfig;
-    private ISAPrefService mSharedPref;
-    private final String KEY_LAST_TICK = "retry_last_tick";
-    private final String KEY_RETRY_COUNT = "retry_count";
-    protected final int MAX_RETRY_COUNT = 8;
-    protected final int INITIAL_RETRY_VALUE = 0;
-
-    private static BackOff sInstance;
-    private static final Object sInstanceLock = new Object();
 }

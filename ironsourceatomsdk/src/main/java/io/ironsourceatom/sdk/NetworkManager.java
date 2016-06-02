@@ -9,8 +9,14 @@ import android.net.NetworkInfo;
  */
 public class NetworkManager {
 
+
+    private Context context;
+    private static NetworkManager sInstance;
+    private static final Object sInstanceLock = new Object();
+    private static final String TAG = "NetworkManager";
+
     NetworkManager(Context context) {
-        mContext = context;
+        this.context = context;
     }
 
     public static NetworkManager getInstance(Context context) {
@@ -76,12 +82,7 @@ public class NetworkManager {
     }
 
     private NetworkInfo getNetworkInfo() {
-        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo();
     }
-
-    private Context mContext;
-    private static NetworkManager sInstance;
-    private static final Object sInstanceLock = new Object();
-    private static final String TAG = "NetworkManager";
 }

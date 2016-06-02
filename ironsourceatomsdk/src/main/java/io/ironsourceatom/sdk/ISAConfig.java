@@ -7,9 +7,9 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Locale;
 
-class ISAConfig {
+class IsaConfig {
 
-    private static final String TAG = ISAConfig.class.getSimpleName();
+    private static final String TAG = IsaConfig.class.getSimpleName();
     private static final Object sInstanceLock = new Object();
     protected static final String DEFAULT_URL = "http://track.atom-data.io/bulk";
     protected static final String DEFAULT_BULK_URL = "http://track.atom-data.io/bulk";
@@ -33,27 +33,31 @@ class ISAConfig {
     // IronSourceAtom sTracker configuration
     protected static String IRONBEAST_TRACKER_TABLE = "ironsourceatom_sdk";
     protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
-    private static ISAConfig sInstance;
+    private static IsaConfig sInstance;
 
-    ISAPrefService mISAPrefService;
-    private boolean mEnableErrorReporting;
-    private boolean mAllowedOverRoaming;
-    private int mAllowedNetworkTypes;
-    private int mBulkSize;
-    private int mFlushInterval;
-    private HashMap<String, String> mIBEndPoint;
-    private HashMap<String, String> mIBEndPointBulk;
-    private long mMaximumRequestLimit;
-    private long mMaximumDatabaseLimit;
+    IsaPrefService isaPrefService;
+    private boolean isEnableErrorReporting;
+    private boolean isAllowedOverRoaming;
+    private int allowedNetworkTypes;
+    private int bulkSize;
+    private int flushInterval;
+    private HashMap<String, String> isaEndPoint;
+    private HashMap<String, String> isaEndPointBulk;
+    private long maximumRequestLimit;
+    private long maximumDatabaseLimit;
 
-    ISAConfig(Context context) {
+    public enum LOG_TYPE {
+        PRODUCTION, DEBUG
+    }
+
+    IsaConfig(Context context) {
         loadConfig(context);
     }
 
-    static ISAConfig getInstance(Context context) {
+    static IsaConfig getInstance(Context context) {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
-                sInstance = new ISAConfig(context);
+                sInstance = new IsaConfig(context);
             }
         }
         return sInstance;
@@ -65,16 +69,16 @@ class ISAConfig {
      * @param context
      */
     void loadConfig(Context context) {
-        mISAPrefService = getPrefService(context);
-        mIBEndPoint = new HashMap<>();
-        mIBEndPointBulk = new HashMap<>();
-        mEnableErrorReporting = mISAPrefService.load(KEY_ENABLE_ERROR_REPORTING, false);
-        mAllowedOverRoaming = mISAPrefService.load(KEY_ALLOWED_OVER_ROAMING, true);
-        mAllowedNetworkTypes = mISAPrefService.load(KEY_ALLOWED_NETWORK_TYPES, DEFAULT_ALLOWED_NETWORK_TYPES);
-        mFlushInterval = mISAPrefService.load(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
-        mMaximumRequestLimit = mISAPrefService.load(KEY_MAX_REQUEST_LIMIT, DEFAULT_MAX_REQUEST_LIMIT);
-        mMaximumDatabaseLimit = mISAPrefService.load(KEY_MAX_DATABASE_LIMIT, DEFAUL_MAX_DATABASE_LIMIT);
-        mBulkSize = mISAPrefService.load(KEY_BULK_SIZE, DEFAULT_BULK_SIZE);
+        isaPrefService = getPrefService(context);
+        isaEndPoint = new HashMap<>();
+        isaEndPointBulk = new HashMap<>();
+        isEnableErrorReporting = isaPrefService.load(KEY_ENABLE_ERROR_REPORTING, false);
+        isAllowedOverRoaming = isaPrefService.load(KEY_ALLOWED_OVER_ROAMING, true);
+        allowedNetworkTypes = isaPrefService.load(KEY_ALLOWED_NETWORK_TYPES, DEFAULT_ALLOWED_NETWORK_TYPES);
+        flushInterval = isaPrefService.load(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
+        maximumRequestLimit = isaPrefService.load(KEY_MAX_REQUEST_LIMIT, DEFAULT_MAX_REQUEST_LIMIT);
+        maximumDatabaseLimit = isaPrefService.load(KEY_MAX_DATABASE_LIMIT, DEFAUL_MAX_DATABASE_LIMIT);
+        bulkSize = isaPrefService.load(KEY_BULK_SIZE, DEFAULT_BULK_SIZE);
     }
 
     /**
@@ -84,12 +88,12 @@ class ISAConfig {
      * @return url of tracker end point
      */
     public String getIBEndPoint(String token) {
-        if (mIBEndPoint.containsKey(token)) {
-            return mIBEndPoint.get(token);
+        if (isaEndPoint.containsKey(token)) {
+            return isaEndPoint.get(token);
         }
-        String url = mISAPrefService.load(String.format("%s_%s", KEY_IB_END_POINT, token));
+        String url = isaPrefService.load(String.format("%s_%s", KEY_IB_END_POINT, token));
         if (URLUtil.isValidUrl(url)) {
-            mIBEndPoint.put(token, url);
+            isaEndPoint.put(token, url);
             return url;
         }
         return DEFAULT_URL;
@@ -102,8 +106,8 @@ class ISAConfig {
      * @param url   custom tracker URL
      */
     protected void setISAEndPoint(String token, String url) {
-        mIBEndPoint.put(token, url);
-        mISAPrefService.save(String.format("%s_%s", KEY_IB_END_POINT, token), url);
+        isaEndPoint.put(token, url);
+        isaPrefService.save(String.format("%s_%s", KEY_IB_END_POINT, token), url);
     }
 
     /**
@@ -113,12 +117,12 @@ class ISAConfig {
      * @return url of tracker end point if
      */
     public String getIBEndPointBulk(String token) {
-        if (mIBEndPointBulk.containsKey(token)) {
-            return mIBEndPointBulk.get(token);
+        if (isaEndPointBulk.containsKey(token)) {
+            return isaEndPointBulk.get(token);
         }
-        String url = mISAPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token));
+        String url = isaPrefService.load(String.format("%s_%s", KEY_IB_END_POINT_BULK, token));
         if (URLUtil.isValidUrl(url)) {
-            mIBEndPointBulk.put(token, url);
+            isaEndPointBulk.put(token, url);
             return url;
         }
         return DEFAULT_BULK_URL;
@@ -132,8 +136,8 @@ class ISAConfig {
      * @throws MalformedURLException
      */
     protected void setISAEndPointBulk(String token, String url) {
-        mIBEndPointBulk.put(token, url);
-        mISAPrefService.save(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), url);
+        isaEndPointBulk.put(token, url);
+        isaPrefService.save(String.format("%s_%s", KEY_IB_END_POINT_BULK, token), url);
     }
 
     /**
@@ -142,7 +146,7 @@ class ISAConfig {
      * @return
      */
     public int getBulkSize() {
-        return mBulkSize;
+        return bulkSize;
     }
 
     /**
@@ -151,8 +155,8 @@ class ISAConfig {
      * @param size max number of reports in bulk
      */
     void setBulkSize(int size) {
-        mBulkSize = size > 0 ? size : mBulkSize;
-        mISAPrefService.save(KEY_BULK_SIZE, mBulkSize);
+        bulkSize = size > 0 ? size : bulkSize;
+        isaPrefService.save(KEY_BULK_SIZE, bulkSize);
     }
 
     /**
@@ -161,33 +165,33 @@ class ISAConfig {
      * @return automatic flush time
      */
     public int getFlushInterval() {
-        return mFlushInterval;
+        return flushInterval;
     }
 
     void setFlushInterval(int ms) {
-        mFlushInterval = ms;
-        mISAPrefService.save(KEY_FLUSH_INTERVAL, mFlushInterval);
+        flushInterval = ms;
+        isaPrefService.save(KEY_FLUSH_INTERVAL, flushInterval);
     }
 
     public long getMaximumRequestLimit() {
-        return mMaximumRequestLimit;
+        return maximumRequestLimit;
     }
 
     void setMaximumRequestLimit(long bytes) {
-        mMaximumRequestLimit = bytes >= KILOBYTE ? bytes : mMaximumRequestLimit;
-        mISAPrefService.save(KEY_MAX_REQUEST_LIMIT, mMaximumRequestLimit);
+        maximumRequestLimit = bytes >= KILOBYTE ? bytes : maximumRequestLimit;
+        isaPrefService.save(KEY_MAX_REQUEST_LIMIT, maximumRequestLimit);
     }
 
     /**
      * @return maximum size of saved reports
      */
     public long getMaximumDatabaseLimit() {
-        return mMaximumDatabaseLimit;
+        return maximumDatabaseLimit;
     }
 
     void setMaximumDatabaseLimit(long bytes) {
-        mMaximumDatabaseLimit = bytes >= (KILOBYTE * KILOBYTE) ? bytes : mMaximumDatabaseLimit;
-        mISAPrefService.save(KEY_MAX_DATABASE_LIMIT, mMaximumDatabaseLimit);
+        maximumDatabaseLimit = bytes >= (KILOBYTE * KILOBYTE) ? bytes : maximumDatabaseLimit;
+        isaPrefService.save(KEY_MAX_DATABASE_LIMIT, maximumDatabaseLimit);
     }
 
     /**
@@ -201,8 +205,8 @@ class ISAConfig {
      * Enable the SDK error-tracker.
      */
     public void enableErrorReporting() {
-        mEnableErrorReporting = true;
-        mISAPrefService.save(KEY_ENABLE_ERROR_REPORTING, mEnableErrorReporting);
+        isEnableErrorReporting = true;
+        isaPrefService.save(KEY_ENABLE_ERROR_REPORTING, isEnableErrorReporting);
     }
 
     /**
@@ -211,7 +215,7 @@ class ISAConfig {
      * @return boolean
      */
     public boolean isErrorReportingEnabled() {
-        return mEnableErrorReporting;
+        return isEnableErrorReporting;
     }
 
     /**
@@ -220,15 +224,15 @@ class ISAConfig {
      * @return boolean
      */
     public boolean isAllowedOverRoaming() {
-        return mAllowedOverRoaming;
+        return isAllowedOverRoaming;
     }
 
     /**
      * Set whether the SDK can keep sending over a roaming connection.
      */
     public void setAllowedOverRoaming(boolean allowed) {
-        mAllowedOverRoaming = allowed;
-        mISAPrefService.save(KEY_ALLOWED_OVER_ROAMING, mAllowedOverRoaming);
+        isAllowedOverRoaming = allowed;
+        isaPrefService.save(KEY_ALLOWED_OVER_ROAMING, isAllowedOverRoaming);
     }
 
     /**
@@ -236,37 +240,35 @@ class ISAConfig {
      * By default, all network types are allowed
      */
     public void setAllowedNetworkTypes(int flags) {
-        mAllowedNetworkTypes = flags;
-        mISAPrefService.save(KEY_ALLOWED_NETWORK_TYPES, mAllowedNetworkTypes);
+        allowedNetworkTypes = flags;
+        isaPrefService.save(KEY_ALLOWED_NETWORK_TYPES, allowedNetworkTypes);
     }
 
     protected int getAllowedNetworkTypes() {
-        return mAllowedNetworkTypes;
+        return allowedNetworkTypes;
     }
 
     @Override
     public String toString() {
         return String.format(Locale.ENGLISH, "[%s] flushInterval %d " +
                         "req limit %d db limit %s bSize %d error enable ",
-                TAG, mFlushInterval, mMaximumRequestLimit,
-                mMaximumDatabaseLimit, mBulkSize) +
-                mEnableErrorReporting;
+                TAG, flushInterval, maximumRequestLimit,
+                maximumDatabaseLimit, bulkSize) +
+                isEnableErrorReporting;
     }
 
 
     /**
-     * Function provide Preference service to save and load ISAConfig data
+     * Function provide Preference service to save and load IsaConfig data
      *
      * @param context application Context
      * @return SharePrefService
      */
-    protected ISAPrefService getPrefService(Context context) {
-        return ISAPrefService.getInstance(context);
+    protected IsaPrefService getPrefService(Context context) {
+        return IsaPrefService.getInstance(context);
     }
 
-    public enum LOG_TYPE {
-        PRODUCTION, DEBUG
-    }
+
 
 
 }

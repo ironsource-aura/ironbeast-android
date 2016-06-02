@@ -17,6 +17,13 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  */
 public class HttpClient implements RemoteService {
 
+
+    private static HttpClient sInstance;
+    private static final Object sInstanceLock = new Object();
+    private static final String TAG = "HttpService";
+    private static final int DEFAULT_READ_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10 * 1000; // 10s
+
     public static HttpClient getInstance() {
         synchronized (sInstanceLock) {
             if (null == sInstance) {
@@ -77,9 +84,4 @@ public class HttpClient implements RemoteService {
         return connection;
     }
 
-    private static HttpClient sInstance;
-    private static final Object sInstanceLock = new Object();
-    private static final String TAG = "HttpService";
-    private static final int DEFAULT_READ_TIMEOUT_MILLIS = 15 * 1000; // 15s
-    private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10 * 1000; // 10s
 }

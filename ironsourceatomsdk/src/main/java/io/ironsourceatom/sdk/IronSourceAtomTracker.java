@@ -8,9 +8,9 @@ import java.util.Map;
 public class IronSourceAtomTracker {
 
 
-    private String mAuth;
-    private Context mContext;
-    private ISAConfig mConfig;
+    private String auth;
+    private Context context;
+    private IsaConfig config;
 
     /**
      * This class is the entry point into this client API to work with tracker.
@@ -25,9 +25,9 @@ public class IronSourceAtomTracker {
      * @param auth
      */
     IronSourceAtomTracker(Context context, String auth) {
-        mContext = context;
-        mAuth = auth;
-        mConfig = ISAConfig.getInstance(context);
+        this.context = context;
+        this.auth = auth;
+        config = IsaConfig.getInstance(context);
     }
 
     /**
@@ -38,9 +38,9 @@ public class IronSourceAtomTracker {
      * @param sendNow flag if true report will send immediately else will postponed
      */
     public void track(String table, String data, boolean sendNow) {
-        openReport(mContext, sendNow ? SdkEvent.POST_SYNC : SdkEvent.ENQUEUE)
+        openReport(context, sendNow ? SdkEvent.POST_SYNC : SdkEvent.ENQUEUE)
                 .setTable(table)
-                .setToken(mAuth)
+                .setToken(auth)
                 .setData(data)
                 .send();
     }
@@ -100,7 +100,7 @@ public class IronSourceAtomTracker {
      * Flush immediately all reports
      */
     public void flush() {
-        openReport(mContext, SdkEvent.FLUSH_QUEUE)
+        openReport(context, SdkEvent.FLUSH_QUEUE)
                 .send();
     }
 
@@ -114,7 +114,7 @@ public class IronSourceAtomTracker {
      * @param url Custom publisher destination url.
      */
     public void setISAEndPoint(String url) {
-        if (URLUtil.isValidUrl(url)) mConfig.setISAEndPoint(mAuth, url);
+        if (URLUtil.isValidUrl(url)) config.setISAEndPoint(auth, url);
     }
 
     /**
@@ -123,7 +123,7 @@ public class IronSourceAtomTracker {
      * @param url Custom publisher destination url.
      */
     public void setISAEndPointBulk(String url) {
-        if (URLUtil.isValidUrl(url)) mConfig.setISAEndPointBulk(mAuth, url);
+        if (URLUtil.isValidUrl(url)) config.setISAEndPointBulk(auth, url);
     }
 
 }

@@ -10,7 +10,7 @@ class Logger {
     private static final boolean mIsSuperDevMode = false;
     private static final String LOG_TAG = Logger.class.getSimpleName();
 
-    public static ISAConfig.LOG_TYPE logLevel = ISAConfig.LOG_TYPE.PRODUCTION;
+    public static IsaConfig.LOG_TYPE logLevel = IsaConfig.LOG_TYPE.PRODUCTION;
 
     public static void log(String tag, String msg, int level) {
         log(String.format("[%s]: %s", tag, msg), level);
@@ -22,7 +22,7 @@ class Logger {
                 Log.w(LOG_TAG, logString);
                 break;
             case (NORMAL):
-                if (logLevel == ISAConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
+                if (logLevel == IsaConfig.LOG_TYPE.DEBUG || mIsSuperDevMode) {
                     Log.i(LOG_TAG, logString);
                 }
                 break;
