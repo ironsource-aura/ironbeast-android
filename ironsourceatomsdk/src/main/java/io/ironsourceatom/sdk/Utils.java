@@ -33,7 +33,7 @@ class Utils {
     }
 
     /**
-     * IronSourceAtom auth function
+     * IronSourceAtomFactory auth function
      * Exception could be: NoSuchAlgorithmException and InvalidKeyException
      * @param data
      * @param key

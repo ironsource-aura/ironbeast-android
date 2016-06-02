@@ -14,24 +14,24 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.ironsourceatom.sdk.IronSourceAtomFactory;
 import io.ironsourceatom.sdk.IronSourceAtom;
-import io.ironsourceatom.sdk.IronSourceAtomEventSender;
 import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
-    private IronSourceAtom ironSourceAtom;
+    private IronSourceAtomFactory ironSourceAtomFactory;
     private final String STREAM="foremploy_analytics.public.atomdata";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_v2);
 
-        // Create and config IronSourceAtom instance
-        ironSourceAtom = IronSourceAtom.getInstance(this);
-        ironSourceAtom.enableErrorReporting();
-        ironSourceAtom.setBulkSize(2);
-        ironSourceAtom.setAllowedNetworkTypes(IronSourceAtom.NETWORK_MOBILE | IronSourceAtom.NETWORK_WIFI);
-        ironSourceAtom.setAllowedOverRoaming(true);
+        // Create and config IronSourceAtomFactory instance
+        ironSourceAtomFactory = IronSourceAtomFactory.getInstance(this);
+        ironSourceAtomFactory.enableErrorReporting();
+        ironSourceAtomFactory.setBulkSize(2);
+        ironSourceAtomFactory.setAllowedNetworkTypes(IronSourceAtomFactory.NETWORK_MOBILE | IronSourceAtomFactory.NETWORK_WIFI);
+        ironSourceAtomFactory.setAllowedOverRoaming(true);
     }
 
     public void sendReport(View v) {
@@ -39,11 +39,11 @@ public class BaseMainActivity extends Activity {
         String url = "https://track.atom-data.io/";
 
         //Configure sender to use methods putEvent() or putEvents()
-        IronSourceAtomEventSender sender = ironSourceAtom.newSender("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
+        IronSourceAtom sender = ironSourceAtomFactory.newAtom("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
         sender.setEndPoint(url);
 
         //Configure tracker
-        IronSourceAtomTracker tracker = ironSourceAtom.newTracker("YOUR_API_TOKEN");
+        IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("YOUR_API_TOKEN");
         tracker.setISAEndPoint(url);
 
         JSONObject params = new JSONObject();
@@ -55,7 +55,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                sender.sendEvent(STREAM, params.toString());
+                sender.putEvent(STREAM, params.toString());
                 break;
 
             case R.id.btnPutEventsBulk:
@@ -68,7 +68,7 @@ public class BaseMainActivity extends Activity {
                 bulkList.add(data2);
                 bulkList.add(data3);
                 System.out.println(gson.toJson(bulkList).toString());
-                sender.sendEvents(STREAM, gson.toJson(bulkList).toString());
+                sender.putEvents(STREAM, gson.toJson(bulkList).toString());
                 break;
             case R.id.btnTrackReport:
                 try {

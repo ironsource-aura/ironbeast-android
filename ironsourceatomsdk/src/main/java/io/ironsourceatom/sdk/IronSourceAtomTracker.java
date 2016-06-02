@@ -15,11 +15,11 @@ public class IronSourceAtomTracker {
     /**
      * This class is the entry point into this client API to work with tracker.
      * </p>
-     * You should use <code>IronSourceAtom.newTracker(String)</code> to create
+     * You should use <code>IronSourceAtomFactory.newTracker(String)</code> to create
      * an instance of this class.
      * </p>
      * While tracking events, IronSourceAtomTracker will queue them to disk (using SQLite),
-     * and each period of time it upload it as a batch to IronSourceAtom.
+     * and each period of time it upload it as a batch to IronSourceAtomFactory.
      *
      * @param context
      * @param auth
@@ -33,7 +33,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event that already stringify send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    String, containing the data to send.
      * @param sendNow flag if true report will send immediately else will postponed
      */
@@ -48,7 +48,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    Map, containing the data to send.
      * @param sendNow Send flag if true report will send immediately else will postponed
      */
@@ -59,7 +59,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    JSONObject, containing the data to send.
      * @param sendNow Send flag if true report will send immediately else will postponed
      */
@@ -70,7 +70,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event that already stringify send data postponed.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    String, containing the data to send.
      */
     public void track(String table, String data) {
@@ -80,7 +80,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data postponed.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    Map, containing the data to send.
      */
     public void track(String table, Map<String, ?> data) {
@@ -90,7 +90,7 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data postponed.
      *
-     * @param table   IronSourceAtom destination.
+     * @param table   IronSourceAtomFactory destination.
      * @param data    JSONObject, containing the data to send.
      */
     public void track(String table, JSONObject data) {

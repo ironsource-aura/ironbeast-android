@@ -1,183 +1,79 @@
 package io.ironsourceatom.sdk;
 
 import android.content.Context;
-import android.os.Build;
+import android.webkit.URLUtil;
 
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 public class IronSourceAtom {
 
-
-
-    private IsaConfig config;
+    private String token;
     private Context context;
-    private final Map<String, IronSourceAtomTracker> sAvailableTrackers = new HashMap<>();
-    private final Map<String, IronSourceAtomEventSender> availableSenders = new HashMap<>();
-    private static IronSourceAtom sInstance;
-    final static Object sInstanceLockObject = new Object();
-    private static final String TAG = "IronSourceAtom";
-    public static final int NETWORK_MOBILE = 1 << 0;
-    public static final int NETWORK_WIFI = 1 << 1;
+    private String endpoint;
 
     /**
-     * Do not call directly.
-     * You should use IronSourceAtom.getInstance()
+     * This class is the entry point into this client API for work with simple putEvent() and putEvents() methods.
+     * </p>
+     * You should use <code>IronSourceAtomFactory.newAtom(String)</code> to create
+     * an instance of this class.
+     * </p>
+     *
+     * @param context
+     * @param auth
      */
-    public IronSourceAtom(Context context) {
+
+    IronSourceAtom(Context context, String auth) {
         this.context = context;
-        config = IsaConfig.getInstance(context);
-    }
+        this.token = auth;
 
-    public static IronSourceAtom getInstance() {return  sInstance;}
-
-    public static IronSourceAtom getInstance(Context context) {
-        if (null == context) {
-            throw new IllegalArgumentException("`context` should be valid Context object");
-        }
-        synchronized (sInstanceLockObject) {
-            if (sInstance == null) {
-                sInstance = new IronSourceAtom(context.getApplicationContext());
-            }
-        }
-        return sInstance;
     }
 
     /**
-     * Create IronSourceAtomTracker with your YOUR_AUTH_KEY.
-     * Example:
-     * <code>
-     *      IronSourceAtomTracker tracker = IronSourceAtom.newTracker("YOUR_AUTH_KEY");
-     * </code>
-     * @param auth your IronSourceAtom auth key
-     * @return IronSourceAtomTracker
-     */
-    public IronSourceAtomTracker newTracker(String auth) {
-        if (null == auth) {
-            throw new IllegalArgumentException("`auth` should be valid String");
-        }
-        synchronized (sAvailableTrackers) {
-            IronSourceAtomTracker ret;
-            if (sAvailableTrackers.containsKey(auth)) {
-                ret = sAvailableTrackers.get(auth);
-            } else {
-                ret = new IronSourceAtomTracker(sInstance.context, auth);
-                sAvailableTrackers.put(auth, ret);
-            }
-            return ret;
-        }
-    }
-
-    /**
-     * Create IronSourceAtomEventSender with your YOUR_AUTH_KEY.
-     * Example:
-     * <code>
-     *      IronSourceAtomEventSender sender = IronSourceAtom.newSender("YOUR_AUTH_KEY");
-     * </code>
-     * @param auth your IronSourceAtom auth key
-     * @return IronSourceAtomEventSender
-     */
-    public IronSourceAtomEventSender newSender(String auth) {
-        if (null == auth) {
-            throw new IllegalArgumentException("`auth` should be valid String");
-        }
-        synchronized (availableSenders) {
-            IronSourceAtomEventSender ret;
-            if (availableSenders.containsKey(auth)) {
-                ret = availableSenders.get(auth);
-            } else {
-                ret = new IronSourceAtomEventSender(sInstance.context, auth);
-                availableSenders.put(auth, ret);
-            }
-            return ret;
-        }
-    }
-
-    /**
-     * Enable the SDK error-tracker.
-     */
-    public void enableErrorReporting() { config.enableErrorReporting(); }
-
-    /**
-     * Set whether the SDK can keep sending over a roaming connection.
-     * @param allowed
-     */
-    public void setAllowedOverRoaming(boolean allowed) {
-        config.setAllowedOverRoaming(allowed);
-    }
-
-    /**
-     * Restrict the types of networks over which this SDK can keep making HTTP requests.
-     * By default, all network types are allowed
-     * @param flags
-     */
-    public void setAllowedNetworkTypes(int flags) {
-        config.setAllowedNetworkTypes(flags);
-    }
-
-    /**
-     * Set the SDK log level.
-     * @param logType
-     */
-    public void setLogType(IsaConfig.LOG_TYPE logType) {
-        Logger.logLevel  = logType;
-    }
-
-    /**
-     * function set report bulk max size
      *
-     * @param size - max size of report bulk (rows)
+     * @param streamName
+     * @param data
      */
-    public void setBulkSize(int size) {
-        config.setBulkSize(size);
+    public void putEvent(String streamName, String data){
+        openReport(context)
+                .setEnpoint(endpoint)
+                .setTable(streamName)
+                .setToken(token)
+                .setData(data)
+                .send();
+
     }
 
+
+
     /**
-     * function set report max size in bytes
      *
-     * @param bytes - max size of report (file size)
+     * @param streamName
+     * @param data
      */
-    public void setMaximumRequestLimit(long bytes) {
-        config.setMaximumRequestLimit(bytes);
+    public void putEvents(String streamName, String data){
+        openReport(context)
+                .setEnpoint(endpoint)
+                .setTable(streamName)
+                .setToken(token)
+                .setData(data)
+                .setBulk(true)
+                .send();
     }
 
     /**
-     * function set report flush intervals
      *
-     * @param ms - time for flush in milliseconds
+     * @param url
      */
-    public void setFlushInterval(int ms) {
-        config.setFlushInterval(ms);
-    }
-
-    /**
-     * Track all SDK-errors/crashes when error-tracker enabled.
-     * @param str
-     */
-    protected void trackError(String str) {
-        String token = IsaConfig.IRONBEAST_TRACKER_TOKEN;
-        if (!sAvailableTrackers.containsKey(token) && config.isErrorReportingEnabled()) {
-            sAvailableTrackers.put(token, new IronSourceAtomTracker(context, token));
-        }
-        IronSourceAtomTracker sdkTracker = sAvailableTrackers.get(IsaConfig.IRONBEAST_TRACKER_TOKEN);
-        try {
-            JSONObject report = new JSONObject();
-            report.put("details", str);
-            report.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-                    .format(Calendar.getInstance().getTime()));
-            report.put("sdk_version", Consts.VER);
-            report.put("connection", NetworkManager.getInstance(context).getConnectedNetworkType());
-            report.put("platform", "Android");
-            report.put("os", String.valueOf(Build.VERSION.SDK_INT));
-            sdkTracker.track(IsaConfig.IRONBEAST_TRACKER_TABLE, report, false);
-        } catch (Exception e) {
-            Logger.log(TAG, "Failed to track error: " + e, Logger.SDK_DEBUG);
+    public void setEndPoint(String url) {
+        if (URLUtil.isValidUrl(url)){
+            this.endpoint=url;
+        } else  {
+            throw new IllegalArgumentException("Enpoint must be valid url");
         }
     }
 
-}
+    protected Report openReport(Context context) {
+        return new SimpleReportIntent(context);
+    }
+
+    }
+

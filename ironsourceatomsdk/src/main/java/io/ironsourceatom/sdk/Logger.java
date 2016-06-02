@@ -27,7 +27,7 @@ class Logger {
                 }
                 break;
             case (SDK_ERROR):
-                IronSourceAtom.getInstance().trackError(logString);
+                IronSourceAtomFactory.getInstance().trackError(logString);
             case (SDK_DEBUG):
                 if (!mIsSuperDevMode) {
                     break;

@@ -61,7 +61,7 @@ public class ReportHandlerTest {
         verify(client, never()).post(anyString(), anyString());
     }
 
-    // When handler get a post-event and everything goes well(connection available, and IronSourceAtom responds OK).
+    // When handler get a post-event and everything goes well(connection available, and IronSourceAtomFactory responds OK).
     // Should call "isOnline()" and "post()" (with the given event), NOT add the event to the
     // persistence data storage, and returns true
     @Test public void postSuccess() throws Exception {
@@ -122,7 +122,7 @@ public class ReportHandlerTest {
     // network type allowing it to make a network transaction before trying to make it.
     @Test public void isNetworkTypeAllowed() throws Exception {
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        int WIFI = IronSourceAtom.NETWORK_WIFI, MOBILE = IronSourceAtom.NETWORK_MOBILE;
+        int WIFI = IronSourceAtomFactory.NETWORK_WIFI, MOBILE = IronSourceAtomFactory.NETWORK_MOBILE;
         // List of scenarios, each member contains:
         // configResult, networkTypeResult and the expected behavior.
         List<TestScenario> scenarios = new ArrayList<>();

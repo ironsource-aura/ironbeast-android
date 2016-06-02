@@ -83,7 +83,7 @@ public class SimpleReportHandler {
 
     /**
      * @param data - Stringified JSON. used as a request body.
-     * @param url  - IronSourceAtom url endpoint.
+     * @param url  - IronSourceAtomFactory url endpoint.
      * @return sendStatus ENUM that indicate what to do later on.
      */
     protected SendStatus send(String data, String url) {
@@ -106,7 +106,7 @@ public class SimpleReportHandler {
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                 Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
             } catch (IOException e) {
-                Logger.log(TAG, "Service IronSourceAtom is unavailable: " + e, Logger.SDK_DEBUG);
+                Logger.log(TAG, "Service IronSourceAtomFactory is unavailable: " + e, Logger.SDK_DEBUG);
             }
         }
         return SendStatus.RETRY;

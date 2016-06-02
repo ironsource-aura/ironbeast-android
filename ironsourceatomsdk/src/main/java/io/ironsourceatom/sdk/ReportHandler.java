@@ -131,7 +131,7 @@ class ReportHandler {
     }
 
     /**
-     * Prepare the giving object before sending it to IronSourceAtom(Do auth, etc..)
+     * Prepare the giving object before sending it to IronSourceAtomFactory(Do auth, etc..)
      * @param obj  - the given event to working on.
      * @param bulk - indicate if it need to add a bulk field.
      * @return
@@ -155,7 +155,7 @@ class ReportHandler {
 
     /**
      * @param data - Stringified JSON. used as a request body.
-     * @param url  - IronSourceAtom url endpoint.
+     * @param url  - IronSourceAtomFactory url endpoint.
      * @return sendStatus ENUM that indicate what to do later on.
      */
     protected SendStatus send(String data, String url) {
@@ -173,7 +173,7 @@ class ReportHandler {
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                 Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
             } catch (IOException e) {
-                Logger.log(TAG, "Service IronSourceAtom is unavailable: " + e, Logger.SDK_DEBUG);
+                Logger.log(TAG, "Service IronSourceAtomFactory is unavailable: " + e, Logger.SDK_DEBUG);
             }
         }
         return SendStatus.RETRY;

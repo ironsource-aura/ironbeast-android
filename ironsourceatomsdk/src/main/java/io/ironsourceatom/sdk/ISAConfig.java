@@ -30,8 +30,8 @@ class IsaConfig {
     protected static final String KEY_ENABLE_ERROR_REPORTING = "sdk_tracker_enabled";
     protected static final String KEY_ALLOWED_OVER_ROAMING = "allow_roaming_flush";
     protected static final String KEY_ALLOWED_NETWORK_TYPES = "allowed_network_types";
-    // IronSourceAtom sTracker configuration
-    protected static String IRONBEAST_TRACKER_TABLE = "ironsourceatom_sdk";
+    // IronSourceAtomFactory sTracker configuration
+    protected static String IRONBEAST_TRACKER_TABLE = "ironbeast_sdk";
     protected static String IRONBEAST_TRACKER_TOKEN = "5ALP9S8DUSpnL3hm4N8BewFnzZqzKt";
     private static IsaConfig sInstance;
 
@@ -82,7 +82,7 @@ class IsaConfig {
     }
 
     /**
-     * Function provide custom end point url for report if was set or default IronSourceAtom Url
+     * Function provide custom end point url for report if was set or default IronSourceAtomFactory Url
      *
      * @param token unique publisher token
      * @return url of tracker end point
@@ -111,7 +111,7 @@ class IsaConfig {
     }
 
     /**
-     * Function provide custom end point url for bulk report if was set or default IronSourceAtom Url
+     * Function provide custom end point url for bulk report if was set or default IronSourceAtomFactory Url
      *
      * @param token unique publisher token
      * @return url of tracker end point if

@@ -20,7 +20,7 @@ import static junit.framework.Assert.*;
  * Basic IronSourceAtomAPI test cases
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IronSourceAtomTest {
+public class IronSourceAtomFactoryTest {
 
     @Before public void Reset() {
         reset(mSpyReport);
@@ -28,12 +28,12 @@ public class IronSourceAtomTest {
 
     @Test public void testGetInstance() {
         MockContext context = mock(MockContext.class);
-        IronSourceAtom ironSourceAtom = IronSourceAtom.getInstance(context);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
 
-        IronSourceAtomTracker tracker1 = ironSourceAtom.newTracker("token1");
-        IronSourceAtomTracker tracker2 = ironSourceAtom.newTracker("token1");
+        IronSourceAtomTracker tracker1 = ironSourceAtomFactory.newTracker("token1");
+        IronSourceAtomTracker tracker2 = ironSourceAtomFactory.newTracker("token1");
         assertTrue("should not initialized new tracker with the same token", tracker1 == tracker2);
-        IronSourceAtomTracker tracker3 = ironSourceAtom.newTracker("token2");
+        IronSourceAtomTracker tracker3 = ironSourceAtomFactory.newTracker("token2");
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
 

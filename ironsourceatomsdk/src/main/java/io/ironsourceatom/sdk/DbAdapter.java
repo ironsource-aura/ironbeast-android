@@ -237,7 +237,7 @@ class DbAdapter implements StorageService {
     private static DbAdapter sInstance;
     private final DatabaseHandler mDb;
     private static final int DATABASE_VERSION = 4;
-    private static final String DATABASE_NAME = "ironsourceatom";
+    private static final String DATABASE_NAME = "ironbeast";
     private static final String TAG = "DbAdapter";
     public static final String KEY_DATA = "data";
     public static final String KEY_TOKEN = "token";
