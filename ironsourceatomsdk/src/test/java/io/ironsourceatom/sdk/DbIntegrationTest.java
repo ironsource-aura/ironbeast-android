@@ -19,23 +19,28 @@ import static org.junit.Assert.*;
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
 public class DbIntegrationTest {
 
+
+    DbAdapter adapter;
+    final Table table = new Table("a8m", "token");
+    final String DATA = "foobarbaz";
+
     @Before public void setUp() throws Exception {
-        mAdapter = new DbAdapter(RuntimeEnvironment.application);
+        adapter = new DbAdapter(RuntimeEnvironment.application);
     }
 
     @Test public void addEvent() {
-        assertEquals(mAdapter.getTables().size(), 0);
-        assertEquals(mAdapter.addEvent(mTable, DATA), 1);
-        List<Table> tables = mAdapter.getTables();
+        assertEquals(adapter.getTables().size(), 0);
+        assertEquals(adapter.addEvent(table, DATA), 1);
+        List<Table> tables = adapter.getTables();
         assertEquals(tables.size(), 1);
-        assertEquals(tables.get(0).name, mTable.name);
-        assertEquals(tables.get(0).token, mTable.token);
+        assertEquals(tables.get(0).name, table.name);
+        assertEquals(tables.get(0).token, table.token);
     }
 
     @Test public void getEvents() {
         String[] events = new String[]{"foo", "bar", "baz"};
-        for (String event: events) mAdapter.addEvent(mTable, event);
-        Batch batch = mAdapter.getEvents(mTable, Integer.MAX_VALUE);
+        for (String event: events) adapter.addEvent(table, event);
+        Batch batch = adapter.getEvents(table, Integer.MAX_VALUE);
         assertEquals(batch.lastId, String.valueOf(events.length));
         for (int i = 0; i < events.length; i++) {
             assertEquals(events[i], batch.events.get(i));
@@ -45,54 +50,51 @@ public class DbIntegrationTest {
     @Test public void deleteEvents() {
         Batch batch;
         int n = 10;
-        for (int i = 1; i <= n; i++) mAdapter.addEvent(mTable, DATA);
-        batch = mAdapter.getEvents(mTable, Integer.MAX_VALUE);
+        for (int i = 1; i <= n; i++) adapter.addEvent(table, DATA);
+        batch = adapter.getEvents(table, Integer.MAX_VALUE);
         assertEquals(batch.lastId, String.valueOf(n));
-        assertEquals(mAdapter.deleteEvents(mTable, String.valueOf(n/2)), n/2);
-        batch = mAdapter.getEvents(mTable, Integer.MAX_VALUE);
+        assertEquals(adapter.deleteEvents(table, String.valueOf(n/2)), n/2);
+        batch = adapter.getEvents(table, Integer.MAX_VALUE);
         assertEquals(batch.lastId, String.valueOf(n));
         assertEquals(batch.events.size(), n/2);
     }
 
     @Test public void deleteTable() {
         Table table1 = new Table("ibsdk", "token");
-        mAdapter.addEvent(mTable, DATA);
-        assertEquals(mAdapter.getTables().size(), 1);
-        mAdapter.addEvent(table1, DATA);
-        assertEquals(mAdapter.getTables().size(), 2);
+        adapter.addEvent(table, DATA);
+        assertEquals(adapter.getTables().size(), 1);
+        adapter.addEvent(table1, DATA);
+        assertEquals(adapter.getTables().size(), 2);
         // Delete the first one
-        mAdapter.deleteTable(mTable);
-        List<Table> tables = mAdapter.getTables();
+        adapter.deleteTable(table);
+        List<Table> tables = adapter.getTables();
         assertEquals(tables.size(), 1);
         assertEquals(tables.get(0).name, table1.name);
         assertEquals(tables.get(0).token, table1.token);
         // Delete the second table
-        mAdapter.deleteTable(table1);
+        adapter.deleteTable(table1);
         // Should be empty
-        assertEquals(mAdapter.getTables().size(), 0);
+        assertEquals(adapter.getTables().size(), 0);
     }
 
     @Test public void count() {
         Table table1 = new Table("ibsdk", "token");
         int n = 100;
         for (int i = 0; i < n; i++) {
-            if (i < n/2) mAdapter.addEvent(table1, DATA);
-            mAdapter.addEvent(mTable, DATA);
+            if (i < n/2) adapter.addEvent(table1, DATA);
+            adapter.addEvent(table, DATA);
         }
-        assertEquals(mAdapter.count(mTable), n);
-        assertEquals(mAdapter.count(table1), n / 2);
-        assertEquals(mAdapter.count(null), n + n/2);
+        assertEquals(adapter.count(table), n);
+        assertEquals(adapter.count(table1), n / 2);
+        assertEquals(adapter.count(null), n + n/2);
     }
 
     @Test public void vacuum() {
         int n = 80;
-        for (int i = 0; i < n; i++) mAdapter.addEvent(mTable, DATA);
-        assertEquals(mAdapter.count(mTable), n);
-        mAdapter.vacuum();
-        assertEquals(mAdapter.count(mTable), 64);
+        for (int i = 0; i < n; i++) adapter.addEvent(table, DATA);
+        assertEquals(adapter.count(table), n);
+        adapter.vacuum();
+        assertEquals(adapter.count(table), 64);
     }
 
-    DbAdapter mAdapter;
-    final Table mTable = new Table("a8m", "token");
-    final String DATA = "foobarbaz";
 }

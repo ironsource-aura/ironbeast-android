@@ -6,6 +6,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 /**
  * Created by kirill.bokhanov on 6/2/16.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class SimpleReportHandlerTest {
-}
+//@RunWith(MockitoJUnitRunner.class)
+//public class SimpleReportHandlerTest {
+//}

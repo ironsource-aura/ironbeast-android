@@ -166,7 +166,7 @@ public class ReportHandlerTest {
         };
         List<Table> tables = new ArrayList<Table>() {{ add(mTable); add(mTable1); }};
         when(storage.getTables()).thenReturn(tables);
-        // mTable batch result
+        // table batch result
         when(storage.getEvents(mTable, config.getBulkSize()))
                 .thenReturn(new Batch("2", new ArrayList<String>() {{
                     add("foo");

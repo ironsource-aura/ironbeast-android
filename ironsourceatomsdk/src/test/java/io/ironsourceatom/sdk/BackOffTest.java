@@ -16,55 +16,57 @@ import static junit.framework.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class BackOffTest {
 
+
+    private long currentMills = 0L;
+    final Context context = mock(MockContext.class);
+    final IsaConfig config = mock(IsaConfig.class);
+    final IsaPrefService sharedPref = mock(IsaPrefService.class);
+    BackOff backOff = new BackOff(context) {
+        @Override
+        protected IsaPrefService getPrefService(Context context) { return sharedPref; }
+        @Override
+        protected IsaConfig getConfig(Context context) { return config; }
+        @Override
+        protected long currentTimeMillis() { return currentMills; }
+    };
+
     @Before public void clearMocks() {
-        reset(mSharedPref, mConfig);
+        reset(sharedPref, config);
     }
 
     @Test public void testHasNext() {
-        assertEquals(mBackOff.hasNext(), true);
+        assertEquals(backOff.hasNext(), true);
     }
 
     @Test public void testFirstValue() {
-        mBackOff.reset();
+        backOff.reset();
         int n = 99;
-        when(mConfig.getFlushInterval()).thenReturn(n);
-        assertEquals(mBackOff.next(), n);
+        when(config.getFlushInterval()).thenReturn(n);
+        assertEquals(backOff.next(), n);
     }
 
     @Test public void testNext() {
-        mBackOff.reset();
-        when(mConfig.getFlushInterval()).thenReturn(10000);
-        when(mSharedPref.load(anyString(), anyLong())).thenReturn(0L);
-        long t1 = mBackOff.next();
-        mCurrentMills = t1;
-        when(mSharedPref.load(anyString(), anyLong())).thenReturn(t1);
-        long t2 = mBackOff.next();
-        mCurrentMills = t2;
-        when(mSharedPref.load(anyString(), anyLong())).thenReturn(t2);
-        long t3 = mBackOff.next();
+        backOff.reset();
+        when(config.getFlushInterval()).thenReturn(10000);
+        when(sharedPref.load(anyString(), anyLong())).thenReturn(0L);
+        long t1 = backOff.next();
+        currentMills = t1;
+        when(sharedPref.load(anyString(), anyLong())).thenReturn(t1);
+        long t2 = backOff.next();
+        currentMills = t2;
+        when(sharedPref.load(anyString(), anyLong())).thenReturn(t2);
+        long t3 = backOff.next();
         assertTrue(t1 < t2 && t2 < t3);
-        verify(mSharedPref, times(1)).save(anyString(), eq(t1));
-        verify(mSharedPref, times(1)).save(anyString(), eq(t2));
-        verify(mSharedPref, times(1)).save(anyString(), eq(t3));
-        when(mSharedPref.load(anyString(), anyLong())).thenReturn(t3);
+        verify(sharedPref, times(1)).save(anyString(), eq(t1));
+        verify(sharedPref, times(1)).save(anyString(), eq(t2));
+        verify(sharedPref, times(1)).save(anyString(), eq(t3));
+        when(sharedPref.load(anyString(), anyLong())).thenReturn(t3);
     }
 
     @Test public void testReset() {
-        mBackOff.reset();
-        verify(mSharedPref, times(1)).save(anyString(), eq(mBackOff.INITIAL_RETRY_VALUE));
-        verify(mSharedPref, times(1)).save(anyString(), eq(mCurrentMills));
+        backOff.reset();
+        verify(sharedPref, times(1)).save(anyString(), eq(backOff.INITIAL_RETRY_VALUE));
+        verify(sharedPref, times(1)).save(anyString(), eq(currentMills));
     }
 
-    private long mCurrentMills = 0L;
-    final Context mContext = mock(MockContext.class);
-    final IsaConfig mConfig = mock(IsaConfig.class);
-    final IsaPrefService mSharedPref = mock(IsaPrefService.class);
-    BackOff mBackOff = new BackOff(mContext) {
-        @Override
-        protected IsaPrefService getPrefService(Context context) { return mSharedPref; }
-        @Override
-        protected IsaConfig getConfig(Context context) { return mConfig; }
-        @Override
-        protected long currentTimeMillis() { return mCurrentMills; }
-    };
 }
