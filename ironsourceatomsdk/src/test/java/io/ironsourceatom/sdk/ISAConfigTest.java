@@ -15,7 +15,7 @@ import static junit.framework.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, emulateSdk = 18, manifest = Config.NONE)
-public class IsaConfigTest {
+public class ISAConfigTest {
 
     @Before public void reset() {
         Mockito.reset(mPrefService);
@@ -61,7 +61,6 @@ public class IsaConfigTest {
         String customUrl = "http://foo.com/blah_blah";
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-
         assertEquals(isaConfig.getISAEndPointBulk(token), customUrl);
         assertEquals(isaConfig.getISAEndPointBulk(token), customUrl);
         verify(mPrefService, times(1)).load(anyString());
