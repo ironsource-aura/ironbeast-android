@@ -143,8 +143,6 @@ def coverageSourceDirs = [
         'src/main/java',
 ]
 
-
-
 task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest") {
     group = "Reporting"
     description = "Generate Jacoco coverage reports after running tests."
