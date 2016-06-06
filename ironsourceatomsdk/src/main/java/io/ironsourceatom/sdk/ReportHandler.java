@@ -71,7 +71,7 @@ class ReportHandler {
                 case SdkEvent.POST_SYNC:
                     if (isOnline) {
                         String message = createMessage(dataObject, false);
-                        String url = config.getIBEndPoint(dataObject.getString(ReportIntent.TOKEN));
+                        String url = config.getISAEndPoint(dataObject.getString(ReportIntent.TOKEN));
                         if (SendStatus.RETRY != send(message, url)) break;
                     }
                 case SdkEvent.ENQUEUE:
@@ -118,7 +118,7 @@ class ReportHandler {
             event.put(ReportIntent.TABLE, table.name);
             event.put(ReportIntent.TOKEN, table.token);
             event.put(ReportIntent.DATA, batch.events.toString());
-            SendStatus res = send(createMessage(event, true), config.getIBEndPointBulk(table.token));
+            SendStatus res = send(createMessage(event, true), config.getISAEndPointBulk(table.token));
             if (res == SendStatus.RETRY) {
                 throw new Exception("Failed flush entries for table: " + table.name);
             }

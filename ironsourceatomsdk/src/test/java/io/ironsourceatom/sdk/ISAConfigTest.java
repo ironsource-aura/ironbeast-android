@@ -26,7 +26,7 @@ public class IsaConfigTest {
         String token = "token";
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn("");
-        assertEquals(isaConfig.getIBEndPoint(token), IsaConfig.DEFAULT_URL);
+        assertEquals(isaConfig.getISAEndPoint(token), IsaConfig.DEFAULT_URL);
         verify(mPrefService, times(1)).load(startsWith(prefKey));
     }
 
@@ -38,8 +38,8 @@ public class IsaConfigTest {
         String customUrl = "http://foo.com/blah_blah";
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(isaConfig.getIBEndPoint(token), customUrl);
-        assertEquals(isaConfig.getIBEndPoint(token), customUrl);
+        assertEquals(isaConfig.getISAEndPoint(token), customUrl);
+        assertEquals(isaConfig.getISAEndPoint(token), customUrl);
         verify(mPrefService, times(1)).load(startsWith(prefKey));
     }
 
@@ -48,8 +48,8 @@ public class IsaConfigTest {
     @Test public void testGetIBEndPointBulk() throws Exception {
         String token = "token";
         when(mPrefService.load(anyString())).thenReturn("");
-        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
-        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getISAEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getISAEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
         verify(mPrefService, times(2)).load(anyString());
     }
 
@@ -62,8 +62,8 @@ public class IsaConfigTest {
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
 
-        assertEquals(isaConfig.getIBEndPointBulk(token), customUrl);
-        assertEquals(isaConfig.getIBEndPointBulk(token), customUrl);
+        assertEquals(isaConfig.getISAEndPointBulk(token), customUrl);
+        assertEquals(isaConfig.getISAEndPointBulk(token), customUrl);
         verify(mPrefService, times(1)).load(anyString());
     }
 
@@ -72,7 +72,7 @@ public class IsaConfigTest {
         String customUrl = "blabla.com";
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(isaConfig.getIBEndPoint(token), IsaConfig.DEFAULT_URL);
+        assertEquals(isaConfig.getISAEndPoint(token), IsaConfig.DEFAULT_URL);
     }
 
     @Test public void testNotValidUrlWasSavedEndPointBulk() throws Exception {
@@ -80,7 +80,7 @@ public class IsaConfigTest {
         String customUrl = "blabla.com";
         String prefKey = String.format("%s_%s", IsaConfig.KEY_IB_END_POINT_BULK, token);
         when(mPrefService.load(startsWith(prefKey))).thenReturn(customUrl);
-        assertEquals(isaConfig.getIBEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
+        assertEquals(isaConfig.getISAEndPointBulk(token), IsaConfig.DEFAULT_BULK_URL);
     }
 
     IsaPrefService mPrefService = mock(IsaPrefService.class);

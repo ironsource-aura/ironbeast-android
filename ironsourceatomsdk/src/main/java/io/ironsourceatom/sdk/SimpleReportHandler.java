@@ -36,7 +36,6 @@ public class SimpleReportHandler {
 
     public synchronized HandleStatus handleReport(Intent intent) {
         HandleStatus status = HandleStatus.HANDLED;
-        boolean isOnline = networkManager.isOnline() && canUseNetwork();
         try {
             if (null == intent.getExtras()) return status;
             Bundle bundle = intent.getExtras();

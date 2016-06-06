@@ -19,7 +19,7 @@ public class IronSourceAtomTracker {
      * an instance of this class.
      * </p>
      * While tracking events, IronSourceAtomTracker will queue them to disk (using SQLite),
-     * and each period of time it upload it as a batch to IronSourceAtomFactory.
+     * and each period of time it upload it as a batch to IronSourceAtom.
      *
      * @param context
      * @param auth
@@ -33,13 +33,13 @@ public class IronSourceAtomTracker {
     /**
      * Track an event that already stringify send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtomFactory destination.
+     * @param streamName   The name on IronSourceAtom stream.
      * @param data    String, containing the data to send.
      * @param sendNow flag if true report will send immediately else will postponed
      */
-    public void track(String table, String data, boolean sendNow) {
+    public void track(String streamName, String data, boolean sendNow) {
         openReport(context, sendNow ? SdkEvent.POST_SYNC : SdkEvent.ENQUEUE)
-                .setTable(table)
+                .setTable(streamName)
                 .setToken(auth)
                 .setData(data)
                 .send();
@@ -48,33 +48,33 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtomFactory destination.
+     * @param streamName   The name on IronSourceAtom stream.
      * @param data    Map, containing the data to send.
      * @param sendNow Send flag if true report will send immediately else will postponed
      */
-    public void track(String table, Map<String, ?> data, boolean sendNow) {
-        track(table, new JSONObject(data), sendNow);
+    public void track(String streamName, Map<String, ?> data, boolean sendNow) {
+        track(streamName, new JSONObject(data), sendNow);
     }
 
     /**
      * Track an event, send data mechanism is controlled by sendNow parameter.
      *
-     * @param table   IronSourceAtomFactory destination.
+     * @param streamName   The name on IronSourceAtom stream.
      * @param data    JSONObject, containing the data to send.
      * @param sendNow Send flag if true report will send immediately else will postponed
      */
-    public void track(String table, JSONObject data, boolean sendNow) {
-        track(table, data.toString(), sendNow);
+    public void track(String streamName, JSONObject data, boolean sendNow) {
+        track(streamName, data.toString(), sendNow);
     }
 
     /**
      * Track an event that already stringify send data postponed.
      *
-     * @param table   IronSourceAtomFactory destination.
+     * @param streamName   The name on IronSourceAtom stream.
      * @param data    String, containing the data to send.
      */
-    public void track(String table, String data) {
-        track(table, data, false);
+    public void track(String streamName, String data) {
+        track(streamName, data, false);
     }
 
     /**
@@ -90,11 +90,11 @@ public class IronSourceAtomTracker {
     /**
      * Track an event, send data postponed.
      *
-     * @param table   IronSourceAtomFactory destination.
+     * @param streamName   The name on IronSourceAtom stream.
      * @param data    JSONObject, containing the data to send.
      */
-    public void track(String table, JSONObject data) {
-        track(table, data.toString(), false);
+    public void track(String streamName, JSONObject data) {
+        track(streamName, data.toString(), false);
     }
     /**
      * Flush immediately all reports

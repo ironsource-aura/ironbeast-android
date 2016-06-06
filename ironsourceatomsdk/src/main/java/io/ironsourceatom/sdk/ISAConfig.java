@@ -87,7 +87,7 @@ class IsaConfig {
      * @param token unique publisher token
      * @return url of tracker end point
      */
-    public String getIBEndPoint(String token) {
+    public String getISAEndPoint(String token) {
         if (isaEndPoint.containsKey(token)) {
             return isaEndPoint.get(token);
         }
@@ -116,7 +116,7 @@ class IsaConfig {
      * @param token unique publisher token
      * @return url of tracker end point if
      */
-    public String getIBEndPointBulk(String token) {
+    public String getISAEndPointBulk(String token) {
         if (isaEndPointBulk.containsKey(token)) {
             return isaEndPointBulk.get(token);
         }

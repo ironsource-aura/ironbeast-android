@@ -41,6 +41,19 @@ public class ReportHandlerTest {
         @Override
         protected NetworkManager getNetManager(Context context) { return netManager; }
     };
+    final String TABLE = "ib_table", TOKEN = "ib_token", DATA = "hello world";
+    final Map<String, String> reportMap = new HashMap<String, String>(){{
+        put(ReportIntent.DATA, DATA);
+        put(ReportIntent.TOKEN, TOKEN);
+        put(ReportIntent.TABLE, TABLE);
+    }};
+    final Table mTable = new Table(TABLE, TOKEN) {
+        @Override
+        public boolean equals(Object obj) {
+            Table table = (Table) obj;
+            return this.name.equals(table.name) && this.token.equals(table.token);
+        }
+    };
 
     @Before public void startClear() {
         // reset mocks
@@ -68,7 +81,7 @@ public class ReportHandlerTest {
         String url = "http://host.com/post";
         when(client.post(anyString(), anyString())).thenReturn(ok);
         Intent intent = newReport(SdkEvent.POST_SYNC, reportMap);
-        when(config.getIBEndPoint(anyString())).thenReturn(url);
+        when(config.getISAEndPoint(anyString())).thenReturn(url);
         assertTrue(handler.handleReport(intent) == ReportHandler.HandleStatus.HANDLED);
         verify(netManager, times(1)).isOnline();
         verify(client, times(1)).post(anyString(), eq(url));
@@ -80,7 +93,7 @@ public class ReportHandlerTest {
     @Test public void postAuthFailed() throws Exception {
         String url = "http://host.com";
         when(config.getNumOfRetries()).thenReturn(10);
-        when(config.getIBEndPoint(TOKEN)).thenReturn(url);
+        when(config.getISAEndPoint(TOKEN)).thenReturn(url);
         when(client.post(anyString(), anyString())).thenReturn(new Response() {{
             code = 401;
             body = "Unauthorized";
@@ -282,19 +295,7 @@ public class ReportHandlerTest {
     }
 
     // Constant report arguments for testing
-    final String TABLE = "ib_table", TOKEN = "ib_token", DATA = "hello world";
-    final Map<String, String> reportMap = new HashMap<String, String>(){{
-        put(ReportIntent.DATA, DATA);
-        put(ReportIntent.TOKEN, TOKEN);
-        put(ReportIntent.TABLE, TABLE);
-    }};
-    final Table mTable = new Table(TABLE, TOKEN) {
-        @Override
-        public boolean equals(Object obj) {
-            Table table = (Table) obj;
-            return this.name.equals(table.name) && this.token.equals(table.token);
-        }
-    };
+
 
 
     // Helper class, used inside "isNetworkAllowed" test case.

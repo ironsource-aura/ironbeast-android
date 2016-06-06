@@ -21,16 +21,16 @@ public class IronSourceAtom {
      * @param auth
      */
 
-    IronSourceAtom(Context context, String auth) {
+    protected IronSourceAtom(Context context, String auth) {
         this.context = context;
         this.token = auth;
 
     }
 
     /**
-     *
-     * @param streamName
-     * @param data
+     * Sends a single event to IronSourceAtom stream
+     * @param streamName the name on IronSourceAtom stream
+     * @param data JSON string of your event data
      */
     public void putEvent(String streamName, String data){
         openReport(context)
@@ -45,9 +45,9 @@ public class IronSourceAtom {
 
 
     /**
-     *
-     * @param streamName
-     * @param data
+     * Sends an array of events to IronSourceAtom stream
+     * @param streamName the name on IronSourceAtom stream
+     * @param data JSON string of your event data
      */
     public void putEvents(String streamName, String data){
         openReport(context)

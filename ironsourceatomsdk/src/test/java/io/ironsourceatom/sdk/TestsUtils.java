@@ -112,4 +112,14 @@ public class TestsUtils {
         when(intent.getExtras()).thenReturn(bundle);
         return intent;
     }
+
+    // Helper method.
+    // Take SdkEvent and Map and generate new MockReport
+    public static Intent newSimpleReport(Map<String, String> report) {
+        Intent intent = mock(Intent.class);
+        Bundle bundle = mock(Bundle.class);
+        for (String key: report.keySet()) when(bundle.get(key)).thenReturn(report.get(key));
+        when(intent.getExtras()).thenReturn(bundle);
+        return intent;
+    }
 }
