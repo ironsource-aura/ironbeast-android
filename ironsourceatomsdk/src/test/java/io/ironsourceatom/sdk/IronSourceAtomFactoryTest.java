@@ -37,6 +37,17 @@ public class IronSourceAtomFactoryTest {
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
 
+    @Test public void testGetAtom() {
+        MockContext context = mock(MockContext.class);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
+
+        IronSourceAtom atom1 = ironSourceAtomFactory.newAtom("token1");
+        IronSourceAtom atom2 = ironSourceAtomFactory.newAtom("token1");
+        assertTrue("should not initialized new atoms with the same token", atom1 == atom2);
+        IronSourceAtom atom3 = ironSourceAtomFactory.newAtom("token2");
+        assertTrue("should initialized new atom", atom1 != atom3 || atom2 != atom3);
+    }
+
     @Test public void trackStringEvent() {
         for (int i = 0; i < 10; i++) {
             mTracker.track("table", "hello world");

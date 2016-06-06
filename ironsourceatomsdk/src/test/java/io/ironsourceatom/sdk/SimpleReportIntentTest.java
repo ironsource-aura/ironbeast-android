@@ -39,7 +39,7 @@ public class SimpleReportIntentTest {
 
 
     @Test
-    public void testSetEnpoint() throws NoSuchFieldException, IllegalAccessException {
+    public void testSetEnpoint(){
 
         report = new SimpleReportIntent(context);
         report.setEnpoint("bla");

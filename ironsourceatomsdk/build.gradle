@@ -153,14 +153,19 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
         }
 
     classDirectories = fileTree(
-            dir: './build/intermediates/classes/debug',
-            excludes: ['**/R*.class',
-                       '**/*$InjectAdapter.class',
-                       '**/*$ModuleAdapter.class',
-                       '**/*$ViewInjector*.class',
-                       '**/*$SdkEvent.class',
-                       '**/*$SimpleReportService.class',
-                       '**/*$ReportService.class'
+            dir: './build/intermediates/classes/debug/io/ironsourceatom/sdk',
+            excludes: [
+                       'SdkEvent.class',
+                       'SimpleReportService.class',
+                       'ReportService.class',
+                       'Consts.class',
+                       'SimpleReportHandler.class',
+                       'SdkEvent.class',
+                       'Report.class',
+                       'RemoteService.class',
+                       'ExternalVars'
+
+
 
             ])
     sourceDirectories = files(coverageSourceDirs)
