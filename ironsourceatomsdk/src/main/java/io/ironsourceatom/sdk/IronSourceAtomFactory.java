@@ -34,7 +34,9 @@ public class IronSourceAtomFactory {
         config = IsaConfig.getInstance(context);
     }
 
-    public static IronSourceAtomFactory getInstance() {return  sInstance;}
+    public static IronSourceAtomFactory getInstance() {
+        return  sInstance;
+    }
 
     public static IronSourceAtomFactory getInstance(Context context) {
         if (null == context) {

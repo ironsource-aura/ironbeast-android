@@ -162,6 +162,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
                        'SimpleReportHandler.class',
                        'SdkEvent.class',
                        'Report.class',
+                       'ReportIntent.class',
                        'RemoteService.class',
                        'ExternalVars'
 

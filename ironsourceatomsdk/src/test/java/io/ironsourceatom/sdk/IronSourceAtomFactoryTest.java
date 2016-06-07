@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static junit.framework.Assert.*;
 
@@ -36,6 +37,26 @@ public class IronSourceAtomFactoryTest {
         IronSourceAtomTracker tracker3 = ironSourceAtomFactory.newTracker("token2");
         assertTrue("should initialized new tracker", tracker1 != tracker3 || tracker2 != tracker3);
     }
+
+    @Test(expected =IllegalArgumentException.class)
+    public void testWrongArgsGetFactory(){
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(null);
+    }
+
+    @Test(expected =IllegalArgumentException.class)
+    public void testWrongArgsGetAtom(){
+        MockContext context = mock(MockContext.class);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
+        ironSourceAtomFactory.newAtom(null);
+    }
+
+    @Test(expected =IllegalArgumentException.class)
+    public void testWrongArgsGetTracker(){
+        MockContext context = mock(MockContext.class);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
+        ironSourceAtomFactory.newTracker(null);
+    }
+
 
     @Test public void testGetAtom() {
         MockContext context = mock(MockContext.class);
@@ -143,6 +164,29 @@ public class IronSourceAtomFactoryTest {
         MockContext context = mock(MockContext.class);
         IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
         ironSourceAtomFactory.trackError("hdhdhd");
+
+    }
+
+    @Test
+    public void settersTest(){
+        MockContext context = mock(MockContext.class);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
+        ironSourceAtomFactory.setAllowedNetworkTypes(1);
+        ironSourceAtomFactory.enableErrorReporting();
+        ironSourceAtomFactory.setAllowedOverRoaming(true);
+        ironSourceAtomFactory.setLogType(IsaConfig.LOG_TYPE.DEBUG);
+        ironSourceAtomFactory.setBulkSize(200);
+        ironSourceAtomFactory.setFlushInterval(2000);
+        ironSourceAtomFactory.setMaximumRequestLimit(3000);
+
+
+    }
+
+    @Test
+    public void getInstanceTest() {
+        IronSourceAtomFactory fac1 = IronSourceAtomFactory.getInstance();
+        IronSourceAtomFactory fac2 = IronSourceAtomFactory.getInstance();
+        assertTrue(fac1==fac2);
 
     }
 }
