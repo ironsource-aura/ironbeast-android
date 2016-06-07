@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,18 +37,25 @@ public class DbAdapterTest {
     final Context context = mock(MockContext.class);
     final DbAdapter adapter = new DbAdapter(context) {
         @Override
-        protected DatabaseHandler getSQLHandler(Context context) { return handler; }
+        protected DatabaseHandler getSQLHandler(Context context) {
+            return handler;
+        }
+
         @Override
-        protected boolean belowDatabaseLimit() { return true; }
+        protected boolean belowDatabaseLimit() {
+            return true;
+        }
     };
 
-    @Before public void clearMocks() {
+    @Before
+    public void clearMocks() {
         reset(handler);
     }
 
     // If everything goes well, it should return the number if rows
     // and make sure it close the db connection and the cursor too.
-    @Test public void countSuccess() {
+    @Test
+    public void countSuccess() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -59,7 +67,8 @@ public class DbAdapterTest {
     }
 
     // When Adapter encounter SQLiteException it'll return 0 and discard the database
-    @Test public void countFailed() {
+    @Test
+    public void countFailed() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenThrow(new SQLiteException());
         when(handler.getReadableDatabase()).thenReturn(db);
@@ -68,7 +77,8 @@ public class DbAdapterTest {
         verify(handler, times(1)).delete();
     }
 
-    @Test public void getTables() {
+    @Test
+    public void getTables() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -79,7 +89,7 @@ public class DbAdapterTest {
         List<Table> tables = adapter.getTables();
         assertEquals(tables.size(), 3);
         int i = 1;
-        for (Table table: tables) {
+        for (Table table : tables) {
             assertEquals(table.name, "table" + i);
             assertEquals(table.token, "token" + i++);
         }
@@ -87,14 +97,16 @@ public class DbAdapterTest {
         verify(handler, times(1)).close();
     }
 
-    @Test public void deleteTable() {
+    @Test
+    public void deleteTable() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(handler.getWritableDatabase()).thenReturn(db);
         adapter.deleteTable(table);
         verify(db, times(1)).delete(eq(DbAdapter.TABLES_TABLE), anyString(), any(String[].class));
     }
 
-    @Test public void getEvents() {
+    @Test
+    public void getEvents() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
@@ -109,7 +121,8 @@ public class DbAdapterTest {
         assertEquals(batch.lastId, "2");
     }
 
-    @Test public void deleteEvents() {
+    @Test
+    public void deleteEvents() {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(handler.getWritableDatabase()).thenReturn(db);
         adapter.deleteEvents(table, "100");
@@ -118,7 +131,8 @@ public class DbAdapterTest {
 
     // Should addEvent to REPORTS_TABLE and return the number of rows
     // related to the given `Table`
-    @Test public void addEvent1() {
+    @Test
+    public void addEvent1() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getInt(0)).thenReturn(29);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
@@ -130,7 +144,8 @@ public class DbAdapterTest {
     }
 
     // When `addEvent()` trigger table creation
-    @Test public void addEvent2() {
+    @Test
+    public void addEvent2() {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getInt(0)).thenReturn(1);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
@@ -143,5 +158,10 @@ public class DbAdapterTest {
                 isNull(String.class), any(ContentValues.class), eq(SQLiteDatabase.CONFLICT_IGNORE));
     }
 
-
+    @Test
+    public void getInstanceTest() {
+        DbAdapter adapter1 = DbAdapter.getInstance(context);
+        DbAdapter adapter2 = DbAdapter.getInstance(context);
+        assertTrue(adapter1 == adapter2);
+    }
 }

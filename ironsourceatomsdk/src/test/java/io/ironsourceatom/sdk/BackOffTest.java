@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 import static junit.framework.Assert.*;
@@ -67,6 +68,14 @@ public class BackOffTest {
         backOff.reset();
         verify(sharedPref, times(1)).save(anyString(), eq(backOff.INITIAL_RETRY_VALUE));
         verify(sharedPref, times(1)).save(anyString(), eq(currentMills));
+    }
+
+    @Test
+    public void getInstanceTest() {
+        BackOff backOff1 = BackOff.getInstance(context);
+        BackOff backOff2= BackOff.getInstance(context);
+        assertTrue(backOff1==backOff2);
+
     }
 
 }
