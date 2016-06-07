@@ -138,4 +138,11 @@ public class IronSourceAtomFactoryTest {
             return mSpyReport;
         }
     };
+    @Test
+    public void trackErrorTest(){
+        MockContext context = mock(MockContext.class);
+        IronSourceAtomFactory ironSourceAtomFactory = IronSourceAtomFactory.getInstance(context);
+        ironSourceAtomFactory.trackError("hdhdhd");
+
+    }
 }

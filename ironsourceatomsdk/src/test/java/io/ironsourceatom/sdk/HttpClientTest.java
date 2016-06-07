@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -41,6 +42,29 @@ public class HttpClientTest {
         verify(mMockConn, times(3)).disconnect();
         verify(outMock, times(3)).close();
         verify(inMock, times(2)).close();
+    }
+
+    @Test(expected = MalformedURLException.class)
+    public void createConnectionWrongTest() throws IOException {
+        HttpClient mClient = new HttpClient();
+        mClient.createConnection("connectionString");
+
+
+    }
+    @Test
+    public void createConnectionTest() throws IOException {
+        HttpClient mClient = new HttpClient();
+        mClient.createConnection("http://google.com");
+
+
+    }
+
+    @Test
+    public void getInstanceTest() {
+        HttpClient client1 = HttpClient.getInstance();
+        HttpClient client2=HttpClient.getInstance();
+        assertTrue(client1==client2);
+
     }
 
     // Mocking

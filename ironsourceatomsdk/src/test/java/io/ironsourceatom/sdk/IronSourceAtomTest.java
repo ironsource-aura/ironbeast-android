@@ -36,26 +36,43 @@ public class IronSourceAtomTest {
     }
     @Test
     public void testPutEvent(){
-        doNothing().when(atom).putEvent("hfhhf", "djdjdj");
+        IronSourceAtom myAtom = new IronSourceAtom(context, auth);
+        myAtom.putEvent("hfhhf", "djdjdj");
 
 }
 
     @Test
     public void testPutEvents(){
-        doNothing().when(atom).putEvents("hfhhf", "djdjdj");
+        IronSourceAtom myAtom = new IronSourceAtom(context, auth);
+        myAtom.putEvents("hfhhf", "djdjdj");
 
     }
 
     @Test
     public void testOpenReport(){
-        when(atom.openReport(context)).thenCallRealMethod();
-        when(reportIntent.setData("data")).thenCallRealMethod();
-        when(reportIntent.setBulk(true)).thenCallRealMethod();
-        when(reportIntent.setEnpoint("data")).thenCallRealMethod();
-        when(reportIntent.setTable("data")).thenCallRealMethod();
-        when(reportIntent.setToken("data")).thenCallRealMethod();
+        IronSourceAtom myAtom = new IronSourceAtom(context, auth);
+        myAtom.openReport(context);
+        Report report=myAtom.openReport(context);
+        report.setData("data");
+        report.setBulk(true);
+        report.setEnpoint("data");
+        report.setTable("data");
+        report.setToken("data");
 
 
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setEndpointNullTest(){
+        IronSourceAtom myAtom = new IronSourceAtom(context, auth);
+        myAtom.setEndPoint(null);
+
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void setEndpointEmptyTest(){
+        IronSourceAtom myAtom = new IronSourceAtom(context, auth);
+        myAtom.setEndPoint("");
 
     }
 
