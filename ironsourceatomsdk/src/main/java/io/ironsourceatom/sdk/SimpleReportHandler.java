@@ -17,8 +17,6 @@ import java.net.UnknownHostException;
  */
 public class SimpleReportHandler {
 
-    enum SendStatus { SUCCESS, DELETE, RETRY }
-    enum HandleStatus { HANDLED, RETRY }
 
     private static final String TAG = "SimpleReportHandler";
     private NetworkManager networkManager;
@@ -34,10 +32,10 @@ public class SimpleReportHandler {
 }
 
 
-    public synchronized HandleStatus handleReport(Intent intent) {
-        HandleStatus status = HandleStatus.HANDLED;
+    public synchronized void handleReport(Intent intent) {
+
         try {
-            if (null == intent.getExtras()) return status;
+            if (null == intent.getExtras()) return;
             Bundle bundle = intent.getExtras();
             JSONObject dataObject = new JSONObject();
             try {
@@ -60,7 +58,6 @@ public class SimpleReportHandler {
 
             Logger.log(TAG, e.getMessage(), Logger.SDK_DEBUG);
         }
-        return status;
     }
 
     private String createMessage(JSONObject obj, boolean bulk) {
@@ -85,22 +82,19 @@ public class SimpleReportHandler {
      * @param url  - IronSourceAtomFactory url endpoint.
      * @return sendStatus ENUM that indicate what to do later on.
      */
-    protected SendStatus send(String data, String url) {
+    protected void send(String data, String url) {
             {
             try {
                 RemoteService.Response response = new RemoteService.Response();
 
                         response=client.post(data, url);
 
-
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
-                    return SendStatus.SUCCESS;
                 }
                 if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
                         response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
-                    return SendStatus.DELETE;
                 }
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                 Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
@@ -108,7 +102,6 @@ public class SimpleReportHandler {
                 Logger.log(TAG, "Service IronSourceAtomFactory is unavailable: " + e, Logger.SDK_DEBUG);
             }
         }
-        return SendStatus.RETRY;
     }
 
     /**

@@ -1,11 +1,6 @@
-apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'com.android.library'
-apply plugin: 'jacoco'
-apply plugin: 'maven'
-
-
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
         maven { url 'https://plugins.gradle.org/m2' }
 
@@ -14,10 +9,27 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.1.0'
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0x"
 
-
     }
 }
 
+
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.android.library'
+apply plugin: 'jacoco'
+apply plugin: 'maven'
+
+dependencies {
+
+    // Unit testing dependencies
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile('org.robolectric:robolectric:3.0-rc2') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    // JSONObject should be available in tests too
+    testCompile 'org.json:json:20090211'
+}
 
 
 android {
@@ -46,28 +58,33 @@ android {
             buildConfigField(STRING, "DEFAULT_URL", '"http://sdk.ironsourceatom.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://sdk.ironsourceatom.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
+            testCoverageEnabled = false
+
         }
         debug {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
-            testCoverageEnabled = true
+            testCoverageEnabled = false
+
         }
         debugGoogleEmulator {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+            testCoverageEnabled = false
+
         }
 
         debugGenyMotionEmulator {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+            testCoverageEnabled = false
+
         }
 
-
     }
-
 
     //release type by default so for test we need to set debug
     defaultPublishConfig "debug"
@@ -91,27 +108,6 @@ android {
     // Configure tests
     testOptions {
         unitTests.returnDefaultValues = true
-    }
-}
-dependencies {
-    // Unit testing dependencies
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.10.19'
-    testCompile('org.robolectric:robolectric:3.0-rc2') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
-    // JSONObject should be available in tests too
-    testCompile 'org.json:json:20090211'
-}
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-
     }
 }
 
@@ -170,6 +166,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "connectedDebugAndroidTest"
 
 
             ])
+
     sourceDirectories = files(coverageSourceDirs)
     executionData = files("$buildDir/jacoco/testDebugUnitTest.exec")
     // Bit hacky but fixes https://code.google.com/p/android/issues/detail?id=69174.
