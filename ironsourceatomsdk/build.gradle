@@ -58,7 +58,7 @@ android {
             buildConfigField(STRING, "DEFAULT_URL", '"http://sdk.ironsourceatom.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://sdk.ironsourceatom.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
-            testCoverageEnabled = true
+
 
         }
         debug {
@@ -73,6 +73,7 @@ android {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
+            testCoverageEnabled = true
 
 
         }

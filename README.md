@@ -57,11 +57,24 @@ public class BaseMainActivity extends Activity {
         
     }
 ```
+
+The tracker process:
+You can use track() methods in order to track the evnets to Atom.
+The tracker accumulates the event.
+Once the flushInterval / bulkLength or bulkSize is reached you flush a batch of records to the inFlight queue.
+Batches in the inFlight queue will be sent in parallel.
+In case of failure each batch will have its own exponential back-off mechanism.
+
+### Low level API usage
 You can also use low level api to simple send single event with method putEvent() or array of events with method putEvents() as shown below.
 This methods start new service and execute httpPost to the pipeline in it.
+
+ Add the following lines to AndroidManifest.xml
 ```java
         <service android:name="io.ironsourceatom.sdk.SimpleReportService" />
 ```
+Add IronSourceAtom to your main activity. For example:
+
 ```java
 ...
 import io.ironsourceatom.sdk.IronSourceAtomFactory;
