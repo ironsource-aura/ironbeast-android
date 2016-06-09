@@ -14,6 +14,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
  * HttpClient is the default implementations to RemoteService.
+ * Used for processing requests to enpoint
  */
 public class HttpClient implements RemoteService {
 

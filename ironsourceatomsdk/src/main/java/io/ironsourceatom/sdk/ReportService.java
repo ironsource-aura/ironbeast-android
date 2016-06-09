@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-
+/**
+ * Intent service to handle tracker functionality
+ */
 public class ReportService extends IntentService {
 
 

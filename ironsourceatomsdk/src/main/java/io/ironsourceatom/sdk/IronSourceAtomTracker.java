@@ -5,6 +5,10 @@ import android.webkit.URLUtil;
 import org.json.JSONObject;
 import java.util.Map;
 
+
+/**
+ * This class is the entry point into this client API to work with tracker.
+ */
 public class IronSourceAtomTracker {
 
 
@@ -21,8 +25,8 @@ public class IronSourceAtomTracker {
      * While tracking events, IronSourceAtomTracker will queue them to disk (using SQLite),
      * and each period of time it upload it as a batch to IronSourceAtom.
      *
-     * @param context
-     * @param auth
+     * @param context current context object
+     * @param auth pre shared auth key for Atom cluster
      */
     IronSourceAtomTracker(Context context, String auth) {
         this.context = context;

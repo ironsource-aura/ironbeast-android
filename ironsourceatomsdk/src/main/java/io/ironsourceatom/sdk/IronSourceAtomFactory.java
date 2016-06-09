@@ -10,7 +10,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
+/**
+*Factory to produce working atom instance to process tracker or low level API
+*/
 public class IronSourceAtomFactory {
 
 

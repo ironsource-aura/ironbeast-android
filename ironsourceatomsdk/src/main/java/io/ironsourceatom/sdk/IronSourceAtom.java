@@ -3,7 +3,10 @@ package io.ironsourceatom.sdk;
 import android.content.Context;
 import android.webkit.URLUtil;
 
-
+/**
+ * This class is the entry point into this client API for work with low level putEvent() and putEvents() methods.
+ *
+ */
 public class IronSourceAtom {
 
     private String token;
@@ -17,8 +20,8 @@ public class IronSourceAtom {
      * an instance of this class.
      * </p>
      *
-     * @param context
-     * @param auth
+     * @param context current context object
+     * @param auth pre shared auth key for Atom cluster
      */
 
     protected IronSourceAtom(Context context, String auth) {
@@ -60,8 +63,8 @@ public class IronSourceAtom {
     }
 
     /**
-     *
-     * @param url
+     * Set custom endpoint to send reports
+     * @param url custom publisher destination url.
      */
     public void setEndPoint(String url) {
         if (URLUtil.isValidUrl(url)){
