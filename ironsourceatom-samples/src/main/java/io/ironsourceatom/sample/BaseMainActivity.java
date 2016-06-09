@@ -48,7 +48,7 @@ public class BaseMainActivity extends Activity {
 
         JSONObject params = new JSONObject();
         switch (id) {
-            case R.id.btnPutEventPost:
+            case R.id.putEventPost:
                 try {
                     params.put("action", "track");
                     params.put("id", "" + (int) (100 * Math.random()));
@@ -58,7 +58,7 @@ public class BaseMainActivity extends Activity {
                 atom.putEvent(STREAM, params.toString());
                 break;
 
-            case R.id.btnPutEventsBulk:
+            case R.id.putEventsBulk:
                 Gson gson= new Gson();
                 List<ExampleData> bulkList= new ArrayList<>();
                 ExampleData data1=new ExampleData(1, "first message");
@@ -67,7 +67,6 @@ public class BaseMainActivity extends Activity {
                 bulkList.add(data1);
                 bulkList.add(data2);
                 bulkList.add(data3);
-                System.out.println(gson.toJson(bulkList).toString());
                 atom.putEvents(STREAM, gson.toJson(bulkList).toString());
                 break;
             case R.id.btnTrackReport:

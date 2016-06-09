@@ -8,17 +8,19 @@
     android:paddingTop="@dimen/activity_vertical_margin">
 
     <Button
+        android:id="@+id/putEventPost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Send one event by POST"
-        android:id="@+id/btnPutEventPost"
+        android:onClick="sendReport"
         android:layout_marginTop="8dp" />
 
     <Button
+        android:id="@+id/putEventsBulk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Send array of events"
-        android:id="@+id/btnPutEventsBulk"
+        android:onClick="sendReport"
         android:layout_marginTop="8dp" />
 
     <Button

@@ -19,16 +19,14 @@ public class SimpleReportHandler {
 
 
     private static final String TAG = "SimpleReportHandler";
-    private NetworkManager networkManager;
     private RemoteService client;
-    private IsaConfig config;
     private String endpoint;
     private boolean bulk;
 
     public SimpleReportHandler(Context context) {
     this.client = getClient();
-    this.config = getConfig(context);
-    this.networkManager = getNetManager(context);
+
+
 }
 
 
@@ -87,7 +85,7 @@ public class SimpleReportHandler {
             try {
                 RemoteService.Response response = new RemoteService.Response();
 
-                        response=client.post(data, url);
+                response=client.post(data, url);
 
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
@@ -104,24 +102,12 @@ public class SimpleReportHandler {
         }
     }
 
-    /**
-     * Test if the handler can use the network.
-     * @return
-     */
-    private boolean canUseNetwork() {
-        if ((config.getAllowedNetworkTypes() & networkManager.getNetworkIBType()) == 0) {
-            return false;
-        }
-        return config.isAllowedOverRoaming() || !networkManager.isDataRoamingEnabled();
-    }
 
     /**
      * For testing purpose. to allow mocking this behavior.
      */
     protected RemoteService getClient() { return HttpClient.getInstance(); }
-    protected IsaConfig getConfig(Context context) { return IsaConfig.getInstance(context); }
-    protected StorageService getStorage(Context context) { return DbAdapter.getInstance(context); }
-    protected NetworkManager getNetManager(Context context) { return NetworkManager.getInstance(context); }
+
 
 
 }
