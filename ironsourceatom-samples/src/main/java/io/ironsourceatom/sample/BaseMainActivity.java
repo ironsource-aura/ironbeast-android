@@ -39,8 +39,8 @@ public class BaseMainActivity extends Activity {
         String url = "https://track.atom-data.io/";
 
         //Configure sender to use methods putEvent() or putEvents()
-        IronSourceAtom sender = ironSourceAtomFactory.newAtom("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
-        sender.setEndPoint(url);
+        IronSourceAtom atom = ironSourceAtomFactory.newAtom("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
+        atom.setEndPoint(url);
 
         //Configure tracker
         IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("YOUR_API_TOKEN");
@@ -55,7 +55,7 @@ public class BaseMainActivity extends Activity {
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                sender.putEvent(STREAM, params.toString());
+                atom.putEvent(STREAM, params.toString());
                 break;
 
             case R.id.btnPutEventsBulk:
@@ -68,7 +68,7 @@ public class BaseMainActivity extends Activity {
                 bulkList.add(data2);
                 bulkList.add(data3);
                 System.out.println(gson.toJson(bulkList).toString());
-                sender.putEvents(STREAM, gson.toJson(bulkList).toString());
+                atom.putEvents(STREAM, gson.toJson(bulkList).toString());
                 break;
             case R.id.btnTrackReport:
                 try {

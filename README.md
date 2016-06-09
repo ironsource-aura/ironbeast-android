@@ -13,58 +13,20 @@ Currently, there is one way to integrate. soon, it will be available on jcenter 
 
 1. Add the SDK jar into libs directory.
 
-2. Add the following lines to AndroidManifest.xml
-```java
-        <service android:name="io.ironsourceatom.sdk.ReportService" />
-        <service android:name="io.ironsourceatom.sdk.SimpleReportService" />
-```
-3. Add dependency to app/build.gradle
+2. Add dependency to app/build.gradle
 ```java
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 ```
-###Getting Started
+###Tracker usage
+
+ Add the following lines to AndroidManifest.xml
+```java
+        <service android:name="io.ironsourceatom.sdk.ReportService" />
+```
 
 Add IronSourceAtom to your main activity. For example:
-```java
-...
-import io.ironsourceatom.sdk.HttpMethod;
-import io.ironsourceatom.sdk.IronSourceAtom;
-import io.ironsourceatom.sdk.IronSourceAtomEventSender;
-
-public class BaseMainActivity extends Activity {
-    private IronSourceAtom ironSourceAtom;
-    private final String STREAM="YOUR_IRONSOURCEATOM_STREAM_NAME";
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_v2);
-
-        // Create and config IronSourceAtom instance
-        ironSourceAtom = IronSourceAtom.getInstance(this);
-        ironSourceAtom.setAllowedNetworkTypes(IronSourceAtom.NETWORK_MOBILE | IronSourceAtom.NETWORK_WIFI);
-        ironSourceAtom.setAllowedOverRoaming(true);
-        
-         String url = "https://track.atom-data.io/";
-         IronSourceAtomEventSender sender = ironSourceAtom.newSender("YOUR_AUTH_KEY");
-         sender.setEndPoint(url);
-         
-         JSONObject params = new JSONObject();
-         
-         try {
-               params.put("action", "Action 1");
-               params.put("id", "1");
-              } catch (JSONException e) {
-                 Log.d("TAG", "Failed to put your json");
-              }
-           sender.sendEvent(STREAM, params.toString());
-                
-    }
-```
-Make sure you have replaced "YOUR_AUTH_KEY with your IronSourceAtom auth key, and "YOUR_IRONSOURCEATOM_STREAM_NAME" to the desired destination (e.g: “cluster.schema.table”)
-### Events traker usage
-You can use event tracker as shown below
 ```java
 ...
 import io.ironsourceatom.sdk.HttpMethod;
@@ -95,7 +57,44 @@ public class BaseMainActivity extends Activity {
         
     }
 ```
+You can also use low level api to simple send single event with method putEvent() or array of events with method putEvents() as shown below.
+This methods start new service and execute httpPost to the pipeline in it.
+```java
+        <service android:name="io.ironsourceatom.sdk.SimpleReportService" />
+```
+```java
+...
+import io.ironsourceatom.sdk.IronSourceAtomFactory;
+import io.ironsourceatom.sdk.IronSourceAtom;
 
+public class BaseMainActivity extends Activity {
+    private IronSourceAtomFactory ironSourceAtomFactory;
+    private final String STREAM="YOUR_IRONSOURCEATOM_STREAM_NAME";
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        .....
+
+        // Create and config IronSourceAtom instance
+        ironSourceAtomFactory = IronSourceAtomFactory.getInstance(this);
+         String url = "https://track.atom-data.io/";
+         IronSourceAtom atom = ironSourceAtomFactory.newAtom("YOUR_AUTH_KEY"");
+        atom.setEndPoint(url);
+         
+         JSONObject params = new JSONObject();
+         
+         try {
+               params.put("action", "Action 1");
+               params.put("id", "1");
+              } catch (JSONException e) {
+                 Log.d("TAG", "Failed to put your json");
+              }
+           atom.putEvent(STREAM, params.toString());
+                
+    }
+```
+Make sure you have replaced "YOUR_AUTH_KEY with your IronSourceAtom auth key, and "YOUR_IRONSOURCEATOM_STREAM_NAME" to the desired destination (e.g: “cluster.schema.table”)
 
 ### Example
 

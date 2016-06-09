@@ -58,21 +58,22 @@ android {
             buildConfigField(STRING, "DEFAULT_URL", '"http://sdk.ironsourceatom.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://sdk.ironsourceatom.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", FALSE)
-            testCoverageEnabled = false
+            testCoverageEnabled = true
 
         }
         debug {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
-            testCoverageEnabled = false
+
+
 
         }
         debugGoogleEmulator {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
-            testCoverageEnabled = false
+
 
         }
 
@@ -80,7 +81,7 @@ android {
             buildConfigField(STRING, "DEFAULT_URL", '"http://track.atom-data.io"')
             buildConfigField(STRING, "DEFAULT_BULK_URL", '"http://track.atom-data.io/bulk"')
             buildConfigField(BOOLEAN, "IS_SUPER_DEV_MODE", TRUE)
-            testCoverageEnabled = false
+
 
         }
 
@@ -114,7 +115,7 @@ android {
 
 task clearJar(type: Delete) {
     delete "../output/${archivesBaseName}-${version}.jar"
-    delete "../output/${archivesBaseName}${version}_debug.jar"
+    delete "../output/${archivesBaseName}-${version}_debug.jar"
 }
 
 
@@ -128,7 +129,7 @@ task makeDebugJar(type: Copy) {
     from('build/intermediates/bundles/debug/')
     into('../output/')
     include('classes.jar')
-    rename ('classes.jar', "${archivesBaseName}_v${version}_debug.jar")
+    rename ('classes.jar', "${archivesBaseName}-${version}_debug.jar")
 }
 
 
