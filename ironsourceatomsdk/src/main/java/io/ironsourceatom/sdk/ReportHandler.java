@@ -131,7 +131,7 @@ class ReportHandler {
     }
 
     /**
-     * Prepare the giving object before sending it to IronSourceAtomFactory(Do auth, etc..)
+     * Prepare the giving object before sending it to IronSourceAtom(Do auth, etc..)
      * @param obj  - the given event to working on.
      * @param bulk - indicate if it need to add a bulk field.
      * @return

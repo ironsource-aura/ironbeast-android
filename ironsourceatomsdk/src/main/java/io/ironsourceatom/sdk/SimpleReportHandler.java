@@ -3,6 +3,7 @@ package io.ironsourceatom.sdk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -28,8 +29,10 @@ public class SimpleReportHandler {
 
 
 }
-
-
+    /**
+     * handleReport responsible to handle the given SimpleReportIntent
+     * @param intent
+     */
     public synchronized void handleReport(Intent intent) {
 
         try {
@@ -58,6 +61,12 @@ public class SimpleReportHandler {
         }
     }
 
+    /**
+     * Prepare the giving object before sending it to IronSourceAtom(Do auth, etc..)
+     * @param obj  - the given event to working on.
+     * @param bulk - indicate if it need to add a bulk field.
+     * @return
+     */
     private String createMessage(JSONObject obj, boolean bulk) {
         String message = "";
         try {
@@ -89,13 +98,16 @@ public class SimpleReportHandler {
 
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
+                    Log.d("Response: ",""+response.code);
                 }
                 if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
                         response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
+                    Log.d("Response: ",""+response.code);
                 }
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                 Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
+
             } catch (IOException e) {
                 Logger.log(TAG, "Service IronSourceAtomFactory is unavailable: " + e, Logger.SDK_DEBUG);
             }
