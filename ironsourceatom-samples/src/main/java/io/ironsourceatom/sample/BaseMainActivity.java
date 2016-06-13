@@ -20,7 +20,8 @@ import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     private IronSourceAtomFactory ironSourceAtomFactory;
-    private final String STREAM="foremploy_analytics.public.atomdata";
+    private final String STREAM="sdkdev_sdkdev.public.atomtestkeyone";
+    static int i;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,27 +31,28 @@ public class BaseMainActivity extends Activity {
         ironSourceAtomFactory = IronSourceAtomFactory.getInstance(this);
         ironSourceAtomFactory.enableErrorReporting();
         ironSourceAtomFactory.setBulkSize(2);
+        ironSourceAtomFactory.setFlushInterval(1000);
         ironSourceAtomFactory.setAllowedNetworkTypes(IronSourceAtomFactory.NETWORK_MOBILE | IronSourceAtomFactory.NETWORK_WIFI);
         ironSourceAtomFactory.setAllowedOverRoaming(true);
     }
 
     public void sendReport(View v) {
         int id = v.getId();
-        String url = "https://track.atom-data.io/";
+        String url = "http://track.atom-data.io/";
 
         //Configure sender to use methods putEvent() or putEvents()
-        IronSourceAtom atom = ironSourceAtomFactory.newAtom("3tCP2pIzNW9EYxMdkbyR8TNI75kcpe");
+        IronSourceAtom atom = ironSourceAtomFactory.newAtom("I40iwPPOsG3dfWX30labriCg9HqMfL");
         atom.setEndPoint(url);
 
         //Configure tracker
-        IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("YOUR_API_TOKEN");
+        IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("I40iwPPOsG3dfWX30labriCg9HqMfL");
         tracker.setISAEndPoint(url);
 
         JSONObject params = new JSONObject();
         switch (id) {
             case R.id.putEventPost:
                 try {
-                    params.put("action", "track");
+                    params.put("message", "track");
                     params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
@@ -71,22 +73,22 @@ public class BaseMainActivity extends Activity {
                 break;
             case R.id.btnTrackReport:
                 try {
-                    params.put("action", "track");
-                    params.put("id", "" + (int) (100 * Math.random()));
+                    params.put("message", "track");
+                    params.put("id", "" + i++);
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
-                tracker.track("STREAM", params);
+                tracker.track(STREAM, params);
                 break;
             case R.id.btnPostReport:
                 try {
-                    params.put("action", "post");
+                    params.put("message", "post");
                     params.put("id", "" + (int) (100 * Math.random()));
                 } catch (JSONException e) {
                     Log.d("TAG", "Failed to track your json");
                 }
                 // Will send this event immediately
-                tracker.track("STREAM", params, true);
+                tracker.track(STREAM, params, true);
                 break;
             case R.id.btnFlushReports:
                 tracker.flush();

@@ -98,12 +98,10 @@ public class SimpleReportHandler {
 
                 if (response.code == HttpURLConnection.HTTP_OK) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
-                    Log.d("Response: ",""+response.code);
                 }
                 if (response.code >= HttpURLConnection.HTTP_BAD_REQUEST &&
                         response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
                     Logger.log(TAG, "Status: " + response.code, Logger.SDK_DEBUG);
-                    Log.d("Response: ",""+response.code);
                 }
             } catch (SocketTimeoutException | UnknownHostException | SocketException e) {
                 Logger.log(TAG, "Connectivity error: " + e, Logger.SDK_DEBUG);
