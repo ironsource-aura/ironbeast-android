@@ -125,8 +125,8 @@ class DbAdapter implements StorageService {
         List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s=? ORDER BY ? ASC LIMIT ?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
+            c = db.rawQuery("SELECT * FROM ? WHERE ?=? ORDER BY ? ASC LIMIT ?",
+                     new String[]{REPORTS_TABLE, KEY_TABLE, table.name, KEY_CREATED_AT, String.valueOf(limit)});
             events = new ArrayList<>();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -157,7 +157,7 @@ class DbAdapter implements StorageService {
         List<Table> tables = new ArrayList<>();
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery(String.format("SELECT * FROM %s", TABLES_TABLE), null);
+            c = db.rawQuery("SELECT * FROM ?", new String[]{TABLES_TABLE});
             while (c.moveToNext()) {
                 String name = c.getString(c.getColumnIndex(KEY_TABLE));
                 String token = c.getString(c.getColumnIndex(KEY_TOKEN));
