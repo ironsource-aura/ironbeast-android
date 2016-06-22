@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 
 class DbAdapter implements StorageService {
 
@@ -56,10 +57,13 @@ class DbAdapter implements StorageService {
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
-            c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
-            c.moveToFirst();
-            if ((n = c.getInt(0)) == 1) {
+            SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM ? WHERE ?=?");
+            stmt.bindString(1, REPORTS_TABLE);
+            stmt.bindString(2, KEY_TABLE);
+            stmt.bindString(3, table.name);
+            n=(int)stmt.simpleQueryForLong();
+
+            if (n == 1) {
                 cv = new ContentValues();
                 cv.put(KEY_TABLE, table.name);
                 cv.put(KEY_TOKEN, table.token);
@@ -83,22 +87,26 @@ class DbAdapter implements StorageService {
      */
     public int count(Table table) {
         int n = 0;
-        Cursor c = null;
         SQLiteDatabase db = null;
         try {
             db = mDb.getReadableDatabase();
-            String qs = "SELECT COUNT(*) FROM " + REPORTS_TABLE;
+
+            String qs = "SELECT COUNT(*) FROM ?";
             if (table != null) {
-                qs += String.format(" WHERE %s = '%s'", KEY_TABLE, table.name);
+                qs += " WHERE ? = ?";
             }
-            c = db.rawQuery(qs, null);
-            c.moveToFirst();
-            n = c.getInt(0);
+            SQLiteStatement stmt = db.compileStatement(qs);
+            stmt.bindString(1, REPORTS_TABLE);
+
+            if (table != null) {
+                stmt.bindString(2, KEY_TABLE);
+                stmt.bindString(3, table.name);
+            }
+            n = (int)stmt.simpleQueryForLong();
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to count records in table: " + table.name, Logger.SDK_DEBUG);
             mDb.delete();
         } finally {
-            if (null != c) c.close();
             if (null != db) db.close();
         }
         return n;
@@ -212,12 +220,19 @@ class DbAdapter implements StorageService {
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
             final String id = REPORTS_TABLE + "_id";
-            String qs = "DELETE FROM " + REPORTS_TABLE +
-                    " WHERE " + id + " IN (SELECT " + id +
-                    " FROM " + REPORTS_TABLE +
-                    " ORDER BY "+ KEY_CREATED_AT + " ASC" +
-                    " LIMIT " + limit + ")";
-            db.execSQL(qs);
+            SQLiteStatement stmt = db.compileStatement("DELETE FROM ?"+
+                    " WHERE ? IN (SELECT ?"+
+                    " FROM ?"+
+                    " ORDER BY ? "+ " ASC" +
+                    " LIMIT ? );");
+            stmt.bindString(1, REPORTS_TABLE);
+            stmt.bindString(2, id);
+            stmt.bindString(3, id);
+            stmt.bindString(4, REPORTS_TABLE);
+            stmt.bindString(5, KEY_CREATED_AT);
+            stmt.bindDouble(6, limit);
+            stmt.execute();
+
             db.execSQL("VACUUM");
         } catch (SQLiteException e) {
             Logger.log(TAG, "Failed to shrink and vacuum db:" + e, Logger.SDK_DEBUG);
@@ -273,14 +288,30 @@ class DbAdapter implements StorageService {
         @Override
         public void onCreate(SQLiteDatabase db) {
             Logger.log(TAG, "Creating the IronBeastSdk database", Logger.SDK_DEBUG);
-            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "%s STRING NOT NULL, %s STRING NOT NULL, %s INTEGER NOT NULL);",
-                    REPORTS_TABLE, REPORTS_TABLE, KEY_DATA, KEY_TABLE, KEY_CREATED_AT));
-            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "%s STRING NOT NULL UNIQUE, %s STRING NOT NULL);",
-                    TABLES_TABLE, TABLES_TABLE, KEY_TABLE, KEY_TOKEN));
-            db.execSQL(String.format("CREATE INDEX IF NOT EXISTS time_idx ON %s (%s);",
-                    REPORTS_TABLE, KEY_CREATED_AT));
+
+            SQLiteStatement stmt = db.compileStatement("CREATE TABLE ? (?_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "? STRING NOT NULL, ? STRING NOT NULL, ? INTEGER NOT NULL);");
+            stmt.bindString(1, REPORTS_TABLE);
+            stmt.bindString(2, REPORTS_TABLE);
+            stmt.bindString(3, KEY_DATA);
+            stmt.bindString(4, KEY_TABLE);
+            stmt.bindString(5, KEY_CREATED_AT);
+            stmt.execute();
+
+            SQLiteStatement stmt1 = db.compileStatement("CREATE TABLE ? (?_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "? STRING NOT NULL UNIQUE, ? STRING NOT NULL);");
+            stmt1.bindString(1, TABLES_TABLE);
+            stmt1.bindString(2, TABLES_TABLE);
+            stmt1.bindString(3, KEY_TABLE);
+            stmt1.bindString(4,  KEY_TOKEN);
+            stmt1.execute();
+
+
+            SQLiteStatement stmt2 = db.compileStatement("CREATE INDEX IF NOT EXISTS time_idx ON ? (?);");
+            stmt2.bindString(1, REPORTS_TABLE);
+            stmt2.bindString(2, KEY_CREATED_AT);
+            stmt2.execute();
+
         }
 
         /**
@@ -292,8 +323,14 @@ class DbAdapter implements StorageService {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion != newVersion) {
                 Logger.log(TAG, "Upgrading the IronBeastSdk database", Logger.SDK_DEBUG);
-                db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
-                db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
+                SQLiteStatement stmt = db.compileStatement("DROP TABLE IF EXISTS ?");
+                stmt.bindString(1, TABLES_TABLE);
+                stmt.execute();
+
+                SQLiteStatement stmt1 = db.compileStatement("DROP TABLE IF EXISTS ?");
+                stmt1.bindString(1, REPORTS_TABLE);
+                stmt1.execute();
+
                 onCreate(db);
             }
         }
