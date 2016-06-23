@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteStatement;
 import android.test.mock.MockContext;
 
 import org.junit.Before;
@@ -56,21 +57,21 @@ public class DbAdapterTest {
     // and make sure it close the db connection and the cursor too.
     @Test
     public void countSuccess() {
-        Cursor cursor = mock(Cursor.class);
+        SQLiteStatement stmt = mock(SQLiteStatement.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
-        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-        when(cursor.getInt(0)).thenReturn(10);
+        when(db.compileStatement(anyString())).thenReturn(stmt);
+        when(stmt.simpleQueryForLong()).thenReturn(10L);
         when(handler.getReadableDatabase()).thenReturn(db);
         assertEquals(adapter.count(table), 10);
-        verify(cursor, times(1)).close();
         verify(db, times(1)).close();
     }
 
     // When Adapter encounter SQLiteException it'll return 0 and discard the database
     @Test
     public void countFailed() {
+        SQLiteStatement stmt = mock(SQLiteStatement.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
-        when(db.rawQuery(anyString(), any(String[].class))).thenThrow(new SQLiteException());
+        when(db.compileStatement(anyString())).thenThrow(new SQLiteException());
         when(handler.getReadableDatabase()).thenReturn(db);
         assertEquals(adapter.count(table), 0);
         verify(db, times(1)).close();
@@ -133,11 +134,11 @@ public class DbAdapterTest {
     // related to the given `Table`
     @Test
     public void addEvent1() {
-        Cursor cursor = mock(Cursor.class);
-        when(cursor.getInt(0)).thenReturn(29);
+        SQLiteStatement stmt = mock(SQLiteStatement.class);
+        when(stmt.simpleQueryForLong()).thenReturn(29L);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(handler.getWritableDatabase()).thenReturn(db);
-        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(db.compileStatement(anyString())).thenReturn(stmt);
         assertEquals(adapter.addEvent(table, "foo bar"), 29);
         verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
                 any(ContentValues.class));
@@ -146,11 +147,11 @@ public class DbAdapterTest {
     // When `addEvent()` trigger table creation
     @Test
     public void addEvent2() {
-        Cursor cursor = mock(Cursor.class);
-        when(cursor.getInt(0)).thenReturn(1);
+        SQLiteStatement stmt = mock(SQLiteStatement.class);
+        when(stmt.simpleQueryForLong()).thenReturn(1L);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         when(handler.getWritableDatabase()).thenReturn(db);
-        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(db.compileStatement(anyString())).thenReturn(stmt);
         adapter.addEvent(table, "foo bar");
         verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
                 any(ContentValues.class));
