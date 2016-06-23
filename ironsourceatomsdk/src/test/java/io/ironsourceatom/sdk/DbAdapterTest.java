@@ -54,109 +54,109 @@ public class DbAdapterTest {
 
     // If everything goes well, it should return the number if rows
     // and make sure it close the db connection and the cursor too.
-//    @Test
-//    public void countSuccess() {
-//        Cursor cursor = mock(Cursor.class);
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-//        when(cursor.getInt(0)).thenReturn(10);
-//        when(handler.getReadableDatabase()).thenReturn(db);
-//        assertEquals(adapter.count(table), 10);
-//        verify(cursor, times(1)).close();
-//        verify(db, times(1)).close();
-//    }
-//
-//    // When Adapter encounter SQLiteException it'll return 0 and discard the database
-//    @Test
-//    public void countFailed() {
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenThrow(new SQLiteException());
-//        when(handler.getReadableDatabase()).thenReturn(db);
-//        assertEquals(adapter.count(table), 0);
-//        verify(db, times(1)).close();
-//        verify(handler, times(1)).delete();
-//    }
-//
-//    @Test
-//    public void getTables() {
-//        Cursor cursor = mock(Cursor.class);
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-//        when(handler.getReadableDatabase()).thenReturn(db);
-//        // 3 iterations
-//        when(cursor.moveToNext()).thenReturn(true, true, true, false);
-//        when(cursor.getString(anyInt())).thenReturn("table1", "token1", "table2", "token2", "table3", "token3");
-//        List<Table> tables = adapter.getTables();
-//        assertEquals(tables.size(), 3);
-//        int i = 1;
-//        for (Table table : tables) {
-//            assertEquals(table.name, "table" + i);
-//            assertEquals(table.token, "token" + i++);
-//        }
-//        verify(cursor, times(1)).close();
-//        verify(handler, times(1)).close();
-//    }
-//
-//    @Test
-//    public void deleteTable() {
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(handler.getWritableDatabase()).thenReturn(db);
-//        adapter.deleteTable(table);
-//        verify(db, times(1)).delete(eq(DbAdapter.TABLES_TABLE), anyString(), any(String[].class));
-//    }
-//
-//    @Test
-//    public void getEvents() {
-//        Cursor cursor = mock(Cursor.class);
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-//        when(handler.getReadableDatabase()).thenReturn(db);
-//        // 2 iterations
-//        when(cursor.moveToNext()).thenReturn(true, true, false);
-//        when(cursor.isLast()).thenReturn(false, true);
-//        // DATA, ID, DATA
-//        when(cursor.getString(anyInt())).thenReturn("foo", "2", "bar");
-//        Batch batch = adapter.getEvents(table, 1);
-//        assertEquals(batch.events.toString(), "[foo, bar]");
-//        assertEquals(batch.lastId, "2");
-//    }
-//
-//    @Test
-//    public void deleteEvents() {
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(handler.getWritableDatabase()).thenReturn(db);
-//        adapter.deleteEvents(table, "100");
-//        verify(db, times(1)).delete(eq(DbAdapter.REPORTS_TABLE), anyString(), any(String[].class));
-//    }
-//
-//    // Should addEvent to REPORTS_TABLE and return the number of rows
-//    // related to the given `Table`
-//    @Test
-//    public void addEvent1() {
-//        Cursor cursor = mock(Cursor.class);
-//        when(cursor.getInt(0)).thenReturn(29);
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(handler.getWritableDatabase()).thenReturn(db);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-//        assertEquals(adapter.addEvent(table, "foo bar"), 29);
-//        verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
-//                any(ContentValues.class));
-//    }
-//
-//    // When `addEvent()` trigger table creation
-//    @Test
-//    public void addEvent2() {
-//        Cursor cursor = mock(Cursor.class);
-//        when(cursor.getInt(0)).thenReturn(1);
-//        SQLiteDatabase db = mock(SQLiteDatabase.class);
-//        when(handler.getWritableDatabase()).thenReturn(db);
-//        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
-//        adapter.addEvent(table, "foo bar");
-//        verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
-//                any(ContentValues.class));
-//        verify(db, times(1)).insertWithOnConflict(eq(DbAdapter.TABLES_TABLE),
-//                isNull(String.class), any(ContentValues.class), eq(SQLiteDatabase.CONFLICT_IGNORE));
-//    }
+    @Test
+    public void countSuccess() {
+        Cursor cursor = mock(Cursor.class);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(cursor.getInt(0)).thenReturn(10);
+        when(handler.getReadableDatabase()).thenReturn(db);
+        assertEquals(adapter.count(table), 10);
+        verify(cursor, times(1)).close();
+        verify(db, times(1)).close();
+    }
+
+    // When Adapter encounter SQLiteException it'll return 0 and discard the database
+    @Test
+    public void countFailed() {
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(db.rawQuery(anyString(), any(String[].class))).thenThrow(new SQLiteException());
+        when(handler.getReadableDatabase()).thenReturn(db);
+        assertEquals(adapter.count(table), 0);
+        verify(db, times(1)).close();
+        verify(handler, times(1)).delete();
+    }
+
+    @Test
+    public void getTables() {
+        Cursor cursor = mock(Cursor.class);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(handler.getReadableDatabase()).thenReturn(db);
+        // 3 iterations
+        when(cursor.moveToNext()).thenReturn(true, true, true, false);
+        when(cursor.getString(anyInt())).thenReturn("table1", "token1", "table2", "token2", "table3", "token3");
+        List<Table> tables = adapter.getTables();
+        assertEquals(tables.size(), 3);
+        int i = 1;
+        for (Table table : tables) {
+            assertEquals(table.name, "table" + i);
+            assertEquals(table.token, "token" + i++);
+        }
+        verify(cursor, times(1)).close();
+        verify(handler, times(1)).close();
+    }
+
+    @Test
+    public void deleteTable() {
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(handler.getWritableDatabase()).thenReturn(db);
+        adapter.deleteTable(table);
+        verify(db, times(1)).delete(eq(DbAdapter.TABLES_TABLE), anyString(), any(String[].class));
+    }
+
+    @Test
+    public void getEvents() {
+        Cursor cursor = mock(Cursor.class);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(handler.getReadableDatabase()).thenReturn(db);
+        // 2 iterations
+        when(cursor.moveToNext()).thenReturn(true, true, false);
+        when(cursor.isLast()).thenReturn(false, true);
+        // DATA, ID, DATA
+        when(cursor.getString(anyInt())).thenReturn("foo", "2", "bar");
+        Batch batch = adapter.getEvents(table, 1);
+        assertEquals(batch.events.toString(), "[foo, bar]");
+        assertEquals(batch.lastId, "2");
+    }
+
+    @Test
+    public void deleteEvents() {
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(handler.getWritableDatabase()).thenReturn(db);
+        adapter.deleteEvents(table, "100");
+        verify(db, times(1)).delete(eq(DbAdapter.REPORTS_TABLE), anyString(), any(String[].class));
+    }
+
+    // Should addEvent to REPORTS_TABLE and return the number of rows
+    // related to the given `Table`
+    @Test
+    public void addEvent1() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.getInt(0)).thenReturn(29);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(handler.getWritableDatabase()).thenReturn(db);
+        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        assertEquals(adapter.addEvent(table, "foo bar"), 29);
+        verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
+                any(ContentValues.class));
+    }
+
+    // When `addEvent()` trigger table creation
+    @Test
+    public void addEvent2() {
+        Cursor cursor = mock(Cursor.class);
+        when(cursor.getInt(0)).thenReturn(1);
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(handler.getWritableDatabase()).thenReturn(db);
+        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        adapter.addEvent(table, "foo bar");
+        verify(db, times(1)).insert(eq(DbAdapter.REPORTS_TABLE), isNull(String.class),
+                any(ContentValues.class));
+        verify(db, times(1)).insertWithOnConflict(eq(DbAdapter.TABLES_TABLE),
+                isNull(String.class), any(ContentValues.class), eq(SQLiteDatabase.CONFLICT_IGNORE));
+    }
 
     @Test
     public void getInstanceTest() {
