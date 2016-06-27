@@ -20,7 +20,7 @@ import io.ironsourceatom.sdk.IronSourceAtomTracker;
 
 public class BaseMainActivity extends Activity {
     private IronSourceAtomFactory ironSourceAtomFactory;
-    private final String STREAM="sdkdev_sdkdev.public.atomtestkeyone";
+    private final String STREAM="ibtest";
     static int i;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class BaseMainActivity extends Activity {
         // Create and config IronSourceAtomFactory instance
         ironSourceAtomFactory = IronSourceAtomFactory.getInstance(this);
         ironSourceAtomFactory.enableErrorReporting();
-        ironSourceAtomFactory.setBulkSize(2);
+        ironSourceAtomFactory.setBulkSize(5);
         ironSourceAtomFactory.setFlushInterval(1000);
         ironSourceAtomFactory.setAllowedNetworkTypes(IronSourceAtomFactory.NETWORK_MOBILE | IronSourceAtomFactory.NETWORK_WIFI);
         ironSourceAtomFactory.setAllowedOverRoaming(true);
@@ -41,11 +41,11 @@ public class BaseMainActivity extends Activity {
         String url = "http://track.atom-data.io/";
 
         //Configure sender to use methods putEvent() or putEvents()
-        IronSourceAtom atom = ironSourceAtomFactory.newAtom("I40iwPPOsG3dfWX30labriCg9HqMfL");
+        IronSourceAtom atom = ironSourceAtomFactory.newAtom("");
         atom.setEndPoint(url);
 
         //Configure tracker
-        IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("I40iwPPOsG3dfWX30labriCg9HqMfL");
+        IronSourceAtomTracker tracker = ironSourceAtomFactory.newTracker("");
         tracker.setISAEndPoint(url);
 
         JSONObject params = new JSONObject();

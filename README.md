@@ -118,7 +118,7 @@ You can use our [example][example-url] for sending data to Atom:
 ### License
 MIT
 
-[example-url]: https://github.com/ironSource/ironbeast-android/tree/master/ironbeast-samples
+[example-url]: https://github.com/ironSource/atom-android/tree/master/ironsourceatom-samples
 [example]: https://cloud.githubusercontent.com/assets/19428452/15633715/2f12d29e-25bd-11e6-88bc-22649390fff5.png "example"
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [license-url]: LICENSE
