@@ -217,8 +217,8 @@ class DbAdapter implements StorageService {
                     " WHERE " + id + " IN (SELECT " + id +
                     " FROM " + REPORTS_TABLE +
                     " ORDER BY "+ KEY_CREATED_AT + " ASC" +
-                    " LIMIT " + limit + ")";
-            db.execSQL(qs);
+                    " LIMIT ? )";
+            db.rawQuery(qs, new String[]{String.valueOf(limit)});
             db.execSQL("VACUUM");
         } catch (SQLiteException e) {
             Logger.log(TAG, "Failed to shrink and vacuum db:" + e, Logger.SDK_DEBUG);
