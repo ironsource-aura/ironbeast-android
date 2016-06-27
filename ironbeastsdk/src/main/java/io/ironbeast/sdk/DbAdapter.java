@@ -9,8 +9,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 
 class DbAdapter implements StorageService {
+
+
+
 
     /**
      * Do not call directly. You should use DbAdapter.getInstance()
@@ -46,7 +50,6 @@ class DbAdapter implements StorageService {
             vacuum();
         }
         int n = 0;
-        Cursor c = null;
         try {
             SQLiteDatabase db = mDb.getWritableDatabase();
             ContentValues cv = new ContentValues();
@@ -54,10 +57,11 @@ class DbAdapter implements StorageService {
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
-            c = db.rawQuery(String.format("SELECT COUNT(*) FROM %s WHERE %s=?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name});
-            c.moveToFirst();
-            if ((n = c.getInt(0)) == 1) {
+            SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM "+ REPORTS_TABLE+" WHERE "+KEY_TABLE+"=?");
+            stmt.bindString(1, table.name);
+            n=(int)stmt.simpleQueryForLong();
+
+            if (n  == 1) {
                 cv = new ContentValues();
                 cv.put(KEY_TABLE, table.name);
                 cv.put(KEY_TOKEN, table.token);
@@ -67,7 +71,6 @@ class DbAdapter implements StorageService {
             Logger.log(TAG, "Failed to insert event to 'records' table", Logger.SDK_DEBUG);
             mDb.delete();
         } finally {
-            if (null != c) c.close();
             mDb.close();
         }
         return n;
@@ -81,22 +84,23 @@ class DbAdapter implements StorageService {
      */
     public int count(Table table) {
         int n = 0;
-        Cursor c = null;
         SQLiteDatabase db = null;
         try {
             db = mDb.getReadableDatabase();
             String qs = "SELECT COUNT(*) FROM " + REPORTS_TABLE;
             if (table != null) {
-                qs += String.format(" WHERE %s = '%s'", KEY_TABLE, table.name);
+                qs += " WHERE "+KEY_TABLE+" = ?";
             }
-            c = db.rawQuery(qs, null);
-            c.moveToFirst();
-            n = c.getInt(0);
+            SQLiteStatement stmt = db.compileStatement(qs);
+            if (table != null) {
+                stmt.bindString(1,table.name);
+            }
+
+            n = (int)stmt.simpleQueryForLong();
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to count records in table: " + table.name, Logger.SDK_DEBUG);
             mDb.delete();
         } finally {
-            if (null != c) c.close();
             if (null != db) db.close();
         }
         return n;
@@ -115,8 +119,8 @@ class DbAdapter implements StorageService {
         List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery(String.format("SELECT * FROM %s WHERE %s=? ORDER BY ? ASC LIMIT ?",
-                    REPORTS_TABLE, KEY_TABLE), new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
+            c = db.rawQuery("SELECT * FROM "+REPORTS_TABLE+" WHERE "+KEY_TABLE+"= ? ORDER BY ? ASC LIMIT ?",
+                    new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
             events = new ArrayList<>();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -147,7 +151,7 @@ class DbAdapter implements StorageService {
         List<Table> tables = new ArrayList<>();
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery(String.format("SELECT * FROM %s", TABLES_TABLE), null);
+            c = db.rawQuery("SELECT * FROM "+ TABLES_TABLE, null);
             while (c.moveToNext()) {
                 String name = c.getString(c.getColumnIndex(KEY_TABLE));
                 String token = c.getString(c.getColumnIndex(KEY_TOKEN));
@@ -249,15 +253,19 @@ class DbAdapter implements StorageService {
      * or deleting the database.
      */
     protected static class DatabaseHandler extends SQLiteOpenHelper {
+
+
+        private final File databaseFile;
+        private final IBConfig mConfig;
         DatabaseHandler(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
-            mDatabaseFile = context.getDatabasePath(DATABASE_NAME);
+            databaseFile = context.getDatabasePath(DATABASE_NAME);
             mConfig = IBConfig.getInstance(context);
         }
 
         public void delete() {
             close();
-            mDatabaseFile.delete();
+            databaseFile.delete();
         }
 
         /**
@@ -298,14 +306,12 @@ class DbAdapter implements StorageService {
          * @return
          */
         public boolean belowDatabaseLimit() {
-            if (mDatabaseFile.exists()) {
-                long limit = Math.max(mDatabaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
-                return limit >= mDatabaseFile.length();
+            if (databaseFile.exists()) {
+                long limit = Math.max(databaseFile.getUsableSpace(), mConfig.getMaximumDatabaseLimit());
+                return limit >= databaseFile.length();
             }
             return true;
         }
 
-        private final File mDatabaseFile;
-        private final IBConfig mConfig;
     }
 }
