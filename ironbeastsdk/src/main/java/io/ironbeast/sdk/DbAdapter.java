@@ -120,8 +120,6 @@ class DbAdapter implements StorageService {
         List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-//              c = db.rawQuery("SELECT * FROM "+REPORTS_TABLE+" WHERE "+KEY_TABLE+"= ? ORDER BY ? ASC LIMIT ?",
-//                   new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
             String whereParams=KEY_TABLE+"=?";
             String orderParam = KEY_CREATED_AT+" ASC";
             c = db.query(REPORTS_TABLE, null, whereParams, new String[]{table.name}, null, null, orderParam, String.valueOf(limit));
