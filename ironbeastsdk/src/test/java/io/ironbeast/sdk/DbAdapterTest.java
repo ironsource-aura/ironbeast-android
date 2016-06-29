@@ -81,7 +81,9 @@ public class DbAdapterTest {
     public void getTables() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
-        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(db.query(anyString(), any(String[].class), anyString(),
+                any(String[].class), anyString(),anyString(),
+                anyString())).thenReturn(cursor);
         when(handler.getReadableDatabase()).thenReturn(db);
         // 3 iterations
         when(cursor.moveToNext()).thenReturn(true, true, true, false);
@@ -109,7 +111,9 @@ public class DbAdapterTest {
     public void getEvents() {
         Cursor cursor = mock(Cursor.class);
         SQLiteDatabase db = mock(SQLiteDatabase.class);
-        when(db.rawQuery(anyString(), any(String[].class))).thenReturn(cursor);
+        when(db.query(anyString(), any(String[].class), anyString(),
+                any(String[].class), anyString(),anyString(),
+                anyString(), anyString())).thenReturn(cursor);
         when(handler.getReadableDatabase()).thenReturn(db);
         // 2 iterations
         when(cursor.moveToNext()).thenReturn(true, true, false);

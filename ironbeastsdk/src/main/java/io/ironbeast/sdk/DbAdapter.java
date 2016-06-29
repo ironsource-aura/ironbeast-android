@@ -288,7 +288,7 @@ class DbAdapter implements StorageService {
         public void onCreate(SQLiteDatabase db) {
             Logger.log(TAG, "Creating the IronBeastSdk database", Logger.SDK_DEBUG);
 
-            String reportQuery="CREATE TABLE +"+REPORTS_TABLE +"("+REPORTS_TABLE+"+_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            String reportQuery="CREATE TABLE "+REPORTS_TABLE +" ("+REPORTS_TABLE+"_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     KEY_DATA+" STRING NOT NULL, "+KEY_TABLE+" STRING NOT NULL, "+KEY_CREATED_AT+" INTEGER NOT NULL);";
             SQLiteStatement reportStmt = db.compileStatement(reportQuery);
             reportStmt.execute();
