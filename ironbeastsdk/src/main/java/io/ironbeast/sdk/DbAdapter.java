@@ -57,9 +57,10 @@ class DbAdapter implements StorageService {
             cv.put(KEY_DATA, data);
             cv.put(KEY_CREATED_AT, System.currentTimeMillis());
             db.insert(REPORTS_TABLE, null, cv);
-            SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM "+ REPORTS_TABLE+" WHERE "+KEY_TABLE+"=?");
-            stmt.bindString(1, table.name);
-            n=(int)stmt.simpleQueryForLong();
+            String countQuery="SELECT COUNT(*) FROM "+ REPORTS_TABLE+" WHERE "+KEY_TABLE+"=?";
+            SQLiteStatement countStmt = db.compileStatement(countQuery);
+            countStmt.bindString(1, table.name);
+            n=(int)countStmt.simpleQueryForLong();
 
             if (n  == 1) {
                 cv = new ContentValues();
@@ -119,8 +120,12 @@ class DbAdapter implements StorageService {
         List<String> events = null;
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery("SELECT * FROM "+REPORTS_TABLE+" WHERE "+KEY_TABLE+"= ? ORDER BY ? ASC LIMIT ?",
-                    new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
+//              c = db.rawQuery("SELECT * FROM "+REPORTS_TABLE+" WHERE "+KEY_TABLE+"= ? ORDER BY ? ASC LIMIT ?",
+//                   new String[]{table.name, KEY_CREATED_AT, String.valueOf(limit)});
+            String whereParams=KEY_TABLE+"=?";
+            String orderParam = KEY_CREATED_AT+" ASC";
+            c = db.query(REPORTS_TABLE, null, whereParams, new String[]{table.name}, null, null, orderParam, String.valueOf(limit));
+
             events = new ArrayList<>();
             while (c.moveToNext()) {
                 if (c.isLast()) {
@@ -151,7 +156,7 @@ class DbAdapter implements StorageService {
         List<Table> tables = new ArrayList<>();
         try {
             final SQLiteDatabase db = mDb.getReadableDatabase();
-            c = db.rawQuery("SELECT * FROM "+ TABLES_TABLE, null);
+            c = db.query(TABLES_TABLE, null, null, null, null, null, null);
             while (c.moveToNext()) {
                 String name = c.getString(c.getColumnIndex(KEY_TABLE));
                 String token = c.getString(c.getColumnIndex(KEY_TOKEN));
@@ -177,7 +182,8 @@ class DbAdapter implements StorageService {
         int n = 0;
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
-            n = db.delete(REPORTS_TABLE, String.format("%s=? AND %s_id <= ?", KEY_TABLE, REPORTS_TABLE),
+            String deleteParams = KEY_TABLE+"=? AND "+REPORTS_TABLE+"_id <= ?";
+            n = db.delete(REPORTS_TABLE, deleteParams,
                     new String[]{table.name, lastId});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to clean up events from table: " + table.name, Logger.SDK_DEBUG);
@@ -195,7 +201,8 @@ class DbAdapter implements StorageService {
     public void deleteTable(Table table) {
         try {
             final SQLiteDatabase db = mDb.getWritableDatabase();
-            db.delete(TABLES_TABLE, String.format("%s=?", KEY_TABLE), new String[]{table.name});
+            String deleteParams=KEY_TABLE+"=?";
+            db.delete(TABLES_TABLE, deleteParams, new String[]{table.name});
         } catch (final SQLiteException e) {
             Logger.log(TAG, "Failed to delete table:" + table.name, Logger.SDK_DEBUG);
             mDb.delete();
@@ -218,9 +225,14 @@ class DbAdapter implements StorageService {
                     " WHERE " + id + " IN (SELECT " + id +
                     " FROM " + REPORTS_TABLE +
                     " ORDER BY "+ KEY_CREATED_AT + " ASC" +
-                    " LIMIT " + limit + ")";
-            db.execSQL(qs);
-            db.execSQL("VACUUM");
+                    " LIMIT ?)";
+            SQLiteStatement deleteStmt = db.compileStatement(qs);
+            deleteStmt.bindLong(1, limit);
+            deleteStmt.execute();
+
+            SQLiteStatement vacuumStmt = db.compileStatement("VACUUM");
+            vacuumStmt.execute();
+
         } catch (SQLiteException e) {
             Logger.log(TAG, "Failed to shrink and vacuum db:" + e, Logger.SDK_DEBUG);
             mDb.delete();
@@ -275,14 +287,20 @@ class DbAdapter implements StorageService {
         @Override
         public void onCreate(SQLiteDatabase db) {
             Logger.log(TAG, "Creating the IronBeastSdk database", Logger.SDK_DEBUG);
-            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "%s STRING NOT NULL, %s STRING NOT NULL, %s INTEGER NOT NULL);",
-                    REPORTS_TABLE, REPORTS_TABLE, KEY_DATA, KEY_TABLE, KEY_CREATED_AT));
-            db.execSQL(String.format("CREATE TABLE %s (%s_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "%s STRING NOT NULL UNIQUE, %s STRING NOT NULL);",
-                    TABLES_TABLE, TABLES_TABLE, KEY_TABLE, KEY_TOKEN));
-            db.execSQL(String.format("CREATE INDEX IF NOT EXISTS time_idx ON %s (%s);",
-                    REPORTS_TABLE, KEY_CREATED_AT));
+
+            String reportQuery="CREATE TABLE +"+REPORTS_TABLE +"("+REPORTS_TABLE+"+_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    KEY_DATA+" STRING NOT NULL, "+KEY_TABLE+" STRING NOT NULL, "+KEY_CREATED_AT+" INTEGER NOT NULL);";
+            SQLiteStatement reportStmt = db.compileStatement(reportQuery);
+            reportStmt.execute();
+
+            String tableQuery="CREATE TABLE "+TABLES_TABLE+" ("+TABLES_TABLE+"_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    KEY_TABLE+" STRING NOT NULL UNIQUE, "+KEY_TOKEN+" STRING NOT NULL);";
+            SQLiteStatement tableStmt = db.compileStatement(tableQuery);
+            tableStmt.execute();
+
+            String indexQuery="CREATE INDEX IF NOT EXISTS time_idx ON "+REPORTS_TABLE+" ("+KEY_CREATED_AT+");";
+            SQLiteStatement indexStmt = db.compileStatement(indexQuery);
+            indexStmt.execute();
         }
 
         /**
@@ -294,8 +312,15 @@ class DbAdapter implements StorageService {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion != newVersion) {
                 Logger.log(TAG, "Upgrading the IronBeastSdk database", Logger.SDK_DEBUG);
-                db.execSQL("DROP TABLE IF EXISTS " + TABLES_TABLE);
-                db.execSQL("DROP TABLE IF EXISTS " + REPORTS_TABLE);
+
+                String dropTablesQuery = "DROP TABLE IF EXISTS " + TABLES_TABLE;
+                SQLiteStatement dropTablesStmt = db.compileStatement(dropTablesQuery);
+                dropTablesStmt.execute();
+
+                String dropReportsQuery = "DROP TABLE IF EXISTS " + REPORTS_TABLE;
+                SQLiteStatement dropReportsStmt = db.compileStatement(dropReportsQuery);
+                dropReportsStmt.execute();
+
                 onCreate(db);
             }
         }
