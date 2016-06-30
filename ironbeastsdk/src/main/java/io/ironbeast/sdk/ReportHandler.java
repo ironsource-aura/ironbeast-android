@@ -84,8 +84,8 @@ class ReportHandler {
      * First, we peek the batch the fits with the `MaximumRequestLimit`
      * after that we prepare the request and send it.
      * if the send failed, we stop here, and "continue later".
-     * if everything goes-well, we do it recursively until wil drain and
-     * delete the table.
+     * if everything goes-well, we do it recursively until it drains and
+     * deletes the table.
      * @param table
      * @throws Exception
      */
