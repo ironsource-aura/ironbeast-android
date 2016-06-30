@@ -22,14 +22,14 @@ public class BaseMainActivity extends Activity {
         // Create and config IronBeast instance
         ironBeast = IronBeast.getInstance(this);
         ironBeast.enableErrorReporting();
-        ironBeast.setBulkSize(2);
+        ironBeast.setBulkSize(4);
         ironBeast.setAllowedNetworkTypes(IronBeast.NETWORK_MOBILE | IronBeast.NETWORK_WIFI);
         ironBeast.setAllowedOverRoaming(true);
     }
 
     public void sendReport(View v) {
         int id = v.getId();
-        String url = "http://10.2.2:3000";
+        String url = "http://10.0.2.2:3000";
         IronBeastTracker tracker = ironBeast.newTracker("YOUR_API_TOKEN");
         tracker.setIBEndPoint(url);
 
