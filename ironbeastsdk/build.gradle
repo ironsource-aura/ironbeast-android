@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.github.dcendents:android-maven-plugin:1.2'
     }
 }
@@ -19,7 +19,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName "0.1.4"
         project.version = versionName
         project.archivesBaseName = "IronBeastSDK"
     }
