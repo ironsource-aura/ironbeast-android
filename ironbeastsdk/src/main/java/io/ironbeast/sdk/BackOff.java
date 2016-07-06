@@ -31,8 +31,11 @@ class BackOff {
     synchronized long next() {
         long nextTick, curr = currentTimeMillis();
         long lastTick = mSharedPref.load(KEY_LAST_TICK, curr);
+        if (lastTick == LAST_TICK_RESET_VALUE) {
+            lastTick = curr;
+        }
         nextTick = curr + getMills(mRetry);
-        if (curr - lastTick >= 0) {
+        if (curr - lastTick > 0) {
             mSharedPref.save(KEY_RETRY_COUNT, ++mRetry);
         }
         mSharedPref.save(KEY_LAST_TICK, nextTick);
@@ -58,7 +61,7 @@ class BackOff {
     void reset() {
         mRetry = INITIAL_RETRY_VALUE;
         mSharedPref.save(KEY_RETRY_COUNT, mRetry);
-        mSharedPref.save(KEY_LAST_TICK, currentTimeMillis());
+        mSharedPref.save(KEY_LAST_TICK, LAST_TICK_RESET_VALUE);
     }
 
     public boolean hasNext() {
@@ -83,6 +86,7 @@ class BackOff {
     private final String KEY_RETRY_COUNT = "retry_count";
     protected final int MAX_RETRY_COUNT = 8;
     protected final int INITIAL_RETRY_VALUE = 0;
+    protected final int LAST_TICK_RESET_VALUE = -1;
 
     private static BackOff sInstance;
     private static final Object sInstanceLock = new Object();
